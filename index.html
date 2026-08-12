@@ -17,7 +17,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5</div>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5 Step 2</div>
 <div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
@@ -34,11 +34,11 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 <button class="btn primary" onclick="saveCustomer()">Save Customer</button></div></div>
 
 <div class="modal" id="fuelModal"><div class="sheet"><button class="close" onclick="closeM('fuelModal')">×</button><h2>⛽ Fuel Sale</h2>
-<div class="field"><label>Customer</label><select id="fcustomer"></select></div><div class="grid"><div class="field"><label>Fuel</label><select id="fuel"><option>Diesel</option><option>Petrol</option></select></div>
+<div class="field"><label>Customer</label><select id="fcustomer" onchange="checkCredit()"></select></div><div class="grid"><div class="field"><label>Fuel</label><select id="fuel"><option>Diesel</option><option>Petrol</option></select></div>
 <div class="field"><label>Payment</label><select id="pay"><option value="credit">Credit</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option></select></div></div>
-<div class="grid"><div class="field"><label>Quantity (litres)</label><input id="litres" type="number" min="0" step="0.01" oninput="calc()"></div>
-<div class="field"><label>Rate ₹/litre</label><input id="rate" type="number" min="0" step="0.01" oninput="calc()"></div></div>
-<div class="calc">Automatic amount<div class="amount" id="amount">₹0.00</div></div><div class="field"><label>Description</label><input id="desc" placeholder="Diesel credit sale"></div>
+<div class="grid"><div class="field"><label>Quantity (litres)</label><input id="litres" type="number" min="0" step="0.01" oninput="calc();checkCredit()"></div>
+<div class="field"><label>Rate ₹/litre</label><input id="rate" type="number" min="0" step="0.01" oninput="calc();checkCredit()"></div></div>
+<div class="calc">Automatic amount<div class="amount" id="amount">₹0.00</div></div><div class="calc" id="creditStatus">Select a customer and enter the sale amount.</div><div class="field"><label>Description</label><input id="desc" placeholder="Diesel credit sale"></div>
 <button class="btn primary" onclick="saveFuel()">Save Fuel Sale</button></div></div>
 
 <div class="modal" id="payModal"><div class="sheet"><button class="close" onclick="closeM('payModal')">×</button><h2>💰 Payment Received</h2>
@@ -60,7 +60,36 @@ function saveCustomer(){let n=document.getElementById("cname").value.trim();if(!
 function fill(){let s=db.customers.map(c=>`<option value="${c.id}">${esc(c.name)}${c.vehicle?" • "+esc(c.vehicle):""}</option>`).join("");document.getElementById("fcustomer").innerHTML=s;document.getElementById("pcustomer").innerHTML=s}
 function openFuel(cid){if(!db.customers.length)return alert("Add a customer first");fill();if(cid)document.getElementById("fcustomer").value=cid;document.getElementById("fuelModal").classList.add("open")}
 function calc(){let x=(+document.getElementById("litres").value||0)*(+document.getElementById("rate").value||0);document.getElementById("amount").textContent=money(x)}
-function saveFuel(){let l=+document.getElementById("litres").value||0,r=+document.getElementById("rate").value||0;if(!l||!r)return alert("Enter litres and rate");let p=document.getElementById("pay").value,a=l*r;db.tx.push({id:uid(),cid:document.getElementById("fcustomer").value,type:p==="credit"?"credit":"sale",amount:a,l,r,fuel:document.getElementById("fuel").value,payment:p,desc:document.getElementById("desc").value||"Fuel sale",date:new Date().toISOString()});save();closeM("fuelModal")}
+function checkCredit(){
+  const el=document.getElementById("creditStatus");
+  if(!el)return;
+  const cid=document.getElementById("fcustomer").value;
+  const c=db.customers.find(x=>x.id===cid);
+  if(!c){el.textContent="Select a customer and enter the sale amount.";return;}
+  const payment=document.getElementById("pay").value;
+  const sale=(+document.getElementById("litres").value||0)*(+document.getElementById("rate").value||0);
+  if(payment!=="credit" || !sale){
+    el.textContent=payment==="credit" ? "Enter litres and rate to check the credit limit." : "Cash/UPI/Card sale: credit limit is not affected.";
+    return;
+  }
+  const current=Math.max(0,bal(c)), limit=+c.creditLimit||0, next=current+sale;
+  if(!limit){
+    el.textContent=`No credit limit set. Current outstanding: ${money(current)}.`;
+  }else if(next>limit){
+    el.innerHTML=`⚠️ <b>Credit limit exceeded</b><br>Limit: ${money(limit)} • Current: ${money(current)} • New outstanding: ${money(next)}`;
+  }else{
+    el.innerHTML=`✅ Within credit limit<br>Limit: ${money(limit)} • Current: ${money(current)} • After sale: ${money(next)}`;
+  }
+}
+function saveFuel(){let l=+document.getElementById("litres").value||0,r=+document.getElementById("rate").value||0;if(!l||!r)return alert("Enter litres and rate");let p=document.getElementById("pay").value,a=l*r;
+if(p==="credit"){
+  let c=db.customers.find(x=>x.id===document.getElementById("fcustomer").value);
+  let current=Math.max(0,bal(c)),limit=+c.creditLimit||0,next=current+a;
+  if(limit && next>limit){
+    if(!confirm(`Credit limit exceeded.\nLimit: ${money(limit)}\nCurrent outstanding: ${money(current)}\nAfter sale: ${money(next)}\n\nAllow this credit sale anyway?`)) return;
+  }
+}
+db.tx.push({id:uid(),cid:document.getElementById("fcustomer").value,type:p==="credit"?"credit":"sale",amount:a,l,r,fuel:document.getElementById("fuel").value,payment:p,desc:document.getElementById("desc").value||"Fuel sale",date:new Date().toISOString()});save();closeM("fuelModal")}
 function openPayment(cid){if(!db.customers.length)return alert("Add a customer first");fill();if(cid)document.getElementById("pcustomer").value=cid;document.getElementById("payModal").classList.add("open")}
 function savePayment(){let a=+document.getElementById("pamount").value||0;if(!a)return alert("Enter amount");db.tx.push({id:uid(),cid:document.getElementById("pcustomer").value,type:"payment",amount:a,mode:document.getElementById("pmode").value,desc:"Payment received",date:new Date().toISOString()});save();closeM("payModal")}
 function ledger(cid){let c=db.customers.find(x=>x.id===cid),b=0,tx=db.tx.filter(t=>t.cid===cid).sort((a,b)=>new Date(a.date)-new Date(b.date));document.getElementById("ltitle").textContent=c.name;document.getElementById("lmeta").innerHTML=`<div class="meta">📱 ${esc(c.phone||"—")} &nbsp; 🚛 ${esc(c.vehicle||"—")} &nbsp; 🏢 ${esc(c.type||"—")} &nbsp; 💳 Limit: ${money(c.creditLimit||0)}</div>`;let rows=tx.map(t=>{let plus=(t.type==="credit"||t.type==="opening")?t.amount:0,minus=t.type==="payment"?t.amount:0;b+=plus-minus;let p=t.l?`${esc(t.fuel)}<br><small>${t.l} L × ${money(t.r)}/L</small>`:esc(t.desc);return`<tr><td>${new Date(t.date).toLocaleDateString("en-IN")}</td><td>${p}</td><td>${plus?money(plus):"—"}</td><td>${minus?money(minus):"—"}</td><td>${money(b)}</td></tr>`}).join("");document.getElementById("ledger").innerHTML=`<div class="calc">Outstanding<div class="amount">${money(bal(c))}</div></div><table><tr><th>Date</th><th>Particular</th><th>Debit</th><th>Credit</th><th>Balance</th></tr>${rows}</table><br><button class="btn primary" onclick="closeM('ledgerModal');openFuel('${cid}')">⛽ Fuel Sale</button> <button class="btn white" onclick="closeM('ledgerModal');openPayment('${cid}')">💰 Payment</button>`;document.getElementById("ledgerModal").classList.add("open")}
