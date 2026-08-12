@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b5ed7">
-<title>Asian Filling Station v0.4</title>
+<title>Asian Filling Station v0.5</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#172033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 header{background:#0b5ed7;color:#fff;padding:22px 16px;border-radius:0 0 22px 22px}.wrap{max-width:850px;margin:auto;padding:0 14px}
@@ -12,71 +12,60 @@ h1{font-size:21px;margin:0 0 4px}.sub{opacity:.85;font-size:13px}.cards{display:
 main{padding:16px 0 60px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.btn{border:0;border-radius:10px;padding:12px 13px;font-weight:700;font-size:14px}.primary{background:#0b5ed7;color:#fff}.white{background:#fff;border:1px solid #dfe4ec;color:#172033}.danger{background:#fff;border:1px solid #f0b7b7;color:#a61b1b}
 .panel{background:#fff;border-radius:15px;padding:15px;box-shadow:0 2px 12px #00000008}.search{width:100%;padding:12px;border:1px solid #dfe4ec;border-radius:10px;font-size:15px;margin:8px 0 12px}
 table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1px solid #edf0f4;font-size:13px;text-align:left}.right{text-align:right}.name{font-weight:700;cursor:pointer}.owe{color:#b42318;font-weight:800}.empty{text-align:center;color:#70798a;padding:25px}
-.modal{display:none;position:fixed;inset:0;background:#0008;align-items:flex-end;z-index:10}.modal.open{display:flex}.sheet{background:#fff;width:100%;max-width:650px;margin:auto;border-radius:20px 20px 0 0;padding:18px;max-height:94vh;overflow:auto}.close{float:right;border:0;border-radius:50%;width:34px;height:34px;font-size:20px}.field{margin:12px 0}.field label{display:block;font-size:12px;color:#687386;margin-bottom:5px}.field input,.field select{width:100%;padding:12px;border:1px solid #dfe4ec;border-radius:10px;font-size:15px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.calc{background:#f0f6ff;border-radius:12px;padding:14px;margin:12px 0}.amount{font-size:25px;font-weight:800;margin-top:4px}
+.modal{display:none;position:fixed;inset:0;background:#0008;align-items:flex-end;z-index:10}.modal.open{display:flex}.sheet{background:#fff;width:100%;max-width:650px;margin:auto;border-radius:20px 20px 0 0;padding:18px;max-height:94vh;overflow:auto}.close{float:right;border:0;border-radius:50%;width:34px;height:34px;font-size:20px}.field{margin:12px 0}.field label{display:block;font-size:12px;color:#687386;margin-bottom:5px}.field input,.field select{width:100%;padding:12px;border:1px solid #dfe4ec;border-radius:10px;font-size:15px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.calc{background:#f0f6ff;border-radius:12px;padding:14px;margin:12px 0}.amount{font-size:25px;font-weight:800;margin-top:4px}.meta{font-size:12px;color:#687386;margin-top:3px}
 @media(max-width:600px){.grid{grid-template-columns:1fr}.card{padding:9px}.card b{font-size:16px}}
 </style>
 </head>
 <body>
-<header><div class="wrap">
-<h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.4</div>
-<div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div>
-</div></header>
-<main class="wrap">
-<div class="actions">
-<button class="btn primary" onclick="openCustomer()">+ Customer</button>
-<button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
-<button class="btn white" onclick="practice()">Practice v0.4</button>
-<button class="btn danger" onclick="resetData()">🔄 Reset Practice</button>
-</div>
-<section class="panel"><h2>Customer Ledger</h2><input class="search" id="search" placeholder="Search customer..." oninput="render()"><div id="list"></div></section>
-</main>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5</div>
+<div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
+<main class="wrap"><div class="actions">
+<button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
+<button class="btn white" onclick="practice()">Practice v0.5</button><button class="btn danger" onclick="resetData()">🔄 Reset Practice</button>
+</div><section class="panel"><h2>Customer Ledger</h2><input class="search" id="search" placeholder="Search customer..." oninput="render()"><div id="list"></div></section></main>
 
 <div class="modal" id="customerModal"><div class="sheet"><button class="close" onclick="closeM('customerModal')">×</button><h2>Add Customer</h2>
 <div class="field"><label>Customer / Party name</label><input id="cname" placeholder="Ravi Transport"></div>
-<div class="field"><label>Mobile</label><input id="phone" inputmode="tel"></div>
+<div class="grid"><div class="field"><label>Mobile</label><input id="phone" inputmode="tel" placeholder="98XXXXXXXX"></div>
+<div class="field"><label>Vehicle Number</label><input id="vehicle" placeholder="HR 55 AB 1234"></div></div>
+<div class="grid"><div class="field"><label>Customer Type</label><select id="ctype"><option>Transporter</option><option>Company</option><option>Individual</option><option>Other</option></select></div>
+<div class="field"><label>Credit Limit ₹</label><input id="limit" type="number" min="0" step="0.01" value="0"></div></div>
 <div class="field"><label>Opening balance ₹</label><input id="opening" type="number" min="0" value="0"></div>
 <button class="btn primary" onclick="saveCustomer()">Save Customer</button></div></div>
 
 <div class="modal" id="fuelModal"><div class="sheet"><button class="close" onclick="closeM('fuelModal')">×</button><h2>⛽ Fuel Sale</h2>
-<div class="field"><label>Customer</label><select id="fcustomer"></select></div>
-<div class="grid"><div class="field"><label>Fuel</label><select id="fuel"><option>Diesel</option><option>Petrol</option></select></div>
+<div class="field"><label>Customer</label><select id="fcustomer"></select></div><div class="grid"><div class="field"><label>Fuel</label><select id="fuel"><option>Diesel</option><option>Petrol</option></select></div>
 <div class="field"><label>Payment</label><select id="pay"><option value="credit">Credit</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option></select></div></div>
 <div class="grid"><div class="field"><label>Quantity (litres)</label><input id="litres" type="number" min="0" step="0.01" oninput="calc()"></div>
 <div class="field"><label>Rate ₹/litre</label><input id="rate" type="number" min="0" step="0.01" oninput="calc()"></div></div>
-<div class="calc">Automatic amount<div class="amount" id="amount">₹0.00</div></div>
-<div class="field"><label>Description</label><input id="desc" placeholder="Diesel credit sale"></div>
+<div class="calc">Automatic amount<div class="amount" id="amount">₹0.00</div></div><div class="field"><label>Description</label><input id="desc" placeholder="Diesel credit sale"></div>
 <button class="btn primary" onclick="saveFuel()">Save Fuel Sale</button></div></div>
 
 <div class="modal" id="payModal"><div class="sheet"><button class="close" onclick="closeM('payModal')">×</button><h2>💰 Payment Received</h2>
-<div class="field"><label>Customer</label><select id="pcustomer"></select></div>
-<div class="field"><label>Amount ₹</label><input id="pamount" type="number" min="0" step="0.01"></div>
-<div class="field"><label>Mode</label><select id="pmode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Card</option></select></div>
-<button class="btn primary" onclick="savePayment()">Save Payment</button></div></div>
+<div class="field"><label>Customer</label><select id="pcustomer"></select></div><div class="field"><label>Amount ₹</label><input id="pamount" type="number" min="0" step="0.01"></div>
+<div class="field"><label>Mode</label><select id="pmode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Card</option></select></div><button class="btn primary" onclick="savePayment()">Save Payment</button></div></div>
 
-<div class="modal" id="ledgerModal"><div class="sheet"><button class="close" onclick="closeM('ledgerModal')">×</button><h2 id="ltitle"></h2><div id="ledger"></div></div></div>
+<div class="modal" id="ledgerModal"><div class="sheet"><button class="close" onclick="closeM('ledgerModal')">×</button><h2 id="ltitle"></h2><div id="lmeta"></div><div id="ledger"></div></div></div>
 
 <script>
-const K="afs_v04";
-let db=JSON.parse(localStorage.getItem(K)||'{"customers":[],"tx":[]}');
+const K="afs_v05";let db=JSON.parse(localStorage.getItem(K)||'{"customers":[],"tx":[]}');
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
 const money=n=>new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:2}).format(n);
 const esc=s=>String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 function bal(c){return db.tx.filter(t=>t.cid===c.id).reduce((x,t)=>x+((t.type==="credit"||t.type==="opening")?t.amount:t.type==="payment"?-t.amount:0),0)}
 function save(){localStorage.setItem(K,JSON.stringify(db));render()}
-function render(){let q=(document.getElementById("search").value||"").toLowerCase(),cs=db.customers.filter(c=>c.name.toLowerCase().includes(q));document.getElementById("count").textContent=db.customers.length;document.getElementById("entries").textContent=db.tx.length;document.getElementById("receivable").textContent=money(db.customers.reduce((s,c)=>s+Math.max(0,bal(c)),0));document.getElementById("list").innerHTML=cs.length?`<table><tr><th>Customer</th><th class="right">Balance</th></tr>${cs.map(c=>`<tr><td class="name" onclick="ledger('${c.id}')">${esc(c.name)}</td><td class="right ${bal(c)>0?"owe":""}">${money(bal(c))}</td></tr>`).join("")}</table>`:'<div class="empty">No customers yet.</div>'}
+function render(){let q=(document.getElementById("search").value||"").toLowerCase(),cs=db.customers.filter(c=>c.name.toLowerCase().includes(q));document.getElementById("count").textContent=db.customers.length;document.getElementById("entries").textContent=db.tx.length;document.getElementById("receivable").textContent=money(db.customers.reduce((s,c)=>s+Math.max(0,bal(c)),0));document.getElementById("list").innerHTML=cs.length?`<table><tr><th>Customer</th><th>Details</th><th class="right">Balance</th></tr>${cs.map(c=>`<tr><td class="name" onclick="ledger('${c.id}')">${esc(c.name)}</td><td class="meta">${esc(c.type||"")}<br>${esc(c.vehicle||"")}</td><td class="right ${bal(c)>0?"owe":""}">${money(bal(c))}</td></tr>`).join("")}</table>`:'<div class="empty">No customers yet.</div>'}
 function openCustomer(){document.getElementById("customerModal").classList.add("open")}
-function saveCustomer(){let n=document.getElementById("cname").value.trim();if(!n)return alert("Enter customer name");let c={id:uid(),name:n,phone:document.getElementById("phone").value.trim()};db.customers.push(c);let o=+document.getElementById("opening").value||0;if(o)db.tx.push({id:uid(),cid:c.id,type:"opening",amount:o,desc:"Opening balance",date:new Date().toISOString()});save();closeM("customerModal")}
-function fill(){let s=db.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");document.getElementById("fcustomer").innerHTML=s;document.getElementById("pcustomer").innerHTML=s}
+function saveCustomer(){let n=document.getElementById("cname").value.trim();if(!n)return alert("Enter customer name");let c={id:uid(),name:n,phone:document.getElementById("phone").value.trim(),vehicle:document.getElementById("vehicle").value.trim(),type:document.getElementById("ctype").value,creditLimit:+document.getElementById("limit").value||0};db.customers.push(c);let o=+document.getElementById("opening").value||0;if(o)db.tx.push({id:uid(),cid:c.id,type:"opening",amount:o,desc:"Opening balance",date:new Date().toISOString()});save();closeM("customerModal")}
+function fill(){let s=db.customers.map(c=>`<option value="${c.id}">${esc(c.name)}${c.vehicle?" • "+esc(c.vehicle):""}</option>`).join("");document.getElementById("fcustomer").innerHTML=s;document.getElementById("pcustomer").innerHTML=s}
 function openFuel(cid){if(!db.customers.length)return alert("Add a customer first");fill();if(cid)document.getElementById("fcustomer").value=cid;document.getElementById("fuelModal").classList.add("open")}
 function calc(){let x=(+document.getElementById("litres").value||0)*(+document.getElementById("rate").value||0);document.getElementById("amount").textContent=money(x)}
 function saveFuel(){let l=+document.getElementById("litres").value||0,r=+document.getElementById("rate").value||0;if(!l||!r)return alert("Enter litres and rate");let p=document.getElementById("pay").value,a=l*r;db.tx.push({id:uid(),cid:document.getElementById("fcustomer").value,type:p==="credit"?"credit":"sale",amount:a,l,r,fuel:document.getElementById("fuel").value,payment:p,desc:document.getElementById("desc").value||"Fuel sale",date:new Date().toISOString()});save();closeM("fuelModal")}
 function openPayment(cid){if(!db.customers.length)return alert("Add a customer first");fill();if(cid)document.getElementById("pcustomer").value=cid;document.getElementById("payModal").classList.add("open")}
 function savePayment(){let a=+document.getElementById("pamount").value||0;if(!a)return alert("Enter amount");db.tx.push({id:uid(),cid:document.getElementById("pcustomer").value,type:"payment",amount:a,mode:document.getElementById("pmode").value,desc:"Payment received",date:new Date().toISOString()});save();closeM("payModal")}
-function ledger(cid){let c=db.customers.find(x=>x.id===cid),b=0,tx=db.tx.filter(t=>t.cid===cid).sort((a,b)=>new Date(a.date)-new Date(b.date));let rows=tx.map(t=>{let plus=(t.type==="credit"||t.type==="opening")?t.amount:0,minus=t.type==="payment"?t.amount:0;b+=plus-minus;let p=t.l?`${esc(t.fuel)}<br><small>${t.l} L × ${money(t.r)}/L</small>`:esc(t.desc);return`<tr><td>${new Date(t.date).toLocaleDateString("en-IN")}</td><td>${p}</td><td>${plus?money(plus):"—"}</td><td>${minus?money(minus):"—"}</td><td>${money(b)}</td></tr>`}).join("");document.getElementById("ltitle").textContent=c.name;document.getElementById("ledger").innerHTML=`<div class="calc">Outstanding<div class="amount">${money(bal(c))}</div></div><table><tr><th>Date</th><th>Particular</th><th>Debit</th><th>Credit</th><th>Balance</th></tr>${rows}</table><br><button class="btn primary" onclick="closeM('ledgerModal');openFuel('${cid}')">⛽ Fuel Sale</button> <button class="btn white" onclick="closeM('ledgerModal');openPayment('${cid}')">💰 Payment</button>`;document.getElementById("ledgerModal").classList.add("open")}
+function ledger(cid){let c=db.customers.find(x=>x.id===cid),b=0,tx=db.tx.filter(t=>t.cid===cid).sort((a,b)=>new Date(a.date)-new Date(b.date));document.getElementById("ltitle").textContent=c.name;document.getElementById("lmeta").innerHTML=`<div class="meta">📱 ${esc(c.phone||"—")} &nbsp; 🚛 ${esc(c.vehicle||"—")} &nbsp; 🏢 ${esc(c.type||"—")} &nbsp; 💳 Limit: ${money(c.creditLimit||0)}</div>`;let rows=tx.map(t=>{let plus=(t.type==="credit"||t.type==="opening")?t.amount:0,minus=t.type==="payment"?t.amount:0;b+=plus-minus;let p=t.l?`${esc(t.fuel)}<br><small>${t.l} L × ${money(t.r)}/L</small>`:esc(t.desc);return`<tr><td>${new Date(t.date).toLocaleDateString("en-IN")}</td><td>${p}</td><td>${plus?money(plus):"—"}</td><td>${minus?money(minus):"—"}</td><td>${money(b)}</td></tr>`}).join("");document.getElementById("ledger").innerHTML=`<div class="calc">Outstanding<div class="amount">${money(bal(c))}</div></div><table><tr><th>Date</th><th>Particular</th><th>Debit</th><th>Credit</th><th>Balance</th></tr>${rows}</table><br><button class="btn primary" onclick="closeM('ledgerModal');openFuel('${cid}')">⛽ Fuel Sale</button> <button class="btn white" onclick="closeM('ledgerModal');openPayment('${cid}')">💰 Payment</button>`;document.getElementById("ledgerModal").classList.add("open")}
 function closeM(id){document.getElementById(id).classList.remove("open")}
-function practice(){let c={id:uid(),name:"Ravi Transport (v0.4)",phone:"9876543210"};db.customers.push(c);let n=Date.now();db.tx.push({id:uid(),cid:c.id,type:"opening",amount:50000,desc:"Opening balance",date:new Date(n-259200000).toISOString()},{id:uid(),cid:c.id,type:"credit",amount:125*88.5,l:125,r:88.5,fuel:"Diesel",payment:"credit",desc:"Diesel credit",date:new Date(n-172800000).toISOString()},{id:uid(),cid:c.id,type:"credit",amount:80*95.5,l:80,r:95.5,fuel:"Petrol",payment:"credit",desc:"Petrol credit",date:new Date(n-86400000).toISOString()},{id:uid(),cid:c.id,type:"payment",amount:10000,mode:"Cash",desc:"Payment received",date:new Date(n).toISOString()});save();alert("Practice added. Ravi Transport balance = ₹58,702.50")}
+function practice(){let c={id:uid(),name:"Ravi Transport (v0.5)",phone:"9876543210",vehicle:"HR 55 AB 1234",type:"Transporter",creditLimit:100000};db.customers.push(c);let n=Date.now();db.tx.push({id:uid(),cid:c.id,type:"opening",amount:50000,desc:"Opening balance",date:new Date(n-259200000).toISOString()},{id:uid(),cid:c.id,type:"credit",amount:11062.5,l:125,r:88.5,fuel:"Diesel",payment:"credit",desc:"Diesel credit",date:new Date(n-172800000).toISOString()},{id:uid(),cid:c.id,type:"credit",amount:7640,l:80,r:95.5,fuel:"Petrol",payment:"credit",desc:"Petrol credit",date:new Date(n-86400000).toISOString()},{id:uid(),cid:c.id,type:"payment",amount:10000,mode:"Cash",desc:"Payment received",date:new Date(n).toISOString()});save();alert("Practice added. Ravi Transport balance = ₹58,702.50")}
 function resetData(){if(!confirm("Reset ALL practice data on this device? This cannot be undone."))return;localStorage.removeItem(K);db={customers:[],tx:[]};render();alert("Practice data has been reset.")}
 render();
-</script>
-</body>
-</html>
+</script></body></html>
