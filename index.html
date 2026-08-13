@@ -64,7 +64,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 </head>
 <body>
 <header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.7 Step 7A-7E INVENTORY</div>
-<div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
+<div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div><button id="v6rDashboardBtn" class="btn primary" type="button" onclick="v6rDashboard()">📊 Dashboard</button></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
 <button class="btn white" onclick="practice()">Practice v0.5</button><button class="btn danger" onclick="resetData()">🔄 Reset Practice</button>
@@ -949,12 +949,7 @@ function v6rExport(){
 }
 
 /* Dashboard button */
-(function(){
-  const wrap=document.querySelector("header .wrap");
-  if(!wrap||document.getElementById("v6rDashboardBtn"))return;
-  const b=document.createElement("button");b.id="v6rDashboardBtn";b.className="btn primary";
-  b.textContent="📊 Dashboard";b.onclick=v6rDashboard;wrap.appendChild(b);
-})();
+
 
 
 /* =========================================================
