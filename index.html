@@ -132,6 +132,38 @@ function checkCredit(){
     el.innerHTML=`✅ Within credit limit<br>Limit: ${money(limit)} • Current: ${money(current)} • After sale: ${money(next)}`;
   }
 }
+function validateFuelSale(){
+  const customer = document.getElementById("fcustomer");
+  const date = document.getElementById("fdate");
+  const fuel = document.getElementById("fuel");
+  const litres = document.getElementById("litres");
+  const rate = document.getElementById("rate");
+
+  if(!customer || !customer.value.trim()){
+    alert("⚠️ Please select a customer.");
+    return false;
+  }
+  if(!date || !date.value.trim()){
+    alert("⚠️ Please enter the sale date.");
+    return false;
+  }
+  if(!fuel || !fuel.value.trim()){
+    alert("⚠️ Please select fuel type.");
+    return false;
+  }
+  const l = Number(litres && litres.value);
+  if(!Number.isFinite(l) || l <= 0){
+    alert("⚠️ Please enter a valid fuel quantity.");
+    return false;
+  }
+  const r = Number(rate && rate.value);
+  if(!Number.isFinite(r) || r <= 0){
+    alert("⚠️ Please enter a valid fuel rate.");
+    return false;
+  }
+  return true;
+}
+
 function saveFuel(){
   if(!validateFuelSale())return;let l=+document.getElementById("litres").value||0,r=+document.getElementById("rate").value||0;if(!l||!r)return alert("Enter litres and rate");let p=document.getElementById("pay").value,a=l*r;
 if(p==="credit"){
