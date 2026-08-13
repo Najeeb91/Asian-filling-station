@@ -25,7 +25,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5 Step 4B</div>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5 Step 4C-1</div>
 <div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
@@ -132,7 +132,24 @@ function checkCredit(){
     el.innerHTML=`✅ Within credit limit<br>Limit: ${money(limit)} • Current: ${money(current)} • After sale: ${money(next)}`;
   }
 }
-function saveFuel(){let l=+document.getElementById("litres").value||0,r=+document.getElementById("rate").value||0;if(!l||!r)return alert("Enter litres and rate");let p=document.getElementById("pay").value,a=l*r;
+
+function validateFuelSale(){
+  const cid = document.getElementById("fcustomer")?.value?.trim();
+  const date = document.getElementById("fdate")?.value?.trim();
+  const fuel = document.getElementById("ffuel")?.value?.trim();
+  const qty = Number(document.getElementById("fliters")?.value);
+  const rate = Number(document.getElementById("frate")?.value);
+
+  if(!cid){ alert("⚠️ Please select a customer."); return false; }
+  if(!date){ alert("⚠️ Please enter the sale date."); return false; }
+  if(!fuel){ alert("⚠️ Please select fuel type."); return false; }
+  if(!Number.isFinite(qty) || qty <= 0){ alert("⚠️ Please enter a valid fuel quantity."); return false; }
+  if(!Number.isFinite(rate) || rate <= 0){ alert("⚠️ Please enter a valid fuel rate."); return false; }
+  return true;
+}
+
+function saveFuel(){
+  if(!validateFuelSale())return;let l=+document.getElementById("litres").value||0,r=+document.getElementById("rate").value||0;if(!l||!r)return alert("Enter litres and rate");let p=document.getElementById("pay").value,a=l*r;
 if(p==="credit"){
   let c=db.customers.find(x=>x.id===document.getElementById("fcustomer").value);
   let current=Math.max(0,bal(c)),limit=+c.creditLimit||0,next=current+a;
