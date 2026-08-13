@@ -38,10 +38,32 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 .v6-filter{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
 .v6-filter label{min-width:150px}
 @media(max-width:650px){.v6-grid{grid-template-columns:1fr}.v6-value{font-size:21px}}
+
+/* ===== v0.6 REVISED DASHBOARD ===== */
+.v6r-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.v6r-card{padding:15px;border:1px solid #ddd;border-radius:12px;background:#fff;cursor:pointer}
+.v6r-card:active{transform:scale(.99)}
+.v6r-value{font-size:24px;font-weight:700;margin-top:6px}
+.v6r-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.v6r-table{width:100%;overflow-x:auto}.v6r-table table{min-width:760px}
+.v6r-row{cursor:pointer}.v6r-row:hover{background:#f5f5f5}
+.v6r-note{font-size:12px;opacity:.7;margin-top:6px}
+@media(max-width:650px){.v6r-grid{grid-template-columns:1fr}}
+
+/* ===== v0.7 Inventory & Stock ===== */
+.v7-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.v7-card{padding:14px;border:1px solid #ddd;border-radius:12px;background:#fff}
+.v7-value{font-size:24px;font-weight:700;margin-top:5px}
+.v7-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.v7-table{width:100%;overflow-x:auto}.v7-table table{min-width:780px}
+.v7-row{cursor:pointer}.v7-row:hover{background:#f5f5f5}
+.v7-note{font-size:12px;opacity:.7}
+.v7-low{font-weight:700}
+@media(max-width:650px){.v7-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.6 Step 6A-6E COMPLETE</div>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.7 Step 7A-7E INVENTORY</div>
 <div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
@@ -818,6 +840,384 @@ function v6ExportReport(){
   b.id="v6DashboardBtn";b.className="btn primary";b.textContent="📊 Dashboard";
   b.onclick=v6Dashboard;
   header.appendChild(b);
+})();
+
+
+/* =========================================================
+   v0.6 REVISED — 6A-6E
+   Dashboard is drill-down/clickable. Existing v0.5 engine
+   remains untouched.
+   ========================================================= */
+function v6rTx(){return Array.isArray(db.tx)?db.tx:[]}
+function v6rCust(){return Array.isArray(db.customers)?db.customers:[]}
+function v6rDate(t){return String(t.date||"").slice(0,10)}
+function v6rToday(){return new Date().toISOString().slice(0,10)}
+function v6rAmt(a){return Number(a||0)}
+function v6rFuel(t){return t.type==="credit"&&(t.fuel==="Diesel"||t.fuel==="Petrol"||t.fuel==="Lubes"||t.category==="Lubes"||t.productCategory==="Lubes")}
+function v6rQty(t){return Number(t.litres||t.quantity||t.qty||0)}
+
+function v6rOpenTx(t){
+  if(t.cid && typeof ledger==="function"){ledger(t.cid);return}
+  alert("This entry is not linked to a customer.")
+}
+
+function v6rDetail(title, rows, headers){
+  let m=document.getElementById("v6rDetailModal");
+  if(!m){
+    m=document.createElement("div");m.id="v6rDetailModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1050px">
+      <button class="close" onclick="closeM('v6rDetailModal')">×</button>
+      <h2 id="v6rDetailTitle"></h2><div id="v6rDetailBody"></div>
+      <button class="btn white" onclick="closeM('v6rDetailModal')">Close</button>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  document.getElementById("v6rDetailTitle").textContent=title;
+  document.getElementById("v6rDetailBody").innerHTML=
+    `<div class="v6r-table"><table><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>${rows||`<tr><td colspan="${headers.length}">No entries.</td></tr>`}</table></div>`;
+  m.classList.add("open");
+}
+
+/* 6A — Clickable Dashboard */
+function v6rDashboard(){
+  const today=v6rToday(),tx=v6rTx(),customers=v6rCust();
+  const todayTx=tx.filter(t=>v6rDate(t)===today);
+  const fuel=todayTx.filter(v6rFuel);
+  const payments=todayTx.filter(t=>t.type==="payment");
+  const receivable=customers.reduce((s,c)=>s+Math.max(0,Number(bal(c)||0)),0);
+  const over=customers.filter(c=>Number(c.creditLimit||0)>0&&Number(bal(c)||0)>Number(c.creditLimit||0));
+  let m=document.getElementById("v6rDashModal");
+  if(!m){
+    m=document.createElement("div");m.id="v6rDashModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1050px">
+      <button class="close" onclick="closeM('v6rDashModal')">×</button>
+      <h2>📊 Asian Filling Station Dashboard</h2>
+      <div id="v6rDashBody"></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  document.getElementById("v6rDashBody").innerHTML=`
+    <div class="v6r-grid">
+      <div class="v6r-card" onclick="v6rCustomers()"><b>👥 Total Customers</b><div class="v6r-value">${customers.length}</div><div class="v6r-note">Tap to open individual customers</div></div>
+      <div class="v6r-card" onclick="v6rReceivables()"><b>💰 Total Receivable</b><div class="v6r-value">${money(receivable)}</div><div class="v6r-note">Tap to open customer-wise entries</div></div>
+      <div class="v6r-card" onclick="v6rFuelEntries('${today}')"><b>⛽ Today's Fuel Sales</b><div class="v6r-value">${money(fuel.reduce((s,t)=>s+v6rAmt(t.amount),0))}</div><div class="v6r-note">Tap to open individual sales</div></div>
+      <div class="v6r-card" onclick="v6rPaymentEntries('${today}')"><b>💵 Today's Payments</b><div class="v6r-value">${money(payments.reduce((s,t)=>s+v6rAmt(t.amount),0))}</div><div class="v6r-note">Tap to open individual payments</div></div>
+      <div class="v6r-card" onclick="v6rTransactionEntries('${today}')"><b>🧾 Today's Transactions</b><div class="v6r-value">${todayTx.length}</div><div class="v6r-note">Tap to open every entry</div></div>
+      <div class="v6r-card" onclick="v6rOverLimit()"><b>⚠️ Over Credit Limit</b><div class="v6r-value">${over.length}</div><div class="v6r-note">Tap to open affected customers</div></div>
+    </div>
+    <div class="v6r-actions">
+      <button class="btn white" onclick="v6rFuelReport()">⛽ Fuel Sales Report</button>
+      <button class="btn white" onclick="v6rPaymentReport()">💵 Payment Report</button>
+      <button class="btn white" onclick="v6rReceivables()">💰 Receivables</button>
+      <button class="btn white" onclick="v6rExport()">📥 Export</button>
+    </div>
+    <div class="v6r-note">Every dashboard number is designed as a drill-down entry point.</div>`;
+  m.classList.add("open");
+}
+
+function v6rCustomers(){
+  const rows=v6rCust().map(c=>`<tr class="v6r-row" onclick="ledger('${c.id}')"><td>${esc(c.name)}</td><td>${esc(c.phone||"—")}</td><td>${money(bal(c))}</td></tr>`).join("");
+  v6rDetail("👥 Customers",rows,["Customer","Phone","Outstanding"]);
+}
+function v6rReceivables(){
+  const a=v6rCust().map(c=>({c,o:Math.max(0,Number(bal(c)||0))})).filter(x=>x.o>0).sort((a,b)=>b.o-a.o);
+  const rows=a.map(x=>`<tr class="v6r-row" onclick="ledger('${x.c.id}')"><td>${esc(x.c.name)}</td><td>${money(x.o)}</td><td>${x.c.creditLimit?money(x.c.creditLimit):"—"}</td></tr>`).join("");
+  v6rDetail("💰 Receivables",rows,["Customer","Outstanding","Credit Limit"]);
+}
+function v6rOverLimit(){
+  const a=v6rCust().filter(c=>Number(c.creditLimit||0)>0&&Number(bal(c)||0)>Number(c.creditLimit||0));
+  const rows=a.map(c=>`<tr class="v6r-row" onclick="ledger('${c.id}')"><td>${esc(c.name)}</td><td>${money(bal(c))}</td><td>${money(c.creditLimit)}</td></tr>`).join("");
+  v6rDetail("⚠️ Over Credit Limit",rows,["Customer","Outstanding","Limit"]);
+}
+function v6rFuelEntries(date){
+  const a=v6rTx().filter(t=>v6rDate(t)===date&&v6rFuel(t));
+  const rows=a.map(t=>`<tr class="v6r-row" onclick='v6rOpenTx(${JSON.stringify(t)})'><td>${esc(t.time||"—")}</td><td>${esc(t.fuel||t.category||"Lubes")}</td><td>${esc(t.desc||t.product||"Fuel Sale")}</td><td>${v6rQty(t)?v6rQty(t).toFixed(2):"—"}</td><td>${money(t.amount)}</td></tr>`).join("");
+  v6rDetail("⛽ Today's Individual Fuel Sales",rows,["Time","Product","Particular","Quantity/Litres","Total Sale"]);
+}
+function v6rPaymentEntries(date){
+  const a=v6rTx().filter(t=>v6rDate(t)===date&&t.type==="payment");
+  const rows=a.map(t=>`<tr class="v6r-row" onclick='v6rOpenTx(${JSON.stringify(t)})'><td>${esc(t.time||"—")}</td><td>${money(t.amount)}</td><td>${esc(t.mode||"—")}</td><td>${esc(t.ref||"—")}</td></tr>`).join("");
+  v6rDetail("💵 Today's Individual Payments",rows,["Time","Amount","Mode","Reference"]);
+}
+function v6rTransactionEntries(date){
+  const a=v6rTx().filter(t=>v6rDate(t)===date);
+  const rows=a.map(t=>`<tr class="v6r-row" onclick='v6rOpenTx(${JSON.stringify(t)})'><td>${esc(t.time||"—")}</td><td>${esc(t.type||"—")}</td><td>${esc(t.fuel||"—")}</td><td>${money(t.amount)}</td></tr>`).join("");
+  v6rDetail("🧾 Today's Individual Transactions",rows,["Time","Type","Fuel","Amount"]);
+}
+
+/* 6B — Fuel report: Date / Diesel / Petrol / Lubes / Litres / Total Sale */
+function v6rFuelReport(){
+  let m=document.getElementById("v6rFuelModal");
+  if(!m){
+    m=document.createElement("div");m.id="v6rFuelModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1050px">
+      <button class="close" onclick="closeM('v6rFuelModal')">×</button>
+      <h2>⛽ Fuel Sales Report</h2>
+      <div class="v6r-actions">
+        <label>From<input id="v6rFrom" type="date"></label>
+        <label>To<input id="v6rTo" type="date"></label>
+        <button class="btn primary" onclick="v6rBuildFuel()">Apply</button>
+        <button class="btn white" onclick="v6rLubeHelp()">🛢️ Lubes Units</button>
+      </div>
+      <div id="v6rFuelBody"></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  v6rFrom.value=v6rToday();v6rTo.value=v6rToday();v6rBuildFuel();m.classList.add("open");
+}
+function v6rBuildFuel(){
+  const from=v6rFrom.value,to=v6rTo.value;
+  const tx=v6rTx().filter(t=>v6rFuel(t)&&(!from||v6rDate(t)>=from)&&(!to||v6rDate(t)<=to));
+  const dates=[...new Set(tx.map(v6rDate))].sort();
+  let rows="",allLitres=0,allSales=0;
+  dates.forEach(d=>{
+    const a=tx.filter(t=>v6rDate(t)===d);
+    const diesel=a.filter(t=>t.fuel==="Diesel"),petrol=a.filter(t=>t.fuel==="Petrol");
+    const lubes=a.filter(t=>t.fuel==="Lubes"||t.category==="Lubes"||t.productCategory==="Lubes");
+    const ds=diesel.reduce((s,t)=>s+v6rAmt(t.amount),0),ps=petrol.reduce((s,t)=>s+v6rAmt(t.amount),0),ls=lubes.reduce((s,t)=>s+v6rAmt(t.amount),0);
+    const litres=a.filter(t=>t.fuel==="Diesel"||t.fuel==="Petrol").reduce((s,t)=>s+v6rQty(t),0);
+    const total=ds+ps+ls;allLitres+=litres;allSales+=total;
+    rows+=`<tr class="v6r-row" onclick="v6rFuelEntries('${d}')"><td>${formatDate(d)}</td><td>${money(ds)}</td><td>${money(ps)}</td><td>${money(ls)}</td><td>${litres.toFixed(2)}</td><td>${money(total)}</td></tr>`;
+  });
+  document.getElementById("v6rFuelBody").innerHTML=`<div class="v6r-note">Tap any date to open every individual entry for that date.</div>
+  <div class="v6r-table"><table><tr><th>Date</th><th>Diesel</th><th>Petrol</th><th>Lubes</th><th>Litres</th><th>Total Sale</th></tr>
+  ${rows||'<tr><td colspan="6">No entries.</td></tr>'}
+  <tr><th>Total</th><th colspan="3">—</th><th>${allLitres.toFixed(2)}</th><th>${money(allSales)}</th></tr></table></div>`;
+}
+function v6rLubeHelp(){
+  alert("Recommended Lubes units:\\n\\n1. Piece — individual bottle/can\\n2. Box — configurable box size (10 L, 20 L, or any size)\\n3. Litre — loose lubricant\\n\\nStore: Product + Quantity + Unit + Box Size (if applicable) + Sale Amount.");
+}
+
+/* 6C/6D use the clickable detail model */
+function v6rPaymentReport(){v6rPaymentEntries(v6rToday())}
+function v6rExport(){
+  const rows=[["Customer","Outstanding","Credit Limit"]];
+  v6rCust().forEach(c=>rows.push([c.name,Math.max(0,Number(bal(c)||0)),Number(c.creditLimit||0)]));
+  const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download=`Asian_Filling_Station_v0.6_${v6rToday()}.csv`;a.click();
+}
+
+/* Dashboard button */
+(function(){
+  const wrap=document.querySelector("header .wrap");
+  if(!wrap||document.getElementById("v6rDashboardBtn"))return;
+  const b=document.createElement("button");b.id="v6rDashboardBtn";b.className="btn primary";
+  b.textContent="📊 Dashboard";b.onclick=v6rDashboard;wrap.appendChild(b);
+})();
+
+
+/* =========================================================
+   v0.7 INVENTORY & STOCK — 7A-7E
+   Uses a separate inventory object so v0.5/v0.6 sales,
+   payment and ledger data remain untouched.
+   ========================================================= */
+
+function v7Load(){
+  try{
+    const x=JSON.parse(localStorage.getItem("asian_v07_inventory")||"null");
+    if(x&&typeof x==="object")return x;
+  }catch(e){}
+  return {fuel:{Diesel:{opening:0,purchases:0},Petrol:{opening:0,purchases:0}},lubes:[],purchases:[]};
+}
+function v7Save(){localStorage.setItem("asian_v07_inventory",JSON.stringify(v7DB));}
+let v7DB=v7Load();
+
+function v7Today(){return new Date().toISOString().slice(0,10)}
+function v7Amt(v){return Number(v||0)}
+function v7SalesByFuel(fuel){
+  return (Array.isArray(db.tx)?db.tx:[]).filter(t=>t.type==="credit"&&t.fuel===fuel)
+    .reduce((s,t)=>s+v7Amt(t.litres||t.quantity||t.qty),0);
+}
+function v7FuelStock(fuel){
+  const x=v7DB.fuel[fuel]||{opening:0,purchases:0};
+  return v7Amt(x.opening)+v7Amt(x.purchases)-v7SalesByFuel(fuel);
+}
+function v7LubeSales(product){
+  return (Array.isArray(db.tx)?db.tx:[]).filter(t=>
+    t.type==="credit" &&
+    (t.fuel==="Lubes"||t.category==="Lubes"||t.productCategory==="Lubes") &&
+    (!product||t.product===product||t.desc===product)
+  ).reduce((s,t)=>s+v7Amt(t.quantity||t.qty||t.litres),0);
+}
+
+/* 7A — Fuel Stock */
+function v7FuelStockScreen(){
+  let m=document.getElementById("v7FuelModal");
+  if(!m){
+    m=document.createElement("div");m.id="v7FuelModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1000px">
+      <button class="close" onclick="closeM('v7FuelModal')">×</button>
+      <h2>⛽ Fuel Stock</h2>
+      <div id="v7FuelBody"></div>
+      <div class="v7-actions">
+        <button class="btn primary" onclick="v7AddFuelPurchase()">＋ Fuel Purchase</button>
+        <button class="btn white" onclick="v7FuelStockScreen()">↻ Refresh</button>
+      </div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  const d=v7FuelStock("Diesel"),p=v7FuelStock("Petrol");
+  document.getElementById("v7FuelBody").innerHTML=`
+    <div class="v7-grid">
+      <div class="v7-card"><b>Diesel Closing Stock</b><div class="v7-value">${d.toFixed(2)} L</div></div>
+      <div class="v7-card"><b>Petrol Closing Stock</b><div class="v7-value">${p.toFixed(2)} L</div></div>
+    </div>
+    <div class="v7-table" style="margin-top:12px"><table>
+      <tr><th>Fuel</th><th>Opening</th><th>Purchases</th><th>Sales Deduction</th><th>Closing Stock</th></tr>
+      ${["Diesel","Petrol"].map(f=>{
+        const x=v7DB.fuel[f]||{opening:0,purchases:0};
+        return `<tr class="v7-row" onclick="v7FuelDetail('${f}')"><td>${f}</td><td>${v7Amt(x.opening).toFixed(2)} L</td><td>${v7Amt(x.purchases).toFixed(2)} L</td><td>${v7SalesByFuel(f).toFixed(2)} L</td><td><b>${v7FuelStock(f).toFixed(2)} L</b></td></tr>`;
+      }).join("")}
+    </table></div>`;
+  m.classList.add("open");
+}
+function v7FuelDetail(fuel){
+  const x=v7DB.fuel[fuel]||{opening:0,purchases:0};
+  alert(`${fuel}\\n\\nOpening: ${v7Amt(x.opening).toFixed(2)} L\\nPurchases: ${v7Amt(x.purchases).toFixed(2)} L\\nSales: ${v7SalesByFuel(fuel).toFixed(2)} L\\nClosing: ${v7FuelStock(fuel).toFixed(2)} L`);
+}
+
+/* 7B — Lubes Inventory */
+function v7LubeScreen(){
+  let m=document.getElementById("v7LubeModal");
+  if(!m){
+    m=document.createElement("div");m.id="v7LubeModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1000px">
+      <button class="close" onclick="closeM('v7LubeModal')">×</button>
+      <h2>🛢️ Lubes Inventory</h2>
+      <div id="v7LubeBody"></div>
+      <div class="v7-actions"><button class="btn primary" onclick="v7AddLube()">＋ Add Lube Product</button></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  const rows=v7DB.lubes.map((x,i)=>{
+    const sold=v7LubeSales(x.name);
+    const stock=v7Amt(x.opening)+v7Amt(x.purchases)-sold;
+    const low=stock<=v7Amt(x.reorder);
+    return `<tr class="v7-row" onclick="v7EditLube(${i})"><td>${esc(x.name)}</td><td>${x.unit}</td><td>${x.boxSize||"—"}</td><td>${v7Amt(x.opening)+v7Amt(x.purchases)}</td><td>${sold}</td><td><b>${stock}</b></td><td>${low?"LOW":"OK"}</td></tr>`;
+  }).join("");
+  document.getElementById("v7LubeBody").innerHTML=`<div class="v7-note">Recommended units: Piece, Box, or Litre. Box size can be 10 L, 20 L, or custom.</div>
+  <div class="v7-table" style="margin-top:10px"><table><tr><th>Product</th><th>Unit</th><th>Box Size</th><th>Received</th><th>Sold</th><th>Current Stock</th><th>Status</th></tr>${rows||'<tr><td colspan="7">No lube products.</td></tr>'}</table></div>`;
+  m.classList.add("open");
+}
+function v7AddLube(){
+  const name=prompt("Lube product name:");
+  if(!name)return;
+  const unit=prompt("Unit: Piece / Box / Litre","Piece")||"Piece";
+  const boxSize=unit==="Box"?(prompt("Box size (e.g. 10 L / 20 L):","20 L")||""):"";
+  const reorder=Number(prompt("Low-stock level:", "5")||0);
+  v7DB.lubes.push({name:name.trim(),unit,boxSize,opening:0,purchases:0,reorder});
+  v7Save();v7LubeScreen();
+}
+function v7EditLube(i){
+  const x=v7DB.lubes[i];if(!x)return;
+  const action=prompt(`${x.name}\\n\\nEnter:\\n1 = Edit opening stock\\n2 = Edit reorder level\\n3 = Delete product`);
+  if(action==="1")x.opening=Number(prompt("Opening quantity:",x.opening)||0);
+  else if(action==="2")x.reorder=Number(prompt("Low-stock level:",x.reorder)||0);
+  else if(action==="3"&&confirm("Delete this lube product?"))v7DB.lubes.splice(i,1);
+  v7Save();v7LubeScreen();
+}
+
+/* 7C — Purchase Entry */
+function v7PurchaseScreen(){
+  let m=document.getElementById("v7PurchaseModal");
+  if(!m){
+    m=document.createElement("div");m.id="v7PurchaseModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:900px">
+      <button class="close" onclick="closeM('v7PurchaseModal')">×</button>
+      <h2>🧾 Purchase Entry</h2>
+      <label>Date<input id="v7PD" type="date"></label>
+      <label>Category<select id="v7PC"><option>Fuel</option><option>Lubes</option></select></label>
+      <label>Product<select id="v7PP"><option>Diesel</option><option>Petrol</option></select></label>
+      <label>Supplier<input id="v7PS"></label>
+      <label>Quantity<input id="v7PQ" type="number" min="0"></label>
+      <label>Rate<input id="v7PR" type="number" min="0" step="0.01"></label>
+      <label>Invoice / Reference<input id="v7PI"></label>
+      <div class="actions"><button class="btn primary" onclick="v7SavePurchase()">💾 Save Purchase</button><button class="btn white" onclick="closeM('v7PurchaseModal')">Cancel</button></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  v7PD.value=v7Today();v7PC.value="Fuel";v7PP.innerHTML='<option>Diesel</option><option>Petrol</option>';
+  v7PC.onchange=function(){v7PP.innerHTML=this.value==="Fuel"?'<option>Diesel</option><option>Petrol</option>':v7DB.lubes.map(x=>`<option>${esc(x.name)}</option>`).join("")||'<option>No lubes</option>'};
+  m.classList.add("open");
+}
+function v7SavePurchase(){
+  const cat=v7PC.value,product=v7PP.value,q=Number(v7PQ.value||0),rate=Number(v7PR.value||0);
+  if(!product||q<=0){alert("Enter a valid product and quantity.");return}
+  const rec={date:v7PD.value,category:cat,product,supplier:v7PS.value.trim(),quantity:q,rate,total:q*rate,invoice:v7PI.value.trim()};
+  v7DB.purchases.push(rec);
+  if(cat==="Fuel"){
+    v7DB.fuel[product]=v7DB.fuel[product]||{opening:0,purchases:0};
+    v7DB.fuel[product].purchases+=q;
+  }else{
+    const x=v7DB.lubes.find(x=>x.name===product);
+    if(x)x.purchases+=q;
+  }
+  v7Save();closeM("v7PurchaseModal");v7StockDashboard();
+}
+
+/* 7D — Stock Dashboard */
+function v7StockDashboard(){
+  let m=document.getElementById("v7DashModal");
+  if(!m){
+    m=document.createElement("div");m.id="v7DashModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1050px">
+      <button class="close" onclick="closeM('v7DashModal')">×</button>
+      <h2>📦 Stock Dashboard</h2><div id="v7DashBody"></div>
+      <div class="v7-actions">
+        <button class="btn white" onclick="v7FuelStockScreen()">⛽ Fuel Stock</button>
+        <button class="btn white" onclick="v7LubeScreen()">🛢️ Lubes</button>
+        <button class="btn white" onclick="v7PurchaseScreen()">🧾 Purchase</button>
+        <button class="btn white" onclick="v7StockReport()">📊 Stock Report</button>
+      </div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  const d=v7FuelStock("Diesel"),p=v7FuelStock("Petrol");
+  const low=v7DB.lubes.filter(x=>v7Amt(x.opening)+v7Amt(x.purchases)-v7LubeSales(x.name)<=v7Amt(x.reorder));
+  document.getElementById("v7DashBody").innerHTML=`
+    <div class="v7-grid">
+      <div class="v7-card"><b>Diesel Stock</b><div class="v7-value">${d.toFixed(2)} L</div></div>
+      <div class="v7-card"><b>Petrol Stock</b><div class="v7-value">${p.toFixed(2)} L</div></div>
+      <div class="v7-card"><b>Lube Products</b><div class="v7-value">${v7DB.lubes.length}</div></div>
+      <div class="v7-card"><b>Low Stock Items</b><div class="v7-value">${low.length}</div></div>
+    </div>
+    <div class="v7-note" style="margin-top:12px">All stock figures are calculated from v0.5/v0.6 sales plus v0.7 purchases.</div>`;
+  m.classList.add("open");
+}
+
+/* 7E — Reports */
+function v7StockReport(){
+  let m=document.getElementById("v7ReportModal");
+  if(!m){
+    m=document.createElement("div");m.id="v7ReportModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1050px">
+      <button class="close" onclick="closeM('v7ReportModal')">×</button>
+      <h2>📊 Stock Report</h2><div id="v7ReportBody"></div>
+      <div class="v7-actions"><button class="btn primary" onclick="v7ExportStock()">📥 Export CSV</button></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  const fuel=["Diesel","Petrol"].map(f=>{const x=v7DB.fuel[f]||{opening:0,purchases:0};return {product:f,unit:"Litre",opening:v7Amt(x.opening),purchases:v7Amt(x.purchases),sold:v7SalesByFuel(f),closing:v7FuelStock(f)}});
+  const lubes=v7DB.lubes.map(x=>({product:x.name,unit:x.unit,opening:v7Amt(x.opening),purchases:v7Amt(x.purchases),sold:v7LubeSales(x.name),closing:v7Amt(x.opening)+v7Amt(x.purchases)-v7LubeSales(x.name)}));
+  const a=fuel.concat(lubes);
+  document.getElementById("v7ReportBody").innerHTML=`<div class="v7-table"><table><tr><th>Product</th><th>Unit</th><th>Opening</th><th>Purchases</th><th>Sold</th><th>Closing</th></tr>${a.map(x=>`<tr class="v7-row"><td>${esc(x.product)}</td><td>${esc(x.unit)}</td><td>${x.opening}</td><td>${x.purchases}</td><td>${x.sold}</td><td><b>${x.closing}</b></td></tr>`).join("")}</table></div>`;
+  m.classList.add("open");
+}
+function v7ExportStock(){
+  const rows=[["Product","Unit","Opening","Purchases","Sold","Closing"]];
+  ["Diesel","Petrol"].forEach(f=>{const x=v7DB.fuel[f]||{opening:0,purchases:0};rows.push([f,"Litre",x.opening,x.purchases,v7SalesByFuel(f),v7FuelStock(f)])});
+  v7DB.lubes.forEach(x=>rows.push([x.name,x.unit,x.opening,x.purchases,v7LubeSales(x.name),v7Amt(x.opening)+v7Amt(x.purchases)-v7LubeSales(x.name)]));
+  const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`Asian_Filling_Station_v0.7_stock_${v7Today()}.csv`;a.click();
+}
+
+/* v0.7 entry button */
+(function(){
+  const wrap=document.querySelector("header .wrap");
+  if(!wrap||document.getElementById("v7StockBtn"))return;
+  const b=document.createElement("button");b.id="v7StockBtn";b.className="btn primary";b.textContent="📦 Stock";
+  b.onclick=v7StockDashboard;wrap.appendChild(b);
 })();
 
 </script></body></html>
