@@ -42,7 +42,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 <button class="btn primary" onclick="saveCustomer()">Save Customer</button></div></div>
 
 <div class="modal" id="fuelModal"><div class="sheet"><button class="close" onclick="closeM('fuelModal')">×</button><h2>⛽ Fuel Sale</h2>
-<div class="field"><label>Sale Date</label><input id="fdate" type="date"></div><div class="field"><label>Customer</label><select id="fcustomer" onchange="checkCredit()"></select></div><div class="grid"><div class="field"><label>Fuel</label><select id="fuel"><option>Diesel</option><option>Petrol</option></select></div>
+<div class="field"><label>Sale Date</label><input id="fdate" type="date"></div><div class="field"><label>Customer</label><select id="fcustomer" onchange="checkCredit()"></select></div><div class="grid"><div class="field"><label>Fuel</label><select id="fuel"><option value="Diesel" selected>Diesel</option><option value="Petrol">Petrol</option></select></div>
 <div class="field"><label>Payment</label><select id="pay"><option value="credit">Credit</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option></select></div></div>
 <div class="grid"><div class="field"><label>Quantity (litres)</label><input id="litres" type="number" min="0" step="0.01" oninput="calc();checkCredit()"></div>
 <div class="field"><label>Rate ₹/litre</label><input id="rate" type="number" min="0" step="0.01" oninput="calc();checkCredit()"></div></div>
@@ -132,22 +132,6 @@ function checkCredit(){
     el.innerHTML=`✅ Within credit limit<br>Limit: ${money(limit)} • Current: ${money(current)} • After sale: ${money(next)}`;
   }
 }
-
-function validateFuelSale(){
-  const cid = document.getElementById("fcustomer")?.value?.trim();
-  const date = document.getElementById("fdate")?.value?.trim();
-  const fuel = document.getElementById("ffuel")?.value?.trim();
-  const qty = Number(document.getElementById("fliters")?.value);
-  const rate = Number(document.getElementById("frate")?.value);
-
-  if(!cid){ alert("⚠️ Please select a customer."); return false; }
-  if(!date){ alert("⚠️ Please enter the sale date."); return false; }
-  if(!fuel){ alert("⚠️ Please select fuel type."); return false; }
-  if(!Number.isFinite(qty) || qty <= 0){ alert("⚠️ Please enter a valid fuel quantity."); return false; }
-  if(!Number.isFinite(rate) || rate <= 0){ alert("⚠️ Please enter a valid fuel rate."); return false; }
-  return true;
-}
-
 function saveFuel(){
   if(!validateFuelSale())return;let l=+document.getElementById("litres").value||0,r=+document.getElementById("rate").value||0;if(!l||!r)return alert("Enter litres and rate");let p=document.getElementById("pay").value,a=l*r;
 if(p==="credit"){
