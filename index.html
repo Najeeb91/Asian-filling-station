@@ -60,10 +60,20 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 .v7-note{font-size:12px;opacity:.7}
 .v7-low{font-weight:700}
 @media(max-width:650px){.v7-grid{grid-template-columns:1fr}}
+
+/* ===== v0.8 Expenses, Cash/Bank & Daily Closing ===== */
+.v8-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.v8-card{padding:14px;border:1px solid #ddd;border-radius:12px;background:#fff}
+.v8-value{font-size:24px;font-weight:700;margin-top:5px}
+.v8-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.v8-table{width:100%;overflow-x:auto}.v8-table table{min-width:780px}
+.v8-row{cursor:pointer}.v8-row:hover{background:#f5f5f5}
+.v8-note{font-size:12px;opacity:.7}
+@media(max-width:650px){.v8-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.7 Step 7A-7E INVENTORY</div>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.8 Step 8A-8E • Expenses Cash Bank Daily Closing</div>
 <div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div><button id="v6rDashboardBtn" class="btn primary" type="button" onclick="v6rDashboard()">📊 Dashboard</button></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
@@ -1163,6 +1173,157 @@ function v7ExportStock(){
   if(!wrap||document.getElementById("v7StockBtn"))return;
   const b=document.createElement("button");b.id="v7StockBtn";b.className="btn primary";b.textContent="📦 Stock";
   b.onclick=v7StockDashboard;wrap.appendChild(b);
+})();
+
+
+/* =========================================================
+   v0.8 — 8A-8E
+   Expenses + Cash/Bank + Daily Closing
+   Stored separately so v0.5-v0.7 core data remains intact.
+   ========================================================= */
+function v8Load(){
+  try{
+    const x=JSON.parse(localStorage.getItem("asian_v08_finance")||"null");
+    if(x&&typeof x==="object")return x;
+  }catch(e){}
+  return {expenses:[],cash:[],bank:[],closings:[]};
+}
+let v8DB=v8Load();
+function v8Save(){localStorage.setItem("asian_v08_finance",JSON.stringify(v8DB))}
+function v8Today(){return new Date().toISOString().slice(0,10)}
+function v8Amt(v){return Number(v||0)}
+function v8Open(title,body,actions=""){
+  let m=document.getElementById("v8Modal");
+  if(!m){
+    m=document.createElement("div");m.id="v8Modal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1050px">
+      <button class="close" onclick="closeM('v8Modal')">×</button>
+      <h2 id="v8Title"></h2><div id="v8Body"></div><div id="v8Actions"></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  v8Title.textContent=title;v8Body.innerHTML=body;v8Actions.innerHTML=actions;m.classList.add("open");
+}
+
+/* 8A — Expense Entry */
+function v8Expense(){
+  let m=document.getElementById("v8ExpenseModal");
+  if(!m){
+    m=document.createElement("div");m.id="v8ExpenseModal";m.className="modal";
+    m.innerHTML=`<div class="sheet">
+      <button class="close" onclick="closeM('v8ExpenseModal')">×</button>
+      <h2>🧾 Expense Entry</h2>
+      <label>Date<input id="v8ED" type="date"></label>
+      <label>Category<select id="v8EC">
+        <option>Electricity</option><option>Salary</option><option>Maintenance</option>
+        <option>Transport</option><option>Stationery</option><option>Miscellaneous</option>
+      </select></label>
+      <label>Description<input id="v8EDesc"></label>
+      <label>Amount ₹<input id="v8EA" type="number" min="0" step="0.01"></label>
+      <label>Paid From<select id="v8EP"><option>Cash</option><option>Bank</option></select></label>
+      <label>Reference<input id="v8ER"></label>
+      <div class="actions"><button class="btn primary" onclick="v8SaveExpense()">💾 Save Expense</button>
+      <button class="btn white" onclick="closeM('v8ExpenseModal')">Cancel</button></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  v8ED.value=v8Today();v8EA.value="";v8EDesc.value="";v8ER.value="";
+  m.classList.add("open");
+}
+function v8SaveExpense(){
+  const amount=v8Amt(v8EA.value);
+  if(amount<=0)return alert("Enter a valid expense amount.");
+  v8DB.expenses.push({id:Date.now(),date:v8ED.value,category:v8EC.value,description:v8EDesc.value.trim(),amount,paidFrom:v8EP.value,ref:v8ER.value.trim()});
+  v8Save();closeM("v8ExpenseModal");v8Dashboard();
+}
+
+/* 8B — Cash & Bank */
+function v8CashBank(){
+  const today=v8Today();
+  const exp=v8DB.expenses.filter(x=>x.date===today);
+  const cashExp=exp.filter(x=>x.paidFrom==="Cash").reduce((s,x)=>s+x.amount,0);
+  const bankExp=exp.filter(x=>x.paidFrom==="Bank").reduce((s,x)=>s+x.amount,0);
+  const payments=(Array.isArray(db.tx)?db.tx:[]).filter(x=>x.type==="payment"&&String(x.date).slice(0,10)===today);
+  const cashIn=payments.filter(x=>x.mode==="Cash").reduce((s,x)=>s+v8Amt(x.amount),0);
+  const bankIn=payments.filter(x=>x.mode!=="Cash").reduce((s,x)=>s+v8Amt(x.amount),0);
+  v8Open("💵 Cash & Bank",`
+    <div class="v8-grid">
+      <div class="v8-card"><b>Cash Collected Today</b><div class="v8-value">${money(cashIn)}</div></div>
+      <div class="v8-card"><b>Cash Expenses Today</b><div class="v8-value">${money(cashExp)}</div></div>
+      <div class="v8-card"><b>Bank Collected Today</b><div class="v8-value">${money(bankIn)}</div></div>
+      <div class="v8-card"><b>Bank Expenses Today</b><div class="v8-value">${money(bankExp)}</div></div>
+    </div>
+    <div class="v8-note" style="margin-top:12px">Net movement: Cash ${money(cashIn-cashExp)} • Bank ${money(bankIn-bankExp)}</div>`,
+    `<button class="btn primary" onclick="v8Expense()">＋ Expense</button>`);
+}
+
+/* 8C — Expense Report */
+function v8ExpenseReport(){
+  const rows=v8DB.expenses.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>
+    `<tr class="v8-row" onclick="v8EditExpense(${x.id})"><td>${formatDate(x.date)}</td><td>${esc(x.category)}</td><td>${esc(x.description||"—")}</td><td>${esc(x.paidFrom)}</td><td>${money(x.amount)}</td></tr>`
+  ).join("");
+  v8Open("🧾 Expense Report",
+    `<div class="v8-table"><table><tr><th>Date</th><th>Category</th><th>Description</th><th>Paid From</th><th>Amount</th></tr>${rows||'<tr><td colspan="5">No expenses.</td></tr>'}</table></div>`,
+    `<button class="btn primary" onclick="v8Expense()">＋ Add Expense</button>`);
+}
+function v8EditExpense(id){
+  const x=v8DB.expenses.find(a=>a.id===id);if(!x)return;
+  if(confirm(`Delete expense of ${money(x.amount)}?`)){
+    v8DB.expenses=v8DB.expenses.filter(a=>a.id!==id);v8Save();v8ExpenseReport();
+  }
+}
+
+/* 8D — Daily Closing */
+function v8DailyClosing(){
+  const d=prompt("Closing date:",v8Today());if(!d)return;
+  const tx=Array.isArray(db.tx)?db.tx:[];
+  const sales=tx.filter(x=>String(x.date).slice(0,10)===d&&x.type==="credit");
+  const payments=tx.filter(x=>String(x.date).slice(0,10)===d&&x.type==="payment");
+  const expenses=v8DB.expenses.filter(x=>x.date===d);
+  const salesAmt=sales.reduce((s,x)=>s+v8Amt(x.amount),0);
+  const payAmt=payments.reduce((s,x)=>s+v8Amt(x.amount),0);
+  const expAmt=expenses.reduce((s,x)=>s+v8Amt(x.amount),0);
+  const closing={date:d,sales:salesAmt,payments:payAmt,expenses:expAmt,net:payAmt-expAmt};
+  v8DB.closings=v8DB.closings.filter(x=>x.date!==d);v8DB.closings.push(closing);v8Save();
+  v8Open(`🔒 Daily Closing — ${d}`,
+    `<div class="v8-grid">
+      <div class="v8-card"><b>Total Sales</b><div class="v8-value">${money(salesAmt)}</div></div>
+      <div class="v8-card"><b>Total Payments</b><div class="v8-value">${money(payAmt)}</div></div>
+      <div class="v8-card"><b>Total Expenses</b><div class="v8-value">${money(expAmt)}</div></div>
+      <div class="v8-card"><b>Net Cash/Bank Movement</b><div class="v8-value">${money(payAmt-expAmt)}</div></div>
+    </div>
+    <div class="v8-note" style="margin-top:12px">Closing saved for ${d}. This is an operational closing summary, not a replacement for the underlying transaction ledger.</div>`);
+}
+
+/* 8E — Finance Dashboard */
+function v8Dashboard(){
+  const today=v8Today(),exp=v8DB.expenses.filter(x=>x.date===today);
+  const tx=Array.isArray(db.tx)?db.tx:[];
+  const sales=tx.filter(x=>String(x.date).slice(0,10)===today&&x.type==="credit").reduce((s,x)=>s+v8Amt(x.amount),0);
+  const payments=tx.filter(x=>String(x.date).slice(0,10)===today&&x.type==="payment").reduce((s,x)=>s+v8Amt(x.amount),0);
+  const expenses=exp.reduce((s,x)=>s+x.amount,0);
+  const rows=v8DB.closings.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>
+    `<tr><td>${formatDate(x.date)}</td><td>${money(x.sales)}</td><td>${money(x.payments)}</td><td>${money(x.expenses)}</td><td>${money(x.net)}</td></tr>`).join("");
+  v8Open("💼 Finance & Daily Closing Dashboard",
+    `<div class="v8-grid">
+      <div class="v8-card"><b>Today's Sales</b><div class="v8-value">${money(sales)}</div></div>
+      <div class="v8-card"><b>Today's Payments</b><div class="v8-value">${money(payments)}</div></div>
+      <div class="v8-card"><b>Today's Expenses</b><div class="v8-value">${money(expenses)}</div></div>
+      <div class="v8-card"><b>Net Movement</b><div class="v8-value">${money(payments-expenses)}</div></div>
+    </div>
+    <h3 style="margin-top:16px">Previous Closings</h3>
+    <div class="v8-table"><table><tr><th>Date</th><th>Sales</th><th>Payments</th><th>Expenses</th><th>Net</th></tr>${rows||'<tr><td colspan="5">No closings yet.</td></tr>'}</table></div>`,
+    `<button class="btn white" onclick="v8CashBank()">💵 Cash/Bank</button>
+     <button class="btn white" onclick="v8ExpenseReport()">🧾 Expenses</button>
+     <button class="btn primary" onclick="v8DailyClosing()">🔒 Daily Closing</button>`);
+}
+
+/* v0.8 navigation button */
+(function(){
+  const wrap=document.querySelector("header .wrap");
+  if(!wrap||document.getElementById("v8FinanceBtn"))return;
+  const b=document.createElement("button");b.id="v8FinanceBtn";b.className="btn primary";
+  b.textContent="💼 Finance";b.onclick=v8Dashboard;wrap.appendChild(b);
 })();
 
 </script></body></html>
