@@ -70,10 +70,17 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 .v8-row{cursor:pointer}.v8-row:hover{background:#f5f5f5}
 .v8-note{font-size:12px;opacity:.7}
 @media(max-width:650px){.v8-grid{grid-template-columns:1fr}}
+
+/* ===== v0.9 SECURITY CENTER — VISIBLE BUILD ===== */
+.v9-menu-wrap{padding:10px 12px;border-bottom:1px solid #ddd;background:#fff;position:relative;z-index:9999}
+.v9-menu-btn{display:block!important;width:100%;max-width:360px;margin:0 auto!important}
+.v9-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.v9-card{padding:14px;border:1px solid #ddd;border-radius:12px;background:#fff}
+@media(max-width:650px){.v9-grid{grid-template-columns:1fr}}
 </style>
 </head>
-<body>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.8 Step 8A-8E • Expenses Cash Bank Daily Closing</div>
+<body><div class="v9-menu-wrap"><button id="v9SecurityBtn" class="btn primary v9-menu-btn" type="button" onclick="v9Center()">🔐 Security & Data Center</button></div>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.9 SECURITY VISIBLE</div>
 <div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div><button id="v6rDashboardBtn" class="btn primary" type="button" onclick="v6rDashboard()">📊 Dashboard</button></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
@@ -1325,5 +1332,125 @@ function v8Dashboard(){
   const b=document.createElement("button");b.id="v8FinanceBtn";b.className="btn primary";
   b.textContent="💼 Finance";b.onclick=v8Dashboard;wrap.appendChild(b);
 })();
+
+
+/* ================= v0.9 SECURITY CENTER ================= */
+function v9Load(){
+  try{
+    const x=JSON.parse(localStorage.getItem("asian_v09_security")||"null");
+    if(x&&typeof x==="object")return x;
+  }catch(e){}
+  return {users:[{id:"owner",name:"Owner",role:"Owner",active:true}],audit:[],settings:{stationName:"Asian Filling Station"}};
+}
+let v9DB=v9Load();
+function v9Save(){localStorage.setItem("asian_v09_security",JSON.stringify(v9DB))}
+function v9Audit(action,detail=""){
+  v9DB.audit.unshift({date:new Date().toISOString(),action,detail});
+  v9DB.audit=v9DB.audit.slice(0,200);v9Save();
+}
+function v9Users(){
+  let m=document.getElementById("v9UsersModal");
+  if(!m){
+    m=document.createElement("div");m.id="v9UsersModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:950px">
+      <button class="close" onclick="closeM('v9UsersModal')">×</button>
+      <h2>👥 User Management</h2><div id="v9UsersBody"></div>
+      <div class="v9-actions"><button class="btn primary" onclick="v9AddUser()">＋ Add User</button></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  const rows=v9DB.users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.role)}</td><td>${u.active?"Active":"Disabled"}</td><td><button class="btn white" onclick="v9ToggleUser('${u.id}')">${u.active?"Disable":"Enable"}</button></td></tr>`).join("");
+  document.getElementById("v9UsersBody").innerHTML=`<div class="v9-table"><table><tr><th>Name</th><th>Role</th><th>Status</th><th>Action</th></tr>${rows}</table></div>`;
+  m.classList.add("open");
+}
+function v9AddUser(){
+  const name=prompt("User name:"); if(!name)return;
+  const role=prompt("Role: Owner / Manager / Cashier / Viewer","Cashier")||"Cashier";
+  v9DB.users.push({id:"u_"+Date.now(),name:name.trim(),role,active:true});
+  v9Audit("User added",name.trim());v9Users();
+}
+function v9ToggleUser(id){
+  const u=v9DB.users.find(x=>x.id===id); if(!u)return;
+  if(u.id==="owner"){alert("Owner cannot be disabled.");return}
+  u.active=!u.active;v9Audit(u.active?"User enabled":"User disabled",u.name);v9Users();
+}
+function v9Backup(){
+  const data={
+    version:"0.9",
+    exportedAt:new Date().toISOString(),
+    coreData:(typeof db!=="undefined"?db:null),
+    inventory:localStorage.getItem("asian_v07_inventory"),
+    finance:localStorage.getItem("asian_v08_finance"),
+    security:v9DB
+  };
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));
+  a.download="Asian_Filling_Station_BACKUP_"+new Date().toISOString().slice(0,10)+".json";
+  a.click();v9Audit("Backup exported");
+}
+function v9Restore(){
+  const input=document.createElement("input");input.type="file";input.accept=".json,application/json";
+  input.onchange=()=>{
+    const f=input.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        const x=JSON.parse(r.result);
+        if(!x||!x.coreData)throw 0;
+        if(!confirm("Restore this backup? Current data may be replaced."))return;
+        if(typeof K!=="undefined")localStorage.setItem(K,JSON.stringify(x.coreData));
+        if(x.inventory)localStorage.setItem("asian_v07_inventory",x.inventory);
+        if(x.finance)localStorage.setItem("asian_v08_finance",x.finance);
+        if(x.security)localStorage.setItem("asian_v09_security",JSON.stringify(x.security));
+        alert("Backup restored. Reloading.");location.reload();
+      }catch(e){alert("Invalid backup file.")}
+    };r.readAsText(f);
+  };input.click();
+}
+function v9AuditLog(){
+  const rows=v9DB.audit.map(x=>`<tr><td>${new Date(x.date).toLocaleString()}</td><td>${esc(x.action)}</td><td>${esc(x.detail||"—")}</td></tr>`).join("");
+  let m=document.getElementById("v9AuditModal");
+  if(!m){
+    m=document.createElement("div");m.id="v9AuditModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:950px"><button class="close" onclick="closeM('v9AuditModal')">×</button><h2>📋 Activity Log</h2><div id="v9AuditBody"></div></div>`;
+    document.body.appendChild(m);
+  }
+  document.getElementById("v9AuditBody").innerHTML=`<div class="v9-table"><table><tr><th>Date/Time</th><th>Action</th><th>Detail</th></tr>${rows||'<tr><td colspan="3">No activity yet.</td></tr>'}</table></div>`;
+  m.classList.add("open");
+}
+function v9Settings(){
+  let m=document.getElementById("v9SettingsModal");
+  if(!m){
+    m=document.createElement("div");m.id="v9SettingsModal";m.className="modal";
+    m.innerHTML=`<div class="sheet"><button class="close" onclick="closeM('v9SettingsModal')">×</button><h2>⚙️ Station Settings</h2>
+      <label>Station Name<input id="v9StationName"></label>
+      <div class="actions"><button class="btn primary" onclick="v9SaveSettings()">Save</button></div></div>`;
+    document.body.appendChild(m);
+  }
+  v9StationName.value=v9DB.settings.stationName||"Asian Filling Station";m.classList.add("open");
+}
+function v9SaveSettings(){
+  v9DB.settings.stationName=v9StationName.value.trim()||"Asian Filling Station";
+  v9Audit("Settings updated","Station name");closeM("v9SettingsModal");alert("Settings saved.");
+}
+function v9Center(){
+  let m=document.getElementById("v9CenterModal");
+  if(!m){
+    m=document.createElement("div");m.id="v9CenterModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:950px">
+      <button class="close" onclick="closeM('v9CenterModal')">×</button>
+      <h2>🔐 Security & Data Center</h2>
+      <div class="v9-grid">
+        <div class="v9-card"><b>👥 Users</b><p>Manage station users and roles.</p><button class="btn white" onclick="v9Users()">Open</button></div>
+        <div class="v9-card"><b>💾 Backup</b><p>Export complete application data.</p><button class="btn primary" onclick="v9Backup()">Backup</button></div>
+        <div class="v9-card"><b>♻️ Restore</b><p>Restore a previous backup.</p><button class="btn white" onclick="v9Restore()">Restore</button></div>
+        <div class="v9-card"><b>📋 Activity Log</b><p>Review security actions.</p><button class="btn white" onclick="v9AuditLog()">Open</button></div>
+        <div class="v9-card"><b>⚙️ Station Settings</b><p>Configure station information.</p><button class="btn white" onclick="v9Settings()">Open</button></div>
+      </div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  m.classList.add("open");
+}
 
 </script></body></html>
