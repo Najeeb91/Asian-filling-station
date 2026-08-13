@@ -200,6 +200,16 @@ function ledger(cid){
 <button class="btn white" onclick="s5Payments('${cid}')">💰 Payments</button>
 <button class="btn white" onclick="s5Check('${cid}')">✅ Check</button>`;
   document.getElementById("ledgerModal").classList.add("open");
+  // Step 5D: immediately refresh balance/list/ledger after payment.
+  try{
+    if(typeof save==="function")save();
+    if(typeof render==="function")render();
+    const cid =
+      (typeof currentCustomerId!=="undefined" ? currentCustomerId : null) ||
+      (typeof selectedCustomerId!=="undefined" ? selectedCustomerId : null);
+    if(cid && typeof ledger==="function")ledger(cid);
+  }catch(e){ console.error("Payment refresh:",e); }
+
 }
 
 
@@ -588,6 +598,40 @@ function s5Payments(cid){
 function s5Check(cid){
   const c=db.customers.find(x=>x.id===cid);if(!c)return;
   alert(`✅ Step 5E check\n\nCustomer: ${c.name}\nTransactions: ${db.tx.filter(t=>t.cid===cid).length}\nOutstanding: ${money(bal(c))}`);
+}
+
+
+/* Step 5D: Payment modal front + immediate balance refresh */
+function s5PaymentFrontFix(){
+  const ids=["paymentModal","addPaymentModal","payModal","paymentManagerModal"];
+  ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){
+      el.style.zIndex="99999";
+      el.style.position="fixed";
+    }
+  });
+}
+document.addEventListener("click",function(e){
+  const b=e.target.closest("button");
+  if(!b)return;
+  const text=(b.textContent||"").toLowerCase();
+  if(text.includes("add payment") || text.includes("payment")){
+    setTimeout(s5PaymentFrontFix,30);
+  }
+},true);
+
+
+function s5RefreshAfterPayment(){
+  try{
+    if(typeof save==="function")save();
+    if(typeof render==="function")render();
+    const openLedger=document.querySelector('#ledgerModal.open');
+    if(openLedger){
+      const cid=openLedger.dataset.cid || openLedger.getAttribute("data-cid");
+      if(cid && typeof ledger==="function")ledger(cid);
+    }
+  }catch(e){console.error(e);}
 }
 
 </script></body></html>
