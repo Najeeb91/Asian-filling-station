@@ -27,10 +27,21 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 .s5-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .s5-panel{margin:10px 0;padding:12px;border:1px solid #ddd;border-radius:12px;background:#fff}
 .s5-table-wrap{width:100%;overflow-x:auto}.s5-table-wrap table{min-width:720px}
+
+/* ===== v0.6 Dashboard & Reports ===== */
+.v6-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.v6-card{padding:14px;border:1px solid #ddd;border-radius:12px;background:#fff}
+.v6-card h3{margin:0 0 8px}
+.v6-value{font-size:24px;font-weight:700}
+.v6-table{width:100%;overflow-x:auto}.v6-table table{min-width:720px}
+.v6-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.v6-filter{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.v6-filter label{min-width:150px}
+@media(max-width:650px){.v6-grid{grid-template-columns:1fr}.v6-value{font-size:21px}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5 Step 5A-5E COMPLETE SAFE BUILD</div>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.6 Step 6A-6E COMPLETE</div>
 <div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
@@ -633,5 +644,180 @@ function s5RefreshAfterPayment(){
     }
   }catch(e){console.error(e);}
 }
+
+
+/* =========================
+   v0.6 DASHBOARD & REPORTS
+   6A-6E
+   ========================= */
+
+function v6Num(v){return Number(v||0);}
+function v6Date(t){return String(t.date||"").slice(0,10);}
+function v6Today(){return new Date().toISOString().slice(0,10);}
+function v6Tx(){return Array.isArray(db.tx)?db.tx:[];}
+function v6Customers(){return Array.isArray(db.customers)?db.customers:[];}
+
+function v6FuelSales(tx){
+  return tx.filter(t=>t.type==="credit" && (t.fuel==="Petrol"||t.fuel==="Diesel"));
+}
+function v6PaymentTx(tx){return tx.filter(t=>t.type==="payment");}
+function v6Amount(tx){return tx.reduce((s,t)=>s+v6Num(t.amount),0);}
+function v6Litres(tx){return tx.reduce((s,t)=>s+v6Num(t.litres||t.quantity||t.qty),0);}
+
+/* 6A — Main Dashboard */
+function v6Dashboard(){
+  let m=document.getElementById("v6DashboardModal");
+  if(!m){
+    m=document.createElement("div");m.id="v6DashboardModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1000px">
+      <button class="close" onclick="closeM('v6DashboardModal')">×</button>
+      <h2>📊 Asian Filling Station Dashboard</h2>
+      <div id="v6DashboardBody"></div>
+      <div class="v6-actions">
+        <button class="btn white" onclick="v6FuelReport()">⛽ Fuel Sales</button>
+        <button class="btn white" onclick="v6ReceivableReport()">💰 Receivables</button>
+        <button class="btn white" onclick="v6PaymentReport()">💵 Payments</button>
+        <button class="btn white" onclick="v6ExportReport()">📥 Export</button>
+      </div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+
+  const today=v6Today();
+  const tx=v6Tx();
+  const todayTx=tx.filter(t=>v6Date(t)===today);
+  const fuel=v6FuelSales(todayTx);
+  const payments=v6PaymentTx(todayTx);
+  const receivable=v6Customers().reduce((s,c)=>s+Math.max(0,bal(c)),0);
+  const over=v6Customers().filter(c=>(c.creditLimit||0)>0 && bal(c)>c.creditLimit).length;
+
+  document.getElementById("v6DashboardBody").innerHTML=`
+    <div class="v6-grid">
+      <div class="v6-card"><h3>👥 Total Customers</h3><div class="v6-value">${v6Customers().length}</div></div>
+      <div class="v6-card"><h3>💰 Total Receivable</h3><div class="v6-value">${money(receivable)}</div></div>
+      <div class="v6-card"><h3>⛽ Today's Fuel Sales</h3><div class="v6-value">${money(v6Amount(fuel))}</div></div>
+      <div class="v6-card"><h3>💵 Today's Payments</h3><div class="v6-value">${money(v6Amount(payments))}</div></div>
+      <div class="v6-card"><h3>🧾 Today's Transactions</h3><div class="v6-value">${todayTx.length}</div></div>
+      <div class="v6-card"><h3>⚠️ Over Credit Limit</h3><div class="v6-value">${over}</div></div>
+    </div>
+    <div class="v6-card" style="margin-top:12px">
+      <b>Today:</b> ${today}<br>
+      <span class="step5-note">Dashboard reads existing v0.5 data; it does not alter the transaction engine.</span>
+    </div>`;
+  m.classList.add("open");
+}
+
+/* 6B — Fuel Sales Dashboard */
+function v6FuelReport(){
+  let m=document.getElementById("v6FuelModal");
+  if(!m){
+    m=document.createElement("div");m.id="v6FuelModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:950px">
+      <button class="close" onclick="closeM('v6FuelModal')">×</button>
+      <h2>⛽ Fuel Sales Report</h2>
+      <div class="v6-filter">
+        <label>From<input id="v6FuelFrom" type="date"></label>
+        <label>To<input id="v6FuelTo" type="date"></label>
+        <button class="btn primary" onclick="v6BuildFuelReport()">Apply</button>
+      </div>
+      <div id="v6FuelBody"></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  v6FuelFrom.value=v6Today();v6FuelTo.value=v6Today();
+  v6BuildFuelReport();m.classList.add("open");
+}
+function v6BuildFuelReport(){
+  const from=v6FuelFrom.value,to=v6FuelTo.value;
+  let tx=v6FuelSales(v6Tx()).filter(t=>(!from||v6Date(t)>=from)&&(!to||v6Date(t)<=to));
+  const p=tx.filter(t=>t.fuel==="Petrol"),d=tx.filter(t=>t.fuel==="Diesel");
+  document.getElementById("v6FuelBody").innerHTML=`
+    <div class="v6-table"><table>
+      <tr><th>Fuel</th><th>Litres</th><th>Sales</th></tr>
+      <tr><td>Petrol</td><td>${v6Litres(p).toFixed(2)}</td><td>${money(v6Amount(p))}</td></tr>
+      <tr><td>Diesel</td><td>${v6Litres(d).toFixed(2)}</td><td>${money(v6Amount(d))}</td></tr>
+      <tr><th>Total</th><th>${v6Litres(tx).toFixed(2)}</th><th>${money(v6Amount(tx))}</th></tr>
+    </table></div>`;
+}
+
+/* 6C — Receivable Report */
+function v6ReceivableReport(){
+  let m=document.getElementById("v6RecvModal");
+  if(!m){
+    m=document.createElement("div");m.id="v6RecvModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:950px">
+      <button class="close" onclick="closeM('v6RecvModal')">×</button>
+      <h2>💰 Receivable Report</h2><div id="v6RecvBody"></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  const rows=v6Customers().map(c=>{
+    const outstanding=Math.max(0,bal(c)),limit=v6Num(c.creditLimit);
+    const status=limit>0&&outstanding>limit?"OVER LIMIT":limit>0&&outstanding>=limit*.8?"NEAR LIMIT":"OK";
+    return {c,outstanding,limit,status};
+  }).filter(x=>x.outstanding>0).sort((a,b)=>b.outstanding-a.outstanding);
+  document.getElementById("v6RecvBody").innerHTML=`
+    <div class="v6-table"><table><tr><th>Customer</th><th>Outstanding</th><th>Credit Limit</th><th>Status</th></tr>
+    ${rows.map(x=>`<tr><td>${esc(x.c.name)}</td><td>${money(x.outstanding)}</td><td>${x.limit?money(x.limit):"—"}</td><td>${x.status}</td></tr>`).join("")||'<tr><td colspan="4">No outstanding receivables.</td></tr>'}</table></div>`;
+  m.classList.add("open");
+}
+
+/* 6D — Payment Report */
+function v6PaymentReport(){
+  let m=document.getElementById("v6PayReportModal");
+  if(!m){
+    m=document.createElement("div");m.id="v6PayReportModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:950px">
+      <button class="close" onclick="closeM('v6PayReportModal')">×</button>
+      <h2>💵 Payment Report</h2>
+      <div class="v6-filter">
+        <label>From<input id="v6PayFrom" type="date"></label>
+        <label>To<input id="v6PayTo" type="date"></label>
+        <button class="btn primary" onclick="v6BuildPaymentReport()">Apply</button>
+      </div>
+      <div id="v6PayBody"></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  v6PayFrom.value=v6Today();v6PayTo.value=v6Today();
+  v6BuildPaymentReport();m.classList.add("open");
+}
+function v6BuildPaymentReport(){
+  const from=v6PayFrom.value,to=v6PayTo.value;
+  const tx=v6PaymentTx(v6Tx()).filter(t=>(!from||v6Date(t)>=from)&&(!to||v6Date(t)<=to));
+  const modes={};
+  tx.forEach(t=>{const k=t.mode||"Unspecified";modes[k]=(modes[k]||0)+v6Num(t.amount);});
+  document.getElementById("v6PayBody").innerHTML=`
+    <div class="v6-card"><b>Total Collection:</b> ${money(v6Amount(tx))}</div>
+    <div class="v6-table"><table><tr><th>Payment Mode</th><th>Amount</th></tr>
+    ${Object.entries(modes).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${money(v)}</td></tr>`).join("")||'<tr><td colspan="2">No payments found.</td></tr>'}</table></div>`;
+}
+
+/* 6E — Export */
+function v6ExportReport(){
+  const rows=[["Customer","Outstanding","Credit Limit","Status"]];
+  v6Customers().forEach(c=>{
+    const o=Math.max(0,bal(c)),l=v6Num(c.creditLimit);
+    const s=l>0&&o>l?"OVER LIMIT":l>0&&o>=l*.8?"NEAR LIMIT":"OK";
+    rows.push([c.name,o,l,s]);
+  });
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`Asian_Filling_Station_v0.6_receivables_${v6Today()}.csv`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+/* Add Dashboard button to the existing header without changing core actions. */
+(function(){
+  const header=document.querySelector("header .wrap");
+  if(!header || document.getElementById("v6DashboardBtn"))return;
+  const b=document.createElement("button");
+  b.id="v6DashboardBtn";b.className="btn primary";b.textContent="📊 Dashboard";
+  b.onclick=v6Dashboard;
+  header.appendChild(b);
+})();
 
 </script></body></html>
