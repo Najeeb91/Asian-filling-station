@@ -25,7 +25,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5 Step 4C-1</div>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5 Step 4C COMPLETE</div>
 <div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
@@ -165,6 +165,7 @@ function validateFuelSale(){
 }
 
 function saveFuel(){
+  if(!validateTransactionValues('fuel'))return;
   if(!validateFuelSale())return;let l=+document.getElementById("litres").value||0,r=+document.getElementById("rate").value||0;if(!l||!r)return alert("Enter litres and rate");let p=document.getElementById("pay").value,a=l*r;
 if(p==="credit"){
   let c=db.customers.find(x=>x.id===document.getElementById("fcustomer").value);
@@ -175,7 +176,8 @@ if(p==="credit"){
 }
 db.tx.push({id:uid(),cid:document.getElementById("fcustomer").value,type:p==="credit"?"credit":"sale",amount:a,l,r,fuel:document.getElementById("fuel").value,payment:p,desc:document.getElementById("desc").value||"Fuel sale",date:(document.getElementById("fdate").value||todayISO())+"T12:00:00"});save();closeM("fuelModal")}
 function openPayment(cid){if(!db.customers.length)return alert("Add a customer first");document.getElementById("pdate").value=todayISO();fill();if(cid)document.getElementById("pcustomer").value=cid;document.getElementById("payModal").classList.add("open")}
-function savePayment(){let a=+document.getElementById("pamount").value||0;if(!a)return alert("Enter amount");db.tx.push({id:uid(),cid:document.getElementById("pcustomer").value,type:"payment",amount:a,mode:document.getElementById("pmode").value,ref:document.getElementById("pref").value.trim(),notes:document.getElementById("pnotes").value.trim(),desc:"Payment received",date:(document.getElementById("pdate").value||todayISO())+"T12:00:00"});save();closeM("payModal")}
+function savePayment(){
+  if(!validateTransactionValues('payment'))return;let a=+document.getElementById("pamount").value||0;if(!a)return alert("Enter amount");db.tx.push({id:uid(),cid:document.getElementById("pcustomer").value,type:"payment",amount:a,mode:document.getElementById("pmode").value,ref:document.getElementById("pref").value.trim(),notes:document.getElementById("pnotes").value.trim(),desc:"Payment received",date:(document.getElementById("pdate").value||todayISO())+"T12:00:00"});save();closeM("payModal")}
 function ledger(cid){
   let c=db.customers.find(x=>x.id===cid),b=0,
       tx=db.tx.filter(t=>t.cid===cid).sort((a,b)=>new Date(a.date)-new Date(b.date));
@@ -271,4 +273,155 @@ function closeM(id){document.getElementById(id).classList.remove("open")}
 function practice(){let c={id:uid(),name:"Ravi Transport (v0.5)",phone:"9876543210",vehicle:"HR 55 AB 1234",type:"Transporter",creditLimit:100000};db.customers.push(c);let n=Date.now();db.tx.push({id:uid(),cid:c.id,type:"opening",amount:50000,desc:"Opening balance",date:new Date(n-259200000).toISOString()},{id:uid(),cid:c.id,type:"credit",amount:11062.5,l:125,r:88.5,fuel:"Diesel",payment:"credit",desc:"Diesel credit",date:new Date(n-172800000).toISOString()},{id:uid(),cid:c.id,type:"credit",amount:7640,l:80,r:95.5,fuel:"Petrol",payment:"credit",desc:"Petrol credit",date:new Date(n-86400000).toISOString()},{id:uid(),cid:c.id,type:"payment",amount:10000,mode:"Cash",desc:"Payment received",date:new Date(n).toISOString()});save();alert("Practice added. Ravi Transport balance = ₹58,702.50")}
 function resetData(){if(!confirm("Reset ALL practice data on this device? This cannot be undone."))return;localStorage.removeItem(K);db={customers:[],tx:[]};render();alert("Practice data has been reset.")}
 render();
+
+
+let deletingCustomerId=null;
+
+function deleteCustomer(id){
+  const c=db.customers.find(x=>x.id===id);
+  if(!c)return;
+
+  deletingCustomerId=id;
+  const txCount=db.tx.filter(t=>t.cid===id).length;
+  const outstanding=bal(c);
+
+  let box=document.getElementById("deleteCustomerModal");
+  if(!box){
+    box=document.createElement("div");
+    box.id="deleteCustomerModal";
+    box.className="modal";
+    box.innerHTML=`<div class="sheet">
+      <button class="close" onclick="closeM('deleteCustomerModal')">×</button>
+      <h2>⚠️ Delete Customer</h2>
+      <div class="calc"><div id="deleteCustomerInfo"></div></div>
+      <p>This will permanently delete the customer and all of the customer's transactions.</p>
+      <div class="actions">
+        <button class="btn white" onclick="closeM('deleteCustomerModal')">Cancel</button>
+        <button class="btn danger" onclick="confirmDeleteCustomer()">🗑️ Delete Customer</button>
+      </div>
+    </div>`;
+    document.body.appendChild(box);
+  }
+
+  document.getElementById("deleteCustomerInfo").innerHTML=
+    `<b>${esc(c.name)}</b><br>
+     Outstanding: <b>${money(outstanding)}</b><br>
+     Transactions: <b>${txCount}</b>`;
+
+  box.classList.add("open");
+}
+
+function confirmDeleteCustomer(){
+  if(!deletingCustomerId)return;
+
+  const id=deletingCustomerId;
+  db.customers=db.customers.filter(c=>c.id!==id);
+  db.tx=db.tx.filter(t=>t.cid!==id);
+  save();
+
+  closeM("deleteCustomerModal");
+  deletingCustomerId=null;
+
+  // Immediate same-page refresh.
+  if(typeof renderCustomers==="function")renderCustomers();
+  if(typeof renderCustomersList==="function")renderCustomersList();
+  if(typeof render==="function")render();
+  if(typeof updateSummary==="function")updateSummary();
+  if(typeof updateStats==="function")updateStats();
+
+  // Close any open ledger belonging to the deleted customer.
+  ["ledgerModal","editModal","fuelModal","paymentModal"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.classList.remove("open");
+  });
+}
+
+
+
+function validateTransactionValues(type){
+  const getNum=id=>{
+    const el=document.getElementById(id);
+    return el ? Number(el.value) : NaN;
+  };
+
+  if(type==="fuel"){
+    const litres=getNum("litres");
+    const rate=getNum("rate");
+    if(!Number.isFinite(litres)||litres<=0){
+      alert("⚠️ Fuel quantity must be greater than 0.");
+      return false;
+    }
+    if(!Number.isFinite(rate)||rate<=0){
+      alert("⚠️ Fuel rate must be greater than 0.");
+      return false;
+    }
+  }
+
+  if(type==="payment"){
+    const amount=getNum("pamount");
+    if(!Number.isFinite(amount)||amount<=0){
+      alert("⚠️ Payment amount must be greater than 0.");
+      return false;
+    }
+  }
+
+  if(type==="opening"){
+    const amount=getNum("oamount");
+    if(!Number.isFinite(amount)||amount<0){
+      alert("⚠️ Opening balance cannot be negative.");
+      return false;
+    }
+  }
+
+  return true;
+}
+
+
+
+let lastTransactionSignature="";
+let lastTransactionTime=0;
+
+function guardDuplicateSubmit(signature){
+  const now=Date.now();
+  if(signature===lastTransactionSignature && now-lastTransactionTime<3000){
+    alert("⚠️ This transaction was already submitted. Please wait before submitting again.");
+    return false;
+  }
+  lastTransactionSignature=signature;
+  lastTransactionTime=now;
+  return true;
+}
+
+
+
+document.addEventListener("click",function(e){
+  const btn=e.target.closest("button");
+  if(!btn)return;
+  const label=(btn.textContent||"").trim().toLowerCase();
+  if(!/save.*(fuel|sale)|save payment|save transaction/.test(label))return;
+  if(btn.dataset.duplicateGuard==="busy"){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    alert("⚠️ Please wait. The transaction is already being saved.");
+    return;
+  }
+  btn.dataset.duplicateGuard="busy";
+  setTimeout(()=>{if(btn)btn.dataset.duplicateGuard="";},1500);
+},true);
+
+
+
+document.addEventListener("click",function(e){
+  const edit=e.target.closest('[onclick*="editCustomer"]');
+  if(!edit)return;
+  if(edit.parentElement && edit.parentElement.querySelector(".customer-delete-btn"))return;
+  const m=(edit.getAttribute("onclick")||"").match(/editCustomer\(['"]([^'"]+)['"]\)/);
+  if(!m)return;
+  const b=document.createElement("button");
+  b.className="btn danger customer-delete-btn";
+  b.textContent="🗑️ Delete";
+  b.onclick=()=>deleteCustomer(m[1]);
+  edit.parentElement.appendChild(b);
+});
+
 </script></body></html>
