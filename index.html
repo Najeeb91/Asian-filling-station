@@ -25,7 +25,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5 Step 4C COMPLETE</div>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5 Step 4C COMPLETE • UI FIX</div>
 <div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
@@ -105,7 +105,7 @@ const money=n=>new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",ma
 const esc=s=>String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 function bal(c){return db.tx.filter(t=>t.cid===c.id).reduce((x,t)=>x+((t.type==="credit"||t.type==="opening")?t.amount:t.type==="payment"?-t.amount:0),0)}
 function save(){localStorage.setItem(K,JSON.stringify(db));render()}
-function render(){let q=(document.getElementById("search").value||"").toLowerCase(),cs=db.customers.filter(c=>c.name.toLowerCase().includes(q));document.getElementById("count").textContent=db.customers.length;document.getElementById("entries").textContent=db.tx.length;document.getElementById("receivable").textContent=money(db.customers.reduce((s,c)=>s+Math.max(0,bal(c)),0));document.getElementById("list").innerHTML=cs.length?`<table><tr><th>Customer</th><th>Details</th><th class="right">Balance</th></tr>${cs.map(c=>`<tr><td class="name" onclick="ledger('${c.id}')">${esc(c.name)}</td><td class="meta">${esc(c.type||"")}<br>${esc(c.vehicle||"")}</td><td class="right ${bal(c)>0?"owe":""}">${money(bal(c))}</td></tr>`).join("")}</table>`:'<div class="empty">No customers yet.</div>'}
+function render(){let q=(document.getElementById("search").value||"").toLowerCase(),cs=db.customers.filter(c=>c.name.toLowerCase().includes(q));document.getElementById("count").textContent=db.customers.length;document.getElementById("entries").textContent=db.tx.length;document.getElementById("receivable").textContent=money(db.customers.reduce((s,c)=>s+Math.max(0,bal(c)),0));document.getElementById("list").innerHTML=cs.length?`<table><tr><th>Customer</th><th>Details</th><th class="right">Balance</th><th class="right">Actions</th></tr>${cs.map(c=>`<tr><td class="name" onclick="ledger('${c.id}')">${esc(c.name)}</td><td class="meta">${esc(c.type||"")}<br>${esc(c.vehicle||"")}</td><td class="right ${bal(c)>0?"owe":""}">${money(bal(c))}</td><td class="right"><button class="btn danger customer-delete-btn" onclick="deleteCustomer('${c.id}')">🗑️ Delete</button></td></tr>`).join("")}</table>`:'<div class="empty">No customers yet.</div>'}
 function openCustomer(){document.getElementById("customerModal").classList.add("open")}
 function saveCustomer(){let n=document.getElementById("cname").value.trim();if(!n)return alert("Enter customer name");let c={id:uid(),name:n,phone:document.getElementById("phone").value.trim(),vehicle:document.getElementById("vehicle").value.trim(),type:document.getElementById("ctype").value,creditLimit:+document.getElementById("limit").value||0};db.customers.push(c);let o=+document.getElementById("opening").value||0;if(o)db.tx.push({id:uid(),cid:c.id,type:"opening",amount:o,desc:"Opening balance",date:new Date().toISOString()});save();closeM("customerModal")}
 function fill(){let s=db.customers.map(c=>`<option value="${c.id}">${esc(c.name)}${c.vehicle?" • "+esc(c.vehicle):""}</option>`).join("");document.getElementById("fcustomer").innerHTML=s;document.getElementById("pcustomer").innerHTML=s}
@@ -207,9 +207,17 @@ function deleteTx(id){
 }
 function confirmDelete(){
   if(!deletingId)return;
+  const deleted=db.tx.find(t=>t.id===deletingId);
+  const cid=deleted ? deleted.cid : null;
+
   db.tx=db.tx.filter(t=>t.id!==deletingId);
-  save(); closeM("deleteModal"); deletingId=null;
-  alert("Transaction deleted successfully.");
+  localStorage.setItem(K,JSON.stringify(db));
+
+  closeM("deleteModal");
+  deletingId=null;
+
+  render();
+  if(cid && db.customers.some(c=>c.id===cid)) ledger(cid);
 }
 
 let editingId=null;
@@ -266,7 +274,14 @@ function saveEdit(){
     const a=+document.getElementById("eopening").value||0;if(!a)return alert("Enter opening balance");
     t.type="opening";t.amount=a;delete t.l;delete t.r;delete t.fuel;delete t.payment;delete t.mode;delete t.ref;delete t.notes;
   }
-  save();closeM("editModal");editingId=null;alert("Transaction updated.");
+  const refreshedCid=t.cid;
+  localStorage.setItem(K,JSON.stringify(db));
+  closeM("editModal");
+  editingId=null;
+
+  // Immediate same-page refresh of list, totals and the open customer ledger.
+  render();
+  if(refreshedCid && db.customers.some(c=>c.id===refreshedCid)) ledger(refreshedCid);
 }
 
 function closeM(id){document.getElementById(id).classList.remove("open")}
@@ -282,9 +297,6 @@ function deleteCustomer(id){
   if(!c)return;
 
   deletingCustomerId=id;
-  const txCount=db.tx.filter(t=>t.cid===id).length;
-  const outstanding=bal(c);
-
   let box=document.getElementById("deleteCustomerModal");
   if(!box){
     box=document.createElement("div");
@@ -304,39 +316,24 @@ function deleteCustomer(id){
   }
 
   document.getElementById("deleteCustomerInfo").innerHTML=
-    `<b>${esc(c.name)}</b><br>
-     Outstanding: <b>${money(outstanding)}</b><br>
-     Transactions: <b>${txCount}</b>`;
+    `<b>${esc(c.name)}</b><br>Outstanding: <b>${money(bal(c))}</b><br>Transactions: <b>${db.tx.filter(t=>t.cid===id).length}</b>`;
 
   box.classList.add("open");
 }
 
 function confirmDeleteCustomer(){
   if(!deletingCustomerId)return;
-
   const id=deletingCustomerId;
   db.customers=db.customers.filter(c=>c.id!==id);
   db.tx=db.tx.filter(t=>t.cid!==id);
-  save();
+  localStorage.setItem(K,JSON.stringify(db));
 
   closeM("deleteCustomerModal");
   deletingCustomerId=null;
 
   // Immediate same-page refresh.
-  if(typeof renderCustomers==="function")renderCustomers();
-  if(typeof renderCustomersList==="function")renderCustomersList();
-  if(typeof render==="function")render();
-  if(typeof updateSummary==="function")updateSummary();
-  if(typeof updateStats==="function")updateStats();
-
-  // Close any open ledger belonging to the deleted customer.
-  ["ledgerModal","editModal","fuelModal","paymentModal"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el)el.classList.remove("open");
-  });
+  render();
 }
-
-
 
 function validateTransactionValues(type){
   const getNum=id=>{
@@ -410,18 +407,5 @@ document.addEventListener("click",function(e){
 },true);
 
 
-
-document.addEventListener("click",function(e){
-  const edit=e.target.closest('[onclick*="editCustomer"]');
-  if(!edit)return;
-  if(edit.parentElement && edit.parentElement.querySelector(".customer-delete-btn"))return;
-  const m=(edit.getAttribute("onclick")||"").match(/editCustomer\(['"]([^'"]+)['"]\)/);
-  if(!m)return;
-  const b=document.createElement("button");
-  b.className="btn danger customer-delete-btn";
-  b.textContent="🗑️ Delete";
-  b.onclick=()=>deleteCustomer(m[1]);
-  edit.parentElement.appendChild(b);
-});
 
 </script></body></html>
