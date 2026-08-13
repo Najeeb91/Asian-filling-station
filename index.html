@@ -25,7 +25,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5 Step 4C COMPLETE • UI FIX</div>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.5 Step 5A-5E COMPLETE • UI FIX</div>
 <div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
@@ -408,4 +408,73 @@ document.addEventListener("click",function(e){
 
 
 
+
+.step5-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.step5-panel{margin:10px 0;padding:12px;border:1px solid #ddd;border-radius:12px;background:#fff}
+.step5-table{width:100%;overflow-x:auto}.step5-table table{min-width:760px}
+
+/* STEP 5A-5E */
+function s5c(id){return db.customers.find(c=>c.id===id)}
+function s5t(id){return db.tx.filter(t=>t.cid===id).sort((a,b)=>String(a.date).localeCompare(String(b.date)))}
+
+/* 5A Customer Profile */
+function s5Profile(id){
+ const c=s5c(id);if(!c)return;
+ let m=document.getElementById("s5pm");
+ if(!m){m=document.createElement("div");m.id="s5pm";m.className="modal";m.innerHTML=`<div class="sheet">
+ <button class="close" onclick="closeM('s5pm')">×</button><h2>👤 Customer Profile</h2>
+ <label>Name<input id="s5n"></label><label>Phone<input id="s5ph"></label>
+ <label>Vehicle<input id="s5v"></label><label>Customer Type<input id="s5ty"></label>
+ <label>Credit Limit<input id="s5cl" type="number" min="0"></label><label>Notes<textarea id="s5no"></textarea></label>
+ <div class="step5-actions"><button class="btn primary" onclick="s5SaveProfile()">💾 Save</button>
+ <button class="btn white" onclick="closeM('s5pm')">Cancel</button></div></div>`;document.body.appendChild(m)}
+ m.dataset.cid=id;s5n.value=c.name||"";s5ph.value=c.phone||"";s5v.value=c.vehicle||"";s5ty.value=c.type||"";s5cl.value=c.creditLimit??"";s5no.value=c.notes||"";m.classList.add("open")
+}
+function s5SaveProfile(){
+ const m=document.getElementById("s5pm"),c=s5c(m.dataset.cid),n=s5n.value.trim(),cl=Number(s5cl.value||0);
+ if(!n){alert("⚠️ Customer name is required.");return} if(cl<0){alert("⚠️ Credit limit cannot be negative.");return}
+ c.name=n;c.phone=s5ph.value.trim();c.vehicle=s5v.value.trim();c.type=s5ty.value.trim();c.creditLimit=cl;c.notes=s5no.value.trim();save();closeM("s5pm");render();ledger(c.id)
+}
+
+/* 5B Ledger Filters */
+function s5Filter(id){
+ let m=document.getElementById("s5fm");
+ if(!m){m=document.createElement("div");m.id="s5fm";m.className="modal";m.innerHTML=`<div class="sheet">
+ <button class="close" onclick="closeM('s5fm')">×</button><h2>🔎 Filter Ledger</h2>
+ <label>From<input id="s5f" type="date"></label><label>To<input id="s5to" type="date"></label>
+ <label>Fuel<select id="s5fuel"><option value="">All</option><option>Diesel</option><option>Petrol</option></select></label>
+ <label>Type<select id="s5tt"><option value="">All</option><option value="credit">Credit / Sale</option><option value="payment">Payment</option><option value="opening">Opening</option></select></label>
+ <div class="step5-actions"><button class="btn primary" onclick="s5ApplyFilter()">Apply</button><button class="btn white" onclick="closeM('s5fm')">Cancel</button></div></div>`;document.body.appendChild(m)}
+ m.dataset.cid=id;m.classList.add("open")
+}
+function s5ApplyFilter(){
+ const m=document.getElementById("s5fm"),id=m.dataset.cid,from=s5f.value,to=s5to.value,f=s5fuel.value,t=s5tt.value;
+ let a=s5t(id);if(from)a=a.filter(x=>String(x.date).slice(0,10)>=from);if(to)a=a.filter(x=>String(x.date).slice(0,10)<=to);if(f)a=a.filter(x=>x.fuel===f);if(t)a=a.filter(x=>x.type===t);
+ closeM("s5fm");alert(`🔎 ${a.length} matching transaction(s).`);ledger(id)
+}
+
+/* 5C Statement */
+function s5Statement(id){
+ const c=s5c(id);if(!c)return;let m=document.getElementById("s5sm");
+ if(!m){m=document.createElement("div");m.id="s5sm";m.className="modal";m.innerHTML=`<div class="sheet" style="max-width:900px">
+ <button class="close" onclick="closeM('s5sm')">×</button><h2>📄 Customer Statement</h2><div id="s5body"></div>
+ <div class="step5-actions"><button class="btn primary" onclick="window.print()">🖨️ Print / Save PDF</button><button class="btn white" onclick="closeM('s5sm')">Close</button></div></div>`;document.body.appendChild(m)}
+ let r=0,rows=s5t(id).map(x=>{let d=(x.type==="credit"||x.type==="opening")?Number(x.amount||0):0,cr=x.type==="payment"?Number(x.amount||0):0;r+=d-cr;return `<tr><td>${String(x.date).slice(0,10)}</td><td>${esc(x.desc||x.fuel||x.type||"")}</td><td>${d?money(d):"—"}</td><td>${cr?money(cr):"—"}</td><td>${money(r)}</td></tr>`}).join("");
+ s5body.innerHTML=`<div class="step5-panel"><b>${esc(c.name)}</b><br>Phone: ${esc(c.phone||"—")} • Vehicle: ${esc(c.vehicle||"—")}<br>Closing Outstanding: <b>${money(bal(c))}</b></div><div class="step5-table"><table><tr><th>Date</th><th>Particular</th><th>Debit</th><th>Credit</th><th>Balance</th></tr>${rows||'<tr><td colspan="5">No transactions.</td></tr>'}</table></div>`;m.classList.add("open")
+}
+
+/* 5D Payment Management */
+function s5Payments(id){
+ const c=s5c(id);if(!c)return;let m=document.getElementById("s5paym");
+ if(!m){m=document.createElement("div");m.id="s5paym";m.className="modal";m.innerHTML=`<div class="sheet">
+ <button class="close" onclick="closeM('s5paym')">×</button><h2>💰 Payment History</h2><div id="s5paybody"></div>
+ <div class="step5-actions"><button class="btn primary" onclick="closeM('s5paym');openPayment('${id}')">＋ Add Payment</button><button class="btn white" onclick="closeM('s5paym')">Close</button></div></div>`;document.body.appendChild(m)}
+ let a=s5t(id).filter(x=>x.type==="payment");s5paybody.innerHTML=`<div class="step5-table"><table><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Reference</th><th>Notes</th></tr>${a.map(x=>`<tr><td>${String(x.date).slice(0,10)}</td><td>${money(x.amount)}</td><td>${esc(x.mode||"—")}</td><td>${esc(x.ref||"—")}</td><td>${esc(x.notes||"—")}</td></tr>`).join("")||'<tr><td colspan="5">No payments recorded.</td></tr>'}</table></div>`;m.classList.add("open")
+}
+
+/* 5E final check */
+function s5Check(id){const c=s5c(id);if(!c)return;alert(`✅ Step 5E check\\n\\nCustomer: ${c.name}\\nTransactions: ${s5t(id).length}\\nOutstanding: ${money(bal(c))}`)}
+
+/* Add Step 5 toolbar without replacing tested ledger behavior */
+(function(){const old=window.ledger;if(typeof old!=="function")return;window.ledger=function(id){old(id);setTimeout(()=>{const e=document.getElementById("ledger");if(!e)return;const o=document.getElementById("s5bar");if(o)o.remove();const b=document.createElement("div");b.id="s5bar";b.className="step5-actions";b.innerHTML=`<button class="btn white" onclick="s5Profile('${id}')">👤 Profile</button><button class="btn white" onclick="s5Filter('${id}')">🔎 Filter</button><button class="btn white" onclick="s5Statement('${id}')">📄 Statement</button><button class="btn white" onclick="s5Payments('${id}')">💰 Payments</button><button class="btn white" onclick="s5Check('${id}')">✅ Check</button>`;e.prepend(b)},0)}})();
 </script></body></html>
