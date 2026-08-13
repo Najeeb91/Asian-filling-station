@@ -14,6 +14,14 @@ main{padding:16px 0 60px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-bot
 table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1px solid #edf0f4;font-size:13px;text-align:left}.right{text-align:right}.name{font-weight:700;cursor:pointer}.owe{color:#b42318;font-weight:800}.empty{text-align:center;color:#70798a;padding:25px}
 .modal{display:none;position:fixed;inset:0;background:#0008;align-items:flex-end;z-index:1000}.modal.open{display:flex}.modal#editModal{z-index:2000}.modal#editModal .sheet{position:relative;z-index:2001}.sheet{background:#fff;width:100%;max-width:650px;margin:auto;border-radius:20px 20px 0 0;padding:18px;max-height:94vh;overflow:auto;position:relative;z-index:1001}.close{float:right;border:0;border-radius:50%;width:34px;height:34px;font-size:20px}.field{margin:12px 0}.field label{display:block;font-size:12px;color:#687386;margin-bottom:5px}.field input,.field select{width:100%;padding:12px;border:1px solid #dfe4ec;border-radius:10px;font-size:15px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.calc{background:#f0f6ff;border-radius:12px;padding:14px;margin:12px 0}.amount{font-size:25px;font-weight:800;margin-top:4px}.meta{font-size:12px;color:#687386;margin-top:3px}
 @media(max-width:600px){.grid{grid-template-columns:1fr}.card{padding:9px}.card b{font-size:16px}}
+
+.ledger-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ledger-table{min-width:720px}
+.ledger-table th,.ledger-table td{vertical-align:middle}
+.actions-cell{white-space:nowrap;text-align:right}
+.row-actions{display:flex;gap:6px;justify-content:flex-end;align-items:center}
+.row-actions .btn{padding:8px 10px}
+@media(max-width:600px){.ledger-table{min-width:700px}.row-actions .btn{padding:8px 9px;font-size:13px}}
 </style>
 </head>
 <body>
@@ -48,15 +56,6 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 <div class="field"><label>Notes (optional)</label><input id="pnotes" placeholder="Payment received from customer"></div><button class="btn primary" onclick="savePayment()">Save Payment</button></div></div>
 
 
-<div class="modal" id="deleteModal"><div class="sheet">
-<button class="close" onclick="closeM('deleteModal')">×</button>
-<h2>⚠️ Delete Transaction</h2>
-<div class="calc"><div id="deleteInfo"></div></div>
-<p>This transaction will be removed and the customer's balance recalculated.</p>
-<div class="actions">
-<button class="btn white" onclick="closeM('deleteModal')">Cancel</button>
-<button class="btn danger" onclick="confirmDelete()">Delete</button>
-</div></div></div>
 <div class="modal" id="editModal"><div class="sheet"><button class="close" onclick="closeM('editModal')">×</button><h2>✏️ Edit Transaction</h2>
 <div class="field"><label>Date</label><input id="edate" type="date"></div>
 <div class="field"><label>Customer</label><select id="ecustomer"></select></div>
@@ -75,6 +74,15 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 <div id="eopeningFields" style="display:none"><div class="field"><label>Opening Balance ₹</label><input id="eopening" type="number" min="0" step="0.01"></div></div>
 <div class="field"><label>Description</label><input id="edesc"></div>
 <button class="btn primary" onclick="saveEdit()">Save Changes</button></div></div>
+
+<div class="modal" id="deleteModal"><div class="sheet">
+<button class="close" onclick="closeM('deleteModal')">×</button>
+<h2>⚠️ Delete Transaction</h2>
+<div class="calc"><div id="deleteInfo"></div></div>
+<p>This transaction will be permanently removed and the customer balance will be recalculated.</p>
+<div class="actions"><button class="btn white" onclick="closeM('deleteModal')">Cancel</button>
+<button class="btn danger" onclick="confirmDelete()">🗑️ Delete</button></div>
+</div></div>
 
 <div class="modal" id="ledgerModal"><div class="sheet"><button class="close" onclick="closeM('ledgerModal')">×</button><h2 id="ltitle"></h2><div id="lmeta"></div><div id="ledger"></div></div></div>
 
@@ -135,7 +143,39 @@ if(p==="credit"){
 db.tx.push({id:uid(),cid:document.getElementById("fcustomer").value,type:p==="credit"?"credit":"sale",amount:a,l,r,fuel:document.getElementById("fuel").value,payment:p,desc:document.getElementById("desc").value||"Fuel sale",date:(document.getElementById("fdate").value||todayISO())+"T12:00:00"});save();closeM("fuelModal")}
 function openPayment(cid){if(!db.customers.length)return alert("Add a customer first");document.getElementById("pdate").value=todayISO();fill();if(cid)document.getElementById("pcustomer").value=cid;document.getElementById("payModal").classList.add("open")}
 function savePayment(){let a=+document.getElementById("pamount").value||0;if(!a)return alert("Enter amount");db.tx.push({id:uid(),cid:document.getElementById("pcustomer").value,type:"payment",amount:a,mode:document.getElementById("pmode").value,ref:document.getElementById("pref").value.trim(),notes:document.getElementById("pnotes").value.trim(),desc:"Payment received",date:(document.getElementById("pdate").value||todayISO())+"T12:00:00"});save();closeM("payModal")}
-function ledger(cid){let c=db.customers.find(x=>x.id===cid),b=0,tx=db.tx.filter(t=>t.cid===cid).sort((a,b)=>new Date(a.date)-new Date(b.date));document.getElementById("ltitle").textContent=c.name;document.getElementById("lmeta").innerHTML=`<div class="meta">📱 ${esc(c.phone||"—")} &nbsp; 🚛 ${esc(c.vehicle||"—")} &nbsp; 🏢 ${esc(c.type||"—")} &nbsp; 💳 Limit: ${money(c.creditLimit||0)}</div>`;let rows=tx.map(t=>{let plus=(t.type==="credit"||t.type==="opening")?t.amount:0,minus=t.type==="payment"?t.amount:0;b+=plus-minus;let p=t.l?`${esc(t.fuel)}<br><small>${t.l} L × ${money(t.r)}/L</small>`:esc(t.desc);if(t.mode)p+=`<br><small>${esc(t.mode)}${t.ref?" • Ref: "+esc(t.ref):""}${t.notes?" • "+esc(t.notes):""}</small>`;return`<tr><td>${formatDate(String(t.date).slice(0,10))}</td><td>${p}</td><td>${plus?money(plus):"—"}</td><td>${minus?money(minus):"—"}</td><td>${money(b)}<br><button class="btn white" style="padding:6px 8px;margin-top:5px" onclick="editTx('${t.id}')">✏️ Edit</button> <button class="btn danger" style="padding:6px 8px;margin-top:5px" onclick="deleteTx(\'${t.id}\')">🗑️ Delete</button></td></tr>`}).join("");document.getElementById("ledger").innerHTML=`<div class="calc">Outstanding<div class="amount">${money(bal(c))}</div></div><table><tr><th>Date</th><th>Particular</th><th>Debit</th><th>Credit</th><th>Balance</th></tr>${rows}</table><br><button class="btn primary" onclick="closeM('ledgerModal');openFuel('${cid}')">⛽ Fuel Sale</button> <button class="btn white" onclick="closeM('ledgerModal');openPayment('${cid}')">💰 Payment</button>`;document.getElementById("ledgerModal").classList.add("open")}
+function ledger(cid){
+  let c=db.customers.find(x=>x.id===cid),b=0,
+      tx=db.tx.filter(t=>t.cid===cid).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  document.getElementById("ltitle").textContent=c.name;
+  document.getElementById("lmeta").innerHTML=`<div class="meta">📱 ${esc(c.phone||"—")} &nbsp; 🚛 ${esc(c.vehicle||"—")} &nbsp; 🏢 ${esc(c.type||"—")} &nbsp; 💳 Limit: ${money(c.creditLimit||0)}</div>`;
+  let rows=tx.map(t=>{
+    let plus=(t.type==="credit"||t.type==="opening")?t.amount:0,minus=t.type==="payment"?t.amount:0;b+=plus-minus;
+    let p=t.l?`${esc(t.fuel)}<br><small>${t.l} L × ${money(t.r)}/L</small>`:esc(t.desc);
+    if(t.mode)p+=`<br><small>${esc(t.mode)}${t.ref?" • Ref: "+esc(t.ref):""}${t.notes?" • "+esc(t.notes):""}</small>`;
+    return `<tr><td>${formatDate(String(t.date).slice(0,10))}</td><td>${p}</td><td>${plus?money(plus):"—"}</td><td>${minus?money(minus):"—"}</td><td>${money(b)}</td><td class="actions-cell"><div class="row-actions"><button class="btn white" onclick="editTx('${t.id}')">✏️ Edit</button><button class="btn danger" onclick="deleteTx('${t.id}')">🗑️ Delete</button></div></td></tr>`;
+  }).join("");
+  document.getElementById("ledger").innerHTML=`<div class="calc">Outstanding<div class="amount">${money(bal(c))}</div></div><div class="ledger-wrap"><table class="ledger-table"><tr><th>Date</th><th>Particular</th><th>Debit</th><th>Credit</th><th>Balance</th><th>Actions</th></tr>${rows}</table></div><br><button class="btn primary" onclick="closeM('ledgerModal');openFuel('${cid}')">⛽ Fuel Sale</button> <button class="btn white" onclick="closeM('ledgerModal');openPayment('${cid}')">💰 Payment</button>`;
+  document.getElementById("ledgerModal").classList.add("open");
+}
+
+
+let deletingId=null;
+function deleteTx(id){
+  const t=db.tx.find(x=>x.id===id); if(!t)return;
+  const c=db.customers.find(x=>x.id===t.cid); deletingId=id;
+  const date=formatDate(String(t.date||"").slice(0,10));
+  let detail=t.l?`${esc(t.fuel||"Fuel")} — ${t.l} L × ${money(t.r||0)}/L<br>Amount: <b>${money(t.amount||0)}</b>`:
+    t.type==="payment"?`Payment Received — ${money(t.amount||0)}<br>Mode: ${esc(t.mode||"")}`:
+    `Opening Balance — <b>${money(t.amount||0)}</b>`;
+  document.getElementById("deleteInfo").innerHTML=`<b>${esc(c?c.name:"Customer")}</b><br>${date}<br>${detail}`;
+  document.getElementById("deleteModal").classList.add("open");
+}
+function confirmDelete(){
+  if(!deletingId)return;
+  db.tx=db.tx.filter(t=>t.id!==deletingId);
+  save(); closeM("deleteModal"); deletingId=null;
+  alert("Transaction deleted successfully.");
+}
 
 let editingId=null;
 function editTx(id){
@@ -192,26 +232,6 @@ function saveEdit(){
     t.type="opening";t.amount=a;delete t.l;delete t.r;delete t.fuel;delete t.payment;delete t.mode;delete t.ref;delete t.notes;
   }
   save();closeM("editModal");editingId=null;alert("Transaction updated.");
-}
-
-let deletingId=null;
-function deleteTx(id){
- const t=db.tx.find(x=>x.id===id); if(!t)return;
- const c=db.customers.find(x=>x.id===t.cid); deletingId=id;
- const date=formatDate(String(t.date||"").slice(0,10));
- let detail=t.l?`${t.fuel||"Fuel"} — ${t.l} L × ${money(t.r||0)}/L<br>Amount: <b>${money(t.amount||0)}</b>`:
-   t.type==="payment"?`Payment Received — ${money(t.amount||0)}<br>Mode: ${esc(t.mode||"")}`:
-   `Opening Balance — <b>${money(t.amount||0)}</b>`;
- document.getElementById("deleteInfo").innerHTML=`<b>${esc(c?c.name:"Customer")}</b><br>${date}<br>${detail}`;
- document.getElementById("deleteModal").classList.add("open");
-}
-function confirmDelete(){
- if(!deletingId)return;
- db.tx=db.tx.filter(t=>t.id!==deletingId);
- save();
- closeM("deleteModal");
- deletingId=null;
- alert("Transaction deleted.");
 }
 
 function closeM(id){document.getElementById(id).classList.remove("open")}
