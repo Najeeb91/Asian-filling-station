@@ -22,6 +22,10 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 .row-actions{display:flex;gap:6px;justify-content:flex-end;align-items:center}
 .row-actions .btn{padding:8px 10px}
 @media(max-width:600px){.ledger-table{min-width:700px}.row-actions .btn{padding:8px 9px;font-size:13px}}
+/* ===== v0.5 Step 5A-5E ===== */
+.step5-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.step5-panel{margin:10px 0;padding:12px;border:1px solid #ddd;border-radius:12px;background:#fff}
+.step5-table{width:100%;overflow-x:auto}.step5-table table{min-width:760px}
 </style>
 </head>
 <body>
@@ -409,9 +413,6 @@ document.addEventListener("click",function(e){
 
 
 
-.step5-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.step5-panel{margin:10px 0;padding:12px;border:1px solid #ddd;border-radius:12px;background:#fff}
-.step5-table{width:100%;overflow-x:auto}.step5-table table{min-width:760px}
 
 /* STEP 5A-5E */
 function s5c(id){return db.customers.find(c=>c.id===id)}
