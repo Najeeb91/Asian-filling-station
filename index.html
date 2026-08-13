@@ -38,10 +38,21 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 .v6-filter{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
 .v6-filter label{min-width:150px}
 @media(max-width:650px){.v6-grid{grid-template-columns:1fr}.v6-value{font-size:21px}}
+
+/* ===== v0.6 REVISED DASHBOARD ===== */
+.v6r-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.v6r-card{padding:15px;border:1px solid #ddd;border-radius:12px;background:#fff;cursor:pointer}
+.v6r-card:active{transform:scale(.99)}
+.v6r-value{font-size:24px;font-weight:700;margin-top:6px}
+.v6r-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.v6r-table{width:100%;overflow-x:auto}.v6r-table table{min-width:760px}
+.v6r-row{cursor:pointer}.v6r-row:hover{background:#f5f5f5}
+.v6r-note{font-size:12px;opacity:.7;margin-top:6px}
+@media(max-width:650px){.v6r-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.6 Step 6A-6E COMPLETE</div>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.6 Step 6A-6E REVISED • Clickable Dashboard</div>
 <div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
@@ -818,6 +829,170 @@ function v6ExportReport(){
   b.id="v6DashboardBtn";b.className="btn primary";b.textContent="📊 Dashboard";
   b.onclick=v6Dashboard;
   header.appendChild(b);
+})();
+
+
+/* =========================================================
+   v0.6 REVISED — 6A-6E
+   Dashboard is drill-down/clickable. Existing v0.5 engine
+   remains untouched.
+   ========================================================= */
+function v6rTx(){return Array.isArray(db.tx)?db.tx:[]}
+function v6rCust(){return Array.isArray(db.customers)?db.customers:[]}
+function v6rDate(t){return String(t.date||"").slice(0,10)}
+function v6rToday(){return new Date().toISOString().slice(0,10)}
+function v6rAmt(a){return Number(a||0)}
+function v6rFuel(t){return t.type==="credit"&&(t.fuel==="Diesel"||t.fuel==="Petrol"||t.fuel==="Lubes"||t.category==="Lubes"||t.productCategory==="Lubes")}
+function v6rQty(t){return Number(t.litres||t.quantity||t.qty||0)}
+
+function v6rOpenTx(t){
+  if(t.cid && typeof ledger==="function"){ledger(t.cid);return}
+  alert("This entry is not linked to a customer.")
+}
+
+function v6rDetail(title, rows, headers){
+  let m=document.getElementById("v6rDetailModal");
+  if(!m){
+    m=document.createElement("div");m.id="v6rDetailModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1050px">
+      <button class="close" onclick="closeM('v6rDetailModal')">×</button>
+      <h2 id="v6rDetailTitle"></h2><div id="v6rDetailBody"></div>
+      <button class="btn white" onclick="closeM('v6rDetailModal')">Close</button>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  document.getElementById("v6rDetailTitle").textContent=title;
+  document.getElementById("v6rDetailBody").innerHTML=
+    `<div class="v6r-table"><table><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>${rows||`<tr><td colspan="${headers.length}">No entries.</td></tr>`}</table></div>`;
+  m.classList.add("open");
+}
+
+/* 6A — Clickable Dashboard */
+function v6rDashboard(){
+  const today=v6rToday(),tx=v6rTx(),customers=v6rCust();
+  const todayTx=tx.filter(t=>v6rDate(t)===today);
+  const fuel=todayTx.filter(v6rFuel);
+  const payments=todayTx.filter(t=>t.type==="payment");
+  const receivable=customers.reduce((s,c)=>s+Math.max(0,Number(bal(c)||0)),0);
+  const over=customers.filter(c=>Number(c.creditLimit||0)>0&&Number(bal(c)||0)>Number(c.creditLimit||0));
+  let m=document.getElementById("v6rDashModal");
+  if(!m){
+    m=document.createElement("div");m.id="v6rDashModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1050px">
+      <button class="close" onclick="closeM('v6rDashModal')">×</button>
+      <h2>📊 Asian Filling Station Dashboard</h2>
+      <div id="v6rDashBody"></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  document.getElementById("v6rDashBody").innerHTML=`
+    <div class="v6r-grid">
+      <div class="v6r-card" onclick="v6rCustomers()"><b>👥 Total Customers</b><div class="v6r-value">${customers.length}</div><div class="v6r-note">Tap to open individual customers</div></div>
+      <div class="v6r-card" onclick="v6rReceivables()"><b>💰 Total Receivable</b><div class="v6r-value">${money(receivable)}</div><div class="v6r-note">Tap to open customer-wise entries</div></div>
+      <div class="v6r-card" onclick="v6rFuelEntries('${today}')"><b>⛽ Today's Fuel Sales</b><div class="v6r-value">${money(fuel.reduce((s,t)=>s+v6rAmt(t.amount),0))}</div><div class="v6r-note">Tap to open individual sales</div></div>
+      <div class="v6r-card" onclick="v6rPaymentEntries('${today}')"><b>💵 Today's Payments</b><div class="v6r-value">${money(payments.reduce((s,t)=>s+v6rAmt(t.amount),0))}</div><div class="v6r-note">Tap to open individual payments</div></div>
+      <div class="v6r-card" onclick="v6rTransactionEntries('${today}')"><b>🧾 Today's Transactions</b><div class="v6r-value">${todayTx.length}</div><div class="v6r-note">Tap to open every entry</div></div>
+      <div class="v6r-card" onclick="v6rOverLimit()"><b>⚠️ Over Credit Limit</b><div class="v6r-value">${over.length}</div><div class="v6r-note">Tap to open affected customers</div></div>
+    </div>
+    <div class="v6r-actions">
+      <button class="btn white" onclick="v6rFuelReport()">⛽ Fuel Sales Report</button>
+      <button class="btn white" onclick="v6rPaymentReport()">💵 Payment Report</button>
+      <button class="btn white" onclick="v6rReceivables()">💰 Receivables</button>
+      <button class="btn white" onclick="v6rExport()">📥 Export</button>
+    </div>
+    <div class="v6r-note">Every dashboard number is designed as a drill-down entry point.</div>`;
+  m.classList.add("open");
+}
+
+function v6rCustomers(){
+  const rows=v6rCust().map(c=>`<tr class="v6r-row" onclick="ledger('${c.id}')"><td>${esc(c.name)}</td><td>${esc(c.phone||"—")}</td><td>${money(bal(c))}</td></tr>`).join("");
+  v6rDetail("👥 Customers",rows,["Customer","Phone","Outstanding"]);
+}
+function v6rReceivables(){
+  const a=v6rCust().map(c=>({c,o:Math.max(0,Number(bal(c)||0))})).filter(x=>x.o>0).sort((a,b)=>b.o-a.o);
+  const rows=a.map(x=>`<tr class="v6r-row" onclick="ledger('${x.c.id}')"><td>${esc(x.c.name)}</td><td>${money(x.o)}</td><td>${x.c.creditLimit?money(x.c.creditLimit):"—"}</td></tr>`).join("");
+  v6rDetail("💰 Receivables",rows,["Customer","Outstanding","Credit Limit"]);
+}
+function v6rOverLimit(){
+  const a=v6rCust().filter(c=>Number(c.creditLimit||0)>0&&Number(bal(c)||0)>Number(c.creditLimit||0));
+  const rows=a.map(c=>`<tr class="v6r-row" onclick="ledger('${c.id}')"><td>${esc(c.name)}</td><td>${money(bal(c))}</td><td>${money(c.creditLimit)}</td></tr>`).join("");
+  v6rDetail("⚠️ Over Credit Limit",rows,["Customer","Outstanding","Limit"]);
+}
+function v6rFuelEntries(date){
+  const a=v6rTx().filter(t=>v6rDate(t)===date&&v6rFuel(t));
+  const rows=a.map(t=>`<tr class="v6r-row" onclick='v6rOpenTx(${JSON.stringify(t)})'><td>${esc(t.time||"—")}</td><td>${esc(t.fuel||t.category||"Lubes")}</td><td>${esc(t.desc||t.product||"Fuel Sale")}</td><td>${v6rQty(t)?v6rQty(t).toFixed(2):"—"}</td><td>${money(t.amount)}</td></tr>`).join("");
+  v6rDetail("⛽ Today's Individual Fuel Sales",rows,["Time","Product","Particular","Quantity/Litres","Total Sale"]);
+}
+function v6rPaymentEntries(date){
+  const a=v6rTx().filter(t=>v6rDate(t)===date&&t.type==="payment");
+  const rows=a.map(t=>`<tr class="v6r-row" onclick='v6rOpenTx(${JSON.stringify(t)})'><td>${esc(t.time||"—")}</td><td>${money(t.amount)}</td><td>${esc(t.mode||"—")}</td><td>${esc(t.ref||"—")}</td></tr>`).join("");
+  v6rDetail("💵 Today's Individual Payments",rows,["Time","Amount","Mode","Reference"]);
+}
+function v6rTransactionEntries(date){
+  const a=v6rTx().filter(t=>v6rDate(t)===date);
+  const rows=a.map(t=>`<tr class="v6r-row" onclick='v6rOpenTx(${JSON.stringify(t)})'><td>${esc(t.time||"—")}</td><td>${esc(t.type||"—")}</td><td>${esc(t.fuel||"—")}</td><td>${money(t.amount)}</td></tr>`).join("");
+  v6rDetail("🧾 Today's Individual Transactions",rows,["Time","Type","Fuel","Amount"]);
+}
+
+/* 6B — Fuel report: Date / Diesel / Petrol / Lubes / Litres / Total Sale */
+function v6rFuelReport(){
+  let m=document.getElementById("v6rFuelModal");
+  if(!m){
+    m=document.createElement("div");m.id="v6rFuelModal";m.className="modal";
+    m.innerHTML=`<div class="sheet" style="max-width:1050px">
+      <button class="close" onclick="closeM('v6rFuelModal')">×</button>
+      <h2>⛽ Fuel Sales Report</h2>
+      <div class="v6r-actions">
+        <label>From<input id="v6rFrom" type="date"></label>
+        <label>To<input id="v6rTo" type="date"></label>
+        <button class="btn primary" onclick="v6rBuildFuel()">Apply</button>
+        <button class="btn white" onclick="v6rLubeHelp()">🛢️ Lubes Units</button>
+      </div>
+      <div id="v6rFuelBody"></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  v6rFrom.value=v6rToday();v6rTo.value=v6rToday();v6rBuildFuel();m.classList.add("open");
+}
+function v6rBuildFuel(){
+  const from=v6rFrom.value,to=v6rTo.value;
+  const tx=v6rTx().filter(t=>v6rFuel(t)&&(!from||v6rDate(t)>=from)&&(!to||v6rDate(t)<=to));
+  const dates=[...new Set(tx.map(v6rDate))].sort();
+  let rows="",allLitres=0,allSales=0;
+  dates.forEach(d=>{
+    const a=tx.filter(t=>v6rDate(t)===d);
+    const diesel=a.filter(t=>t.fuel==="Diesel"),petrol=a.filter(t=>t.fuel==="Petrol");
+    const lubes=a.filter(t=>t.fuel==="Lubes"||t.category==="Lubes"||t.productCategory==="Lubes");
+    const ds=diesel.reduce((s,t)=>s+v6rAmt(t.amount),0),ps=petrol.reduce((s,t)=>s+v6rAmt(t.amount),0),ls=lubes.reduce((s,t)=>s+v6rAmt(t.amount),0);
+    const litres=a.filter(t=>t.fuel==="Diesel"||t.fuel==="Petrol").reduce((s,t)=>s+v6rQty(t),0);
+    const total=ds+ps+ls;allLitres+=litres;allSales+=total;
+    rows+=`<tr class="v6r-row" onclick="v6rFuelEntries('${d}')"><td>${formatDate(d)}</td><td>${money(ds)}</td><td>${money(ps)}</td><td>${money(ls)}</td><td>${litres.toFixed(2)}</td><td>${money(total)}</td></tr>`;
+  });
+  document.getElementById("v6rFuelBody").innerHTML=`<div class="v6r-note">Tap any date to open every individual entry for that date.</div>
+  <div class="v6r-table"><table><tr><th>Date</th><th>Diesel</th><th>Petrol</th><th>Lubes</th><th>Litres</th><th>Total Sale</th></tr>
+  ${rows||'<tr><td colspan="6">No entries.</td></tr>'}
+  <tr><th>Total</th><th colspan="3">—</th><th>${allLitres.toFixed(2)}</th><th>${money(allSales)}</th></tr></table></div>`;
+}
+function v6rLubeHelp(){
+  alert("Recommended Lubes units:\\n\\n1. Piece — individual bottle/can\\n2. Box — configurable box size (10 L, 20 L, or any size)\\n3. Litre — loose lubricant\\n\\nStore: Product + Quantity + Unit + Box Size (if applicable) + Sale Amount.");
+}
+
+/* 6C/6D use the clickable detail model */
+function v6rPaymentReport(){v6rPaymentEntries(v6rToday())}
+function v6rExport(){
+  const rows=[["Customer","Outstanding","Credit Limit"]];
+  v6rCust().forEach(c=>rows.push([c.name,Math.max(0,Number(bal(c)||0)),Number(c.creditLimit||0)]));
+  const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download=`Asian_Filling_Station_v0.6_${v6rToday()}.csv`;a.click();
+}
+
+/* Dashboard button */
+(function(){
+  const wrap=document.querySelector("header .wrap");
+  if(!wrap||document.getElementById("v6rDashboardBtn"))return;
+  const b=document.createElement("button");b.id="v6rDashboardBtn";b.className="btn primary";
+  b.textContent="📊 Dashboard";b.onclick=v6rDashboard;wrap.appendChild(b);
 })();
 
 </script></body></html>
