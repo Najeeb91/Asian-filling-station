@@ -83,6 +83,32 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 .v91-toolbar .btn{min-height:42px}
 .v91-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:20000;background:#222;color:#fff;padding:11px 16px;border-radius:10px;font-size:14px}
 @media(max-width:650px){.v91-toolbar{overflow-x:auto;flex-wrap:nowrap}.v91-toolbar .btn{white-space:nowrap}}
+
+/* =========================================================
+   v0.9.2 — SIMPLE PROFESSIONAL UI
+   ========================================================= */
+body{padding-bottom:78px!important}
+.v92-top{padding:14px 16px 10px;background:#fff;border-bottom:1px solid #e5e5e5}
+.v92-brand{font-size:20px;font-weight:800;line-height:1.1}
+.v92-sub{font-size:12px;opacity:.6;margin-top:4px}
+.v92-wrap{padding:14px 14px 90px;max-width:1100px;margin:auto}
+.v92-section{margin:0 0 18px}
+.v92-section h3{margin:0 0 9px;font-size:14px}
+.v92-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.v92-tile{border:1px solid #e3e3e3;border-radius:16px;background:#fff;padding:15px;text-align:left;min-height:86px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.v92-tile:active{transform:scale(.985)}
+.v92-icon{font-size:23px}.v92-title{font-weight:750;margin-top:5px}.v92-help{font-size:11px;opacity:.58;margin-top:3px}
+.v92-primary{grid-column:1/-1;min-height:105px}
+.v92-primary .v92-title{font-size:18px}
+.v92-bottom{position:fixed;left:0;right:0;bottom:0;height:68px;background:#fff;border-top:1px solid #ddd;display:grid;grid-template-columns:repeat(5,1fr);z-index:9990;padding-bottom:env(safe-area-inset-bottom)}
+.v92-nav{border:0;background:transparent;font-size:10px;opacity:.72;cursor:pointer}.v92-nav b{display:block;font-size:20px;margin-bottom:2px}.v92-nav.active{opacity:1;font-weight:700}
+.v92-more{position:fixed;right:12px;bottom:78px;width:230px;background:#fff;border:1px solid #ddd;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.18);padding:8px;z-index:9995;display:none}
+.v92-more button{width:100%;text-align:left;border:0;background:#fff;padding:12px;border-radius:10px;font-size:14px}
+.v92-more button:hover{background:#f5f5f5}
+.v92-kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.v92-kpi>div{padding:13px;border:1px solid #e5e5e5;border-radius:14px;background:#fff}
+.v92-kpi strong{display:block;font-size:18px;margin-top:3px}
+@media(min-width:700px){.v92-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.v92-primary{grid-column:span 2}.v92-kpi{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 <body>
@@ -1493,4 +1519,97 @@ function v91Health(){
  <button class="btn white" onclick="v91Refresh()">↻ Refresh</button>`;
  document.body.insertBefore(bar,document.body.firstChild);
 })();
+
+/* ================= v0.9.2 SIMPLE HOME ================= */
+function v92Call(fn){
+  try{ if(typeof window[fn]==="function"){window[fn]();return true;} }catch(e){console.error(e)}
+  return false;
+}
+function v92More(){
+  const m=document.getElementById("v92More");
+  m.style.display=m.style.display==="block"?"none":"block";
+}
+function v92Home(){
+  const old=document.getElementById("v92Home"); if(old)old.remove();
+  const home=document.createElement("div");home.id="v92Home";
+  home.innerHTML=`
+    <div class="v92-top">
+      <div class="v92-brand">Asian Filling Station</div>
+      <div class="v92-sub">Simple • Fast • Complete • v0.9</div>
+    </div>
+    <main class="v92-wrap">
+      <section class="v92-section">
+        <div class="v92-grid">
+          <button class="v92-tile v92-primary" onclick="v92Call('v6rDashboard')">
+            <div class="v92-icon">📊</div><div class="v92-title">Dashboard</div>
+            <div class="v92-help">See today's business at a glance</div>
+          </button>
+          <button class="v92-tile" onclick="v92OpenSales()">
+            <div class="v92-icon">⛽</div><div class="v92-title">Sales</div>
+            <div class="v92-help">Fuel, lubes & today's entries</div>
+          </button>
+          <button class="v92-tile" onclick="v92OpenCustomers()">
+            <div class="v92-icon">👥</div><div class="v92-title">Customers</div>
+            <div class="v92-help">Ledger, credit & payments</div>
+          </button>
+          <button class="v92-tile" onclick="v92Call('v7StockDashboard')">
+            <div class="v92-icon">📦</div><div class="v92-title">Stock</div>
+            <div class="v92-help">Fuel & lubes inventory</div>
+          </button>
+          <button class="v92-tile" onclick="v92Call('v8Dashboard')">
+            <div class="v92-icon">💼</div><div class="v92-title">Money</div>
+            <div class="v92-help">Cash, bank, expenses & closing</div>
+          </button>
+        </div>
+      </section>
+      <section class="v92-section">
+        <h3>Quick actions</h3>
+        <div class="v92-grid">
+          <button class="v92-tile" onclick="v92Call('v7PurchaseScreen')"><div class="v92-icon">🧾</div><div class="v92-title">Purchase</div><div class="v92-help">Add fuel or lube purchase</div></button>
+          <button class="v92-tile" onclick="v92Call('v8Expense')"><div class="v92-icon">💸</div><div class="v92-title">Expense</div><div class="v92-help">Record an expense</div></button>
+          <button class="v92-tile" onclick="v92Call('v8DailyClosing')"><div class="v92-icon">🔒</div><div class="v92-title">Daily Closing</div><div class="v92-help">Close today's accounts</div></button>
+          <button class="v92-tile" onclick="v92Call('v9Backup')"><div class="v92-icon">💾</div><div class="v92-title">Backup</div><div class="v92-help">Protect your data</div></button>
+        </div>
+      </section>
+      <section class="v92-section">
+        <h3>Everything else</h3>
+        <button class="v92-tile" style="width:100%" onclick="v92More()"><div class="v92-icon">☰</div><div class="v92-title">More</div><div class="v92-help">Users • Security • Reports • Settings • Health</div></button>
+      </section>
+    </main>
+    <nav class="v92-bottom">
+      <button class="v92-nav active" onclick="v92Home()"><b>⌂</b>Home</button>
+      <button class="v92-nav" onclick="v92Call('v6rDashboard')"><b>📊</b>Dashboard</button>
+      <button class="v92-nav" onclick="v92OpenSales()"><b>⛽</b>Sales</button>
+      <button class="v92-nav" onclick="v92Call('v7StockDashboard')"><b>📦</b>Stock</button>
+      <button class="v92-nav" onclick="v92More()"><b>☰</b>More</button>
+    </nav>
+    <div id="v92More" class="v92-more">
+      <button onclick="v92Call('v8Dashboard');v92More()">💼 Money & Closing</button>
+      <button onclick="v92Call('v9Center');v92More()">🔐 Users & Security</button>
+      <button onclick="v92Call('v9AuditLog');v92More()">📋 Activity Log</button>
+      <button onclick="v92Call('v9Settings');v92More()">⚙️ Station Settings</button>
+      <button onclick="v92Call('v91Health');v92More()">🩺 App Health</button>
+      <button onclick="v92Call('v9Backup');v92More()">💾 Backup</button>
+      <button onclick="v92Call('v9Restore');v92More()">♻️ Restore</button>
+      <button onclick="v92Call('v7StockReport');v92More()">📈 Stock Report</button>
+      <button onclick="v92Call('v8ExpenseReport');v92More()">🧾 Expense Report</button>
+      <button onclick="location.reload()">↻ Refresh App</button>
+    </div>`;
+  document.body.prepend(home);
+}
+function v92OpenSales(){
+  if(typeof v6rFuelReport==="function")v6rFuelReport();
+  else if(typeof v6rFuelEntries==="function")v6rFuelEntries(new Date().toISOString().slice(0,10));
+}
+function v92OpenCustomers(){
+  if(typeof v6rCustomers==="function")v6rCustomers();
+  else if(typeof customers==="function")customers();
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  // Hide the old application UI but leave its functions/data alive.
+  Array.from(document.body.children).forEach(el=>{
+    if(el.id!=="v92Home" && el.tagName!=="SCRIPT" && el.tagName!=="STYLE")el.style.display="none";
+  });
+  v92Home();
+});
 </script></body></html>
