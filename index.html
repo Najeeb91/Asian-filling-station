@@ -77,11 +77,17 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px 5px;border-bottom:1
 .v9-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .v9-card{padding:14px;border:1px solid #ddd;border-radius:12px;background:#fff}
 @media(max-width:650px){.v9-grid{grid-template-columns:1fr}}
+
+/* v0.9.1 improvement toolbar */
+.v91-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 12px;border-bottom:1px solid #ddd;background:#fff;position:sticky;top:0;z-index:9998}
+.v91-toolbar .btn{min-height:42px}
+.v91-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:20000;background:#222;color:#fff;padding:11px 16px;border-radius:10px;font-size:14px}
+@media(max-width:650px){.v91-toolbar{overflow-x:auto;flex-wrap:nowrap}.v91-toolbar .btn{white-space:nowrap}}
 </style>
 </head>
-<body><div class="v9-menu-wrap"><button id="v9SecurityBtn" class="btn primary v9-menu-btn" type="button" onclick="v9Center()">🔐 Security & Data Center</button></div>
-<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.9 SECURITY VISIBLE</div>
-<div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div><button id="v6rDashboardBtn" class="btn primary" type="button" onclick="v6rDashboard()">📊 Dashboard</button></header>
+<body>
+<header><div class="wrap"><h1>⛽ Asian Filling Station</h1><div class="sub">Customer Ledger • Fuel Sales v0.9.1 Improvement Build</div>
+<div class="cards"><div class="card">Customers<b id="count">0</b></div><div class="card">Receivable<b id="receivable">₹0</b></div><div class="card">Transactions<b id="entries">0</b></div></div></div></header>
 <main class="wrap"><div class="actions">
 <button class="btn primary" onclick="openCustomer()">+ Customer</button><button class="btn primary" onclick="openFuel()">⛽ Fuel Sale</button>
 <button class="btn white" onclick="practice()">Practice v0.5</button><button class="btn danger" onclick="resetData()">🔄 Reset Practice</button>
@@ -1453,4 +1459,38 @@ function v9Center(){
   m.classList.add("open");
 }
 
+
+function v91Toast(msg){
+ let t=document.getElementById("v91Toast");
+ if(!t){t=document.createElement("div");t.id="v91Toast";t.className="v91-toast";document.body.appendChild(t);}
+ t.textContent=msg;t.style.display="block";clearTimeout(window.v91tt);
+ window.v91tt=setTimeout(()=>t.style.display="none",2200);
+}
+function v91Refresh(){v91Toast("Refreshing application…");setTimeout(()=>location.reload(),300);}
+function v91Health(){
+ let customers=(typeof db!=="undefined"&&Array.isArray(db.customers))?db.customers.length:0;
+ let tx=(typeof db!=="undefined"&&Array.isArray(db.tx))?db.tx.length:0;
+ let body=`<div class="v9-grid">
+ <div class="v9-card"><b>Customers</b><div class="v9-value">${customers}</div></div>
+ <div class="v9-card"><b>Transactions</b><div class="v9-value">${tx}</div></div>
+ <div class="v9-card"><b>Inventory</b><p>${localStorage.getItem("asian_v07_inventory")?"Available":"Not initialized"}</p></div>
+ <div class="v9-card"><b>Finance</b><p>${localStorage.getItem("asian_v08_finance")?"Available":"Not initialized"}</p></div>
+ <div class="v9-card"><b>Security</b><p>${localStorage.getItem("asian_v09_security")?"Available":"Not initialized"}</p></div>
+ <div class="v9-card"><b>Version</b><p>v0.9.1 Improvement Build</p></div></div>`;
+ let m=document.getElementById("v91HealthModal");
+ if(!m){m=document.createElement("div");m.id="v91HealthModal";m.className="modal";
+ m.innerHTML=`<div class="sheet"><button class="close" onclick="closeM('v91HealthModal')">×</button><h2>🩺 Application Health</h2><div id="v91HealthBody"></div></div>`;document.body.appendChild(m);}
+ document.getElementById("v91HealthBody").innerHTML=body;m.classList.add("open");
+}
+(function(){
+ if(document.getElementById("v91Toolbar"))return;
+ const bar=document.createElement("div");bar.id="v91Toolbar";bar.className="v91-toolbar";
+ bar.innerHTML=`<button class="btn primary" onclick="v6rDashboard()">📊 Dashboard</button>
+ <button class="btn white" onclick="v7StockDashboard()">📦 Stock</button>
+ <button class="btn white" onclick="v8Dashboard()">💼 Finance</button>
+ <button class="btn white" onclick="v9Center()">🔐 Security</button>
+ <button class="btn white" onclick="v91Health()">🩺 Health</button>
+ <button class="btn white" onclick="v91Refresh()">↻ Refresh</button>`;
+ document.body.insertBefore(bar,document.body.firstChild);
+})();
 </script></body></html>
