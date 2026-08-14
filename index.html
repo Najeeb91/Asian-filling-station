@@ -109,6 +109,131 @@ body{padding-bottom:78px!important}
 .v92-kpi>div{padding:13px;border:1px solid #e5e5e5;border-radius:14px;background:#fff}
 .v92-kpi strong{display:block;font-size:18px;margin-top:3px}
 @media(min-width:700px){.v92-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.v92-primary{grid-column:span 2}.v92-kpi{grid-template-columns:repeat(4,1fr)}}
+
+/* =========================================================
+   v0.9.3 CLEAN PROFESSIONAL UI
+   All data-entry forms use one field per row.
+   ========================================================= */
+:root{
+  --afs-blue:#0b4fc4;
+  --afs-dark:#071a36;
+  --afs-border:#dfe5ee;
+  --afs-bg:#f5f7fb;
+  --afs-text:#14233b;
+}
+
+html,body{background:var(--afs-bg)!important;color:var(--afs-text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+
+/* App shell */
+.v93-shell{min-height:100vh;background:var(--afs-bg)}
+.v93-topbar{
+  background:linear-gradient(135deg,#061a36,#0b3264);
+  color:#fff;padding:14px 18px;display:flex;align-items:center;
+  justify-content:space-between;gap:12px
+}
+.v93-brand{font-size:20px;font-weight:800;line-height:1.05}
+.v93-subtitle{font-size:11px;opacity:.72;margin-top:4px}
+.v93-version{font-size:11px;background:rgba(255,255,255,.1);padding:7px 10px;border-radius:20px}
+
+/* Main navigation */
+.v93-mainnav{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
+  padding:10px;background:#fff;border-bottom:1px solid var(--afs-border)
+}
+.v93-mainnav button{
+  border:0;background:#fff;padding:10px 5px;border-radius:11px;
+  color:var(--afs-text);font-weight:650;cursor:pointer
+}
+.v93-mainnav button.active{background:#eaf2ff;color:var(--afs-blue)}
+.v93-mainnav .navicon{display:block;font-size:20px;margin-bottom:3px}
+
+/* Home content */
+.v93-content{max-width:1100px;margin:auto;padding:14px 14px 90px}
+.v93-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.v93-card{
+  border:1px solid var(--afs-border);background:#fff;border-radius:16px;
+  padding:15px;box-shadow:0 2px 8px rgba(20,35,59,.05);cursor:pointer
+}
+.v93-card:active{transform:scale(.99)}
+.v93-card.primary{grid-column:1/-1;background:linear-gradient(135deg,#0b4fc4,#176ee8);color:#fff;border:0}
+.v93-icon{font-size:24px}.v93-title{font-weight:800;margin-top:6px;font-size:16px}
+.v93-desc{font-size:11px;opacity:.62;margin-top:3px}
+.v93-primary-desc{opacity:.85}
+.v93-section-title{font-size:13px;font-weight:800;margin:18px 0 8px}
+
+/* Form: ONE FIELD PER ROW */
+.modal .sheet{
+  max-width:720px!important;width:min(720px,calc(100vw - 24px))!important;
+  max-height:92vh;overflow:auto;border-radius:20px
+}
+.modal .sheet form,
+.modal .sheet .form-grid,
+.modal .sheet .grid,
+.modal .sheet .row,
+.modal .sheet .fields{
+  display:block!important;width:100%!important
+}
+.modal .sheet label{
+  display:block!important;width:100%!important;margin:0 0 14px!important;
+  font-weight:650
+}
+.modal .sheet label input,
+.modal .sheet label select,
+.modal .sheet label textarea,
+.modal .sheet input,
+.modal .sheet select,
+.modal .sheet textarea{
+  display:block!important;width:100%!important;box-sizing:border-box!important;
+  min-height:46px!important;margin-top:6px!important;border:1px solid #cfd7e4!important;
+  border-radius:11px!important;padding:10px 12px!important;background:#fff!important;
+  font-size:16px!important
+}
+.modal .sheet textarea{min-height:90px!important;resize:vertical}
+.modal .sheet .actions{
+  display:flex!important;gap:9px!important;flex-wrap:wrap!important;
+  margin-top:10px!important
+}
+.modal .sheet .actions .btn,
+.modal .sheet .btn{
+  min-height:44px
+}
+
+/* Auto total / summary blocks */
+.v93-summary{
+  background:#edf4ff;border:1px solid #cfe0ff;border-radius:13px;
+  padding:13px;margin:8px 0 16px
+}
+.v93-summary strong{font-size:21px;color:var(--afs-blue)}
+
+/* Quick actions */
+.v93-quick{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.v93-quick button{
+  min-height:62px;border:1px solid var(--afs-border);background:#fff;
+  border-radius:13px;text-align:left;padding:11px;cursor:pointer
+}
+
+/* Footer */
+.v93-footer{text-align:center;font-size:10px;opacity:.55;padding:15px}
+
+/* Tables on mobile */
+.v93-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.v93-table-wrap table{min-width:700px}
+
+/* Desktop */
+@media(min-width:800px){
+  .v93-grid{grid-template-columns:repeat(4,1fr)}
+  .v93-card.primary{grid-column:span 2}
+  .v93-quick{grid-template-columns:repeat(4,1fr)}
+}
+
+/* Mobile */
+@media(max-width:650px){
+  .v93-topbar{padding:13px 14px}
+  .v93-brand{font-size:18px}
+  .v93-mainnav button{font-size:10px}
+  .v93-mainnav .navicon{font-size:18px}
+}
 </style>
 </head>
 <body>
@@ -1612,4 +1737,103 @@ document.addEventListener("DOMContentLoaded",()=>{
   });
   v92Home();
 });
+
+/* ================= v0.9.3 PROFESSIONAL HOME ================= */
+function v93Open(fn){
+  try{
+    if(typeof window[fn]==="function"){window[fn]();return true;}
+  }catch(e){console.error(e)}
+  return false;
+}
+function v93Home(){
+  const old=document.getElementById("v93Home"); if(old)old.remove();
+  const home=document.createElement("div");
+  home.id="v93Home";
+  home.className="v93-shell";
+  home.innerHTML=`
+    <header class="v93-topbar">
+      <div>
+        <div class="v93-brand">🔥 ASIAN FILLING STATION</div>
+        <div class="v93-subtitle">Smart Management System</div>
+      </div>
+      <div class="v93-version">v0.9.3</div>
+    </header>
+
+    <nav class="v93-mainnav">
+      <button class="active" onclick="v93Home()"><span class="navicon">⌂</span>Home</button>
+      <button onclick="v93Open('v6rDashboard')"><span class="navicon">📊</span>Dashboard</button>
+      <button onclick="v93Open('v6rFuelReport')"><span class="navicon">⛽</span>Sales</button>
+      <button onclick="v93Open('v7StockDashboard')"><span class="navicon">📦</span>Stock</button>
+      <button onclick="v93More()"><span class="navicon">•••</span>More</button>
+    </nav>
+
+    <main class="v93-content">
+      <div class="v93-grid">
+        <button class="v93-card primary" onclick="v93Open('v6rDashboard')">
+          <div class="v93-icon">📊</div>
+          <div class="v93-title">Dashboard</div>
+          <div class="v93-desc v93-primary-desc">Today's business at a glance — tap any entry to open details.</div>
+        </button>
+
+        <button class="v93-card" onclick="v93Open('v6rFuelReport')">
+          <div class="v93-icon">⛽</div>
+          <div class="v93-title">Sales</div>
+          <div class="v93-desc">Fuel, lubes and sale records.</div>
+        </button>
+
+        <button class="v93-card" onclick="v93Open('v6rCustomers')">
+          <div class="v93-icon">👥</div>
+          <div class="v93-title">Customers</div>
+          <div class="v93-desc">Ledger, credit and payments.</div>
+        </button>
+
+        <button class="v93-card" onclick="v93Open('v7StockDashboard')">
+          <div class="v93-icon">📦</div>
+          <div class="v93-title">Stock</div>
+          <div class="v93-desc">Fuel, lubes and purchases.</div>
+        </button>
+
+        <button class="v93-card" onclick="v93Open('v8Dashboard')">
+          <div class="v93-icon">💰</div>
+          <div class="v93-title">Money</div>
+          <div class="v93-desc">Cash, bank, expenses and closing.</div>
+        </button>
+      </div>
+
+      <div class="v93-section-title">Quick Actions</div>
+      <div class="v93-quick">
+        <button onclick="v93Open('v7PurchaseScreen')">🧾 <b>Purchase</b><br><small>Add purchase</small></button>
+        <button onclick="v93Open('v8Expense')">💸 <b>Expense</b><br><small>Record expense</small></button>
+        <button onclick="v93Open('v8DailyClosing')">🔒 <b>Daily Closing</b><br><small>Close today</small></button>
+        <button onclick="v93Open('v9Backup')">💾 <b>Backup</b><br><small>Protect data</small></button>
+      </div>
+
+      <div class="v93-section-title">More</div>
+      <div class="v93-card" onclick="v93More()">
+        <div class="v93-icon">☰</div>
+        <div class="v93-title">Security, Reports & Settings</div>
+        <div class="v93-desc">Users • Activity • Backup • Restore • Reports • Settings</div>
+      </div>
+
+      <div class="v93-footer">© 2026 Asian Filling Station • Smart Management System</div>
+    </main>
+  </div>`;
+  document.body.prepend(home);
+}
+
+function v93More(){
+  if(typeof v9Center==="function"){v9Center();return;}
+  if(typeof v8Dashboard==="function")v8Dashboard();
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  // Keep existing application functions and data alive; replace only visible shell.
+  Array.from(document.body.children).forEach(el=>{
+    if(el.id!=="v93Home" && el.tagName!=="SCRIPT" && el.tagName!=="STYLE"){
+      el.style.display="none";
+    }
+  });
+  v93Home();
+});
+
 </script></body></html>
