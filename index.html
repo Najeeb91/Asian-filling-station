@@ -234,6 +234,102 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-s
   .v93-mainnav button{font-size:10px}
   .v93-mainnav .navicon{font-size:18px}
 }
+
+/* ===== v0.9.4 MODAL + CRUD FIX ===== */
+.modal{
+  position:fixed!important;
+  inset:0!important;
+  z-index:100000!important;
+  display:none;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:18px 12px!important;
+  overflow:auto!important;
+  background:rgba(0,0,0,.48)!important;
+}
+.modal.open{display:flex!important}
+.modal .sheet{
+  position:relative!important;
+  z-index:100001!important;
+  width:min(760px,calc(100vw - 24px))!important;
+  max-height:calc(100vh - 36px)!important;
+  overflow:auto!important;
+  margin:0 auto!important;
+  background:#fff!important;
+  border-radius:20px!important;
+  box-shadow:0 18px 60px rgba(0,0,0,.35)!important;
+}
+.modal .close{
+  position:absolute!important;
+  right:14px!important;
+  top:12px!important;
+  z-index:100002!important;
+}
+.v94-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.v94-action{
+  border:1px solid #d7deea;background:#fff;border-radius:10px;
+  padding:8px 12px;font-weight:700;cursor:pointer
+}
+.v94-action.edit{color:#0b4fc4}
+.v94-action.delete{color:#b42318;border-color:#f0b8b3}
+.v94-empty{padding:22px;text-align:center;opacity:.6}
+.v94-entry{
+  border:1px solid #e1e6ef;background:#fff;border-radius:14px;
+  padding:12px;margin:8px 0
+}
+.v94-entry-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.v94-entry-title{font-weight:800}
+.v94-entry-meta{font-size:12px;opacity:.65;margin-top:4px}
+.v94-entry-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.v94-add{
+  width:100%;min-height:46px;border:0;border-radius:12px;
+  background:#0b4fc4;color:#fff;font-weight:800;cursor:pointer;margin:4px 0 12px
+}
+
+/* =========================================================
+   v0.9.5 — ONE SIMPLE UI / NO DUPLICATE MODULES
+   ========================================================= */
+.v95-home{min-height:100vh;background:#f5f7fb}
+.v95-head{background:linear-gradient(135deg,#071a36,#0b4fc4);color:#fff;padding:16px}
+.v95-brand{font-size:20px;font-weight:850}.v95-sub{font-size:11px;opacity:.75;margin-top:3px}
+.v95-nav{display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border-bottom:1px solid #dfe5ee;position:sticky;top:0;z-index:9000}
+.v95-nav button{border:0;background:#fff;padding:10px 4px;font-size:10px;font-weight:750;color:#14233b}
+.v95-nav button b{display:block;font-size:20px;margin-bottom:2px}.v95-nav button.active{color:#0b4fc4;background:#edf4ff}
+.v95-body{max-width:1050px;margin:auto;padding:14px 14px 80px}
+.v95-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.v95-tile{border:1px solid #dfe5ee;border-radius:16px;background:#fff;padding:16px;text-align:left;min-height:100px;box-shadow:0 2px 7px rgba(0,0,0,.04);cursor:pointer}
+.v95-tile.primary{grid-column:1/-1;background:#0b4fc4;color:#fff;border:0}
+.v95-icon{font-size:25px}.v95-title{font-size:16px;font-weight:850;margin-top:6px}.v95-desc{font-size:11px;opacity:.62;margin-top:3px}.v95-primary-desc{opacity:.85}
+.v95-section{font-size:13px;font-weight:850;margin:18px 0 8px}
+.v95-actions{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.v95-actions button{min-height:42px}
+.v95-row-actions{display:flex;gap:6px;flex-wrap:wrap}
+.v95-row-actions button{border:1px solid #d8deea;background:#fff;border-radius:9px;padding:7px 9px;font-weight:700}
+.v95-row-actions .danger{color:#b42318;border-color:#efb4af}
+.v95-entry{border:1px solid #dfe5ee;border-radius:13px;background:#fff;padding:12px;margin:8px 0}
+.v95-entry-title{font-weight:800}.v95-entry-meta{font-size:12px;opacity:.62;margin-top:4px}
+.v95-empty{text-align:center;padding:25px;opacity:.55}
+.v95-modal{
+ position:fixed!important;inset:0!important;display:none;align-items:flex-start!important;
+ justify-content:center!important;padding:14px!important;overflow:auto!important;
+ background:rgba(4,13,28,.52)!important;z-index:200000!important
+}
+.v95-modal.open{display:flex!important}
+.v95-sheet{
+ width:min(760px,calc(100vw - 20px));max-height:calc(100vh - 28px);overflow:auto;
+ background:#fff;border-radius:20px;padding:18px;position:relative;z-index:200001;
+ box-shadow:0 20px 70px rgba(0,0,0,.38)
+}
+.v95-sheet h2{margin:2px 42px 16px 0}.v95-x{position:absolute;right:12px;top:10px;border:0;background:#f0f2f5;border-radius:50%;width:40px;height:40px;font-size:24px}
+.v95-form label{display:block!important;width:100%!important;margin:0 0 13px!important;font-weight:700}
+.v95-form input,.v95-form select,.v95-form textarea{
+ display:block!important;width:100%!important;box-sizing:border-box!important;
+ min-height:46px!important;margin-top:6px!important;padding:10px 12px!important;
+ border:1px solid #cfd7e4!important;border-radius:11px!important;background:#fff!important;font-size:16px!important
+}
+.v95-form textarea{min-height:90px!important}.v95-note{font-size:11px;opacity:.6}
+.v95-bottom{position:fixed;bottom:0;left:0;right:0;height:62px;background:#fff;border-top:1px solid #ddd;z-index:8999;display:flex;align-items:center;justify-content:center;font-size:10px;opacity:.7}
+@media(min-width:750px){.v95-grid{grid-template-columns:repeat(4,1fr)}.v95-tile.primary{grid-column:span 2}}
 </style>
 </head>
 <body>
@@ -1735,7 +1831,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   Array.from(document.body.children).forEach(el=>{
     if(el.id!=="v92Home" && el.tagName!=="SCRIPT" && el.tagName!=="STYLE")el.style.display="none";
   });
-  v92Home();
+  
 });
 
 /* ================= v0.9.3 PROFESSIONAL HOME ================= */
@@ -1833,7 +1929,389 @@ document.addEventListener("DOMContentLoaded",()=>{
       el.style.display="none";
     }
   });
-  v93Home();
+  v95Home();
 });
 
+
+/* =========================================================
+   v0.9.4 — FRONT MODALS + ADD / EDIT / DELETE
+   ========================================================= */
+function v94Close(id){
+  const m=document.getElementById(id);
+  if(m)m.classList.remove("open");
+}
+function v94Modal(id,title,body){
+  let m=document.getElementById(id);
+  if(!m){
+    m=document.createElement("div");
+    m.id=id;m.className="modal";
+    m.innerHTML=`<div class="sheet">
+      <button class="close" type="button" onclick="v94Close('${id}')">×</button>
+      <h2 id="${id}Title"></h2><div id="${id}Body"></div>
+    </div>`;
+    document.body.appendChild(m);
+  }
+  document.getElementById(id+"Title").textContent=title;
+  document.getElementById(id+"Body").innerHTML=body;
+  m.classList.add("open");
+  m.scrollTop=0;
+}
+
+/* Keep the requested one-field-per-row layout in every new form. */
+function v94Field(label,id,type="text",placeholder=""){
+  return `<label>${label}<input id="${id}" type="${type}" placeholder="${placeholder}"></label>`;
+}
+
+/* ---------- Customer CRUD ---------- */
+function v94Customers(){
+  let customers=[];
+  try{
+    customers=(typeof db!=="undefined" && Array.isArray(db.customers))?db.customers:[];
+  }catch(e){}
+  const rows=customers.map((c,i)=>{
+    const id=c.id ?? i;
+    const name=c.name || c.customerName || "Unnamed customer";
+    const phone=c.phone || c.mobile || "";
+    return `<div class="v94-entry">
+      <div class="v94-entry-head"><div><div class="v94-entry-title">${esc(name)}</div>
+      <div class="v94-entry-meta">${esc(phone||"No phone")}</div></div></div>
+      <div class="v94-entry-buttons">
+        <button class="v94-action edit" onclick="v94EditCustomer('${String(id).replace(/'/g,"\\'")}')">✏️ Edit</button>
+        <button class="v94-action delete" onclick="v94DeleteCustomer('${String(id).replace(/'/g,"\\'")}')">🗑️ Delete</button>
+      </div>
+    </div>`;
+  }).join("");
+  v94Modal("v94CustomersModal","👥 Customers",
+    `<button class="v94-add" onclick="v94AddCustomer()">＋ Add Customer</button>
+     ${rows||'<div class="v94-empty">No customers yet.</div>'}`);
+}
+function v94AddCustomer(){
+  v94Modal("v94CustomerForm","＋ Add Customer",
+    `${v94Field("Customer Name *","v94CN")}
+     ${v94Field("Mobile","v94CP","tel")}
+     ${v94Field("Vehicle / Number","v94CV")}
+     ${v94Field("Credit Limit ₹","v94CL","number")}
+     <div class="v94-actions"><button class="btn primary" onclick="v94SaveCustomer()">💾 Save Customer</button>
+     <button class="btn white" onclick="v94Customers()">Cancel</button></div>`);
+}
+function v94SaveCustomer(){
+  const name=document.getElementById("v94CN").value.trim();
+  if(!name)return alert("Enter customer name.");
+  if(typeof db==="undefined")return alert("Customer database is unavailable.");
+  if(!Array.isArray(db.customers))db.customers=[];
+  db.customers.push({id:"c_"+Date.now(),name,phone:document.getElementById("v94CP").value.trim(),
+    vehicle:document.getElementById("v94CV").value.trim(),creditLimit:Number(document.getElementById("v94CL").value||0)});
+  if(typeof saveDB==="function")saveDB();
+  else if(typeof K!=="undefined")localStorage.setItem(K,JSON.stringify(db));
+  v94Close("v94CustomerForm");v94Customers();
+}
+function v94EditCustomer(id){
+  const arr=(typeof db!=="undefined"&&Array.isArray(db.customers))?db.customers:[];
+  const c=arr.find((x,i)=>String(x.id??i)===String(id));
+  if(!c)return;
+  v94Modal("v94CustomerForm","✏️ Edit Customer",
+    `${v94Field("Customer Name *","v94CN")}
+     ${v94Field("Mobile","v94CP","tel")}
+     ${v94Field("Vehicle / Number","v94CV")}
+     ${v94Field("Credit Limit ₹","v94CL","number")}
+     <div class="v94-actions"><button class="btn primary" onclick="v94UpdateCustomer('${String(id).replace(/'/g,"\\'")}')">💾 Save Changes</button>
+     <button class="btn white" onclick="v94Customers()">Cancel</button></div>`);
+  v94CN.value=c.name||c.customerName||"";v94CP.value=c.phone||c.mobile||"";
+  v94CV.value=c.vehicle||"";v94CL.value=c.creditLimit||0;
+}
+function v94UpdateCustomer(id){
+  const c=(db.customers||[]).find((x,i)=>String(x.id??i)===String(id));if(!c)return;
+  c.name=v94CN.value.trim();c.phone=v94CP.value.trim();c.vehicle=v94CV.value.trim();c.creditLimit=Number(v94CL.value||0);
+  if(typeof saveDB==="function")saveDB();else if(typeof K!=="undefined")localStorage.setItem(K,JSON.stringify(db));
+  v94Close("v94CustomerForm");v94Customers();
+}
+function v94DeleteCustomer(id){
+  if(!confirm("Delete this customer?"))return;
+  if(typeof db==="undefined"||!Array.isArray(db.customers))return;
+  db.customers=db.customers.filter((x,i)=>String(x.id??i)!==String(id));
+  if(typeof saveDB==="function")saveDB();else if(typeof K!=="undefined")localStorage.setItem(K,JSON.stringify(db));
+  v94Customers();
+}
+
+/* ---------- Simple Sales Entry CRUD ---------- */
+function v94Sales(){
+  let tx=[];
+  try{tx=(typeof db!=="undefined"&&Array.isArray(db.tx))?db.tx:[]}catch(e){}
+  const rows=tx.filter(x=>x.type!=="payment").slice().reverse().map((x,i)=>{
+    const id=x.id??i, label=x.particular||x.description||x.product||x.type||"Transaction";
+    return `<div class="v94-entry">
+      <div class="v94-entry-title">${esc(label)}</div>
+      <div class="v94-entry-meta">${esc(String(x.date||""))} • ${money(Number(x.amount||0))}</div>
+      <div class="v94-entry-buttons">
+        <button class="v94-action edit" onclick="v94EditSale('${String(id).replace(/'/g,"\\'")}')">✏️ Edit</button>
+        <button class="v94-action delete" onclick="v94DeleteSale('${String(id).replace(/'/g,"\\'")}')">🗑️ Delete</button>
+      </div>
+    </div>`;
+  }).join("");
+  v94Modal("v94SalesModal","⛽ Sales Entries",
+    `<button class="v94-add" onclick="v94AddSale()">＋ Add Sale</button>${rows||'<div class="v94-empty">No sales entries yet.</div>'}`);
+}
+function v94AddSale(){
+  v94Modal("v94SaleForm","＋ Add Sale",
+    `${v94Field("Date","v94SD","date")}
+     <label>Fuel Type<select id="v94SF"><option>Diesel</option><option>Petrol</option></select></label>
+     ${v94Field("Quantity (L)","v94SQ","number")}
+     ${v94Field("Rate (₹/L)","v94SR","number")}
+     <div class="v93-summary">Total Amount: ₹ <strong id="v94ST">0.00</strong></div>
+     <div class="v94-actions"><button class="btn primary" onclick="v94SaveSale()">💾 Save Sale</button>
+     <button class="btn white" onclick="v94Close('v94SaleForm')">Cancel</button></div>`);
+  v94SD.value=new Date().toISOString().slice(0,10);
+  v94SQ.oninput=v94SR.oninput=v94CalcSale;
+}
+function v94CalcSale(){v94ST.textContent=(Number(v94SQ.value||0)*Number(v94SR.value||0)).toFixed(2)}
+function v94SaveSale(){
+  const qty=Number(v94SQ.value||0),rate=Number(v94SR.value||0);
+  if(qty<=0||rate<=0)return alert("Enter quantity and rate.");
+  if(typeof db==="undefined")return alert("Transaction database is unavailable.");
+  if(!Array.isArray(db.tx))db.tx=[];
+  db.tx.push({id:"s_"+Date.now(),date:v94SD.value,type:"credit",particular:v94SF.value,
+    description:v94SF.value+" "+qty+" L",amount:qty*rate,quantity:qty,rate});
+  if(typeof saveDB==="function")saveDB();else if(typeof K!=="undefined")localStorage.setItem(K,JSON.stringify(db));
+  v94Close("v94SaleForm");v94Sales();
+}
+function v94EditSale(id){
+  const x=(db.tx||[]).find((a,i)=>String(a.id??i)===String(id));if(!x)return;
+  v94Modal("v94SaleForm","✏️ Edit Sale",
+    `${v94Field("Date","v94SD","date")}
+     <label>Fuel Type<select id="v94SF"><option>Diesel</option><option>Petrol</option></select></label>
+     ${v94Field("Quantity (L)","v94SQ","number")}
+     ${v94Field("Rate (₹/L)","v94SR","number")}
+     <div class="v93-summary">Total Amount: ₹ <strong id="v94ST">0.00</strong></div>
+     <div class="v94-actions"><button class="btn primary" onclick="v94UpdateSale('${String(id).replace(/'/g,"\\'")}')">💾 Save Changes</button>
+     <button class="btn white" onclick="v94Close('v94SaleForm')">Cancel</button></div>`);
+  v94SD.value=String(x.date||"").slice(0,10);v94SF.value=x.particular||"Diesel";
+  v94SQ.value=x.quantity||0;v94SR.value=x.rate||0;v94SQ.oninput=v94SR.oninput=v94CalcSale;v94CalcSale();
+}
+function v94UpdateSale(id){
+  const x=(db.tx||[]).find((a,i)=>String(a.id??i)===String(id));if(!x)return;
+  x.date=v94SD.value;x.particular=v94SF.value;x.quantity=Number(v94SQ.value||0);x.rate=Number(v94SR.value||0);
+  x.amount=x.quantity*x.rate;x.description=x.particular+" "+x.quantity+" L";
+  if(typeof saveDB==="function")saveDB();else if(typeof K!=="undefined")localStorage.setItem(K,JSON.stringify(db));
+  v94Close("v94SaleForm");v94Sales();
+}
+function v94DeleteSale(id){
+  if(!confirm("Delete this sale?"))return;
+  if(!Array.isArray(db.tx))return;
+  db.tx=db.tx.filter((x,i)=>String(x.id??i)!==String(id));
+  if(typeof saveDB==="function")saveDB();else if(typeof K!=="undefined")localStorage.setItem(K,JSON.stringify(db));
+  v94Sales();
+}
+
+/* ---------- Purchase CRUD entry point ---------- */
+function v94Purchase(){
+  if(typeof v7PurchaseScreen==="function"){v7PurchaseScreen();return;}
+  if(typeof v7Purchase==="function"){v7Purchase();return;}
+  alert("Purchase entry is not available in this build.");
+}
+
+/* ---------- Unified "More" menu ---------- */
+function v94More(){
+  v94Modal("v94MoreModal","☰ More",
+    `<div class="v94-entry"><b>🔐 Security</b><div class="v94-entry-buttons"><button class="v94-action" onclick="v94Close('v94MoreModal');v9Center()">Open</button></div></div>
+     <div class="v94-entry"><b>📋 Reports</b><div class="v94-entry-buttons"><button class="v94-action" onclick="v94Close('v94MoreModal');v8ExpenseReport()">Expense Report</button><button class="v94-action" onclick="v94Close('v94MoreModal');v7StockReport()">Stock Report</button></div></div>
+     <div class="v94-entry"><b>⚙️ Settings</b><div class="v94-entry-buttons"><button class="v94-action" onclick="v94Close('v94MoreModal');v9Settings()">Open</button></div></div>
+     <div class="v94-entry"><b>🩺 Health</b><div class="v94-entry-buttons"><button class="v94-action" onclick="v94Close('v94MoreModal');v91Health()">Open</button></div></div>`);
+}
+
+/* Replace the visible home shell with CRUD-aware navigation. */
+function v94Home(){
+  const old=document.getElementById("v93Home");if(old)old.remove();
+  const home=document.createElement("div");home.id="v93Home";home.className="v93-shell";
+  home.innerHTML=`
+    <header class="v93-topbar"><div><div class="v93-brand">🔥 ASIAN FILLING STATION</div><div class="v93-subtitle">Smart Management System</div></div><div class="v93-version">v0.9.4</div></header>
+    <nav class="v93-mainnav">
+      <button class="active" onclick="v94Home()"><span class="navicon">⌂</span>Home</button>
+      <button onclick="v94OpenDashboard()"><span class="navicon">📊</span>Dashboard</button>
+      <button onclick="v94Sales()"><span class="navicon">⛽</span>Sales</button>
+      <button onclick="v94Customers()"><span class="navicon">👥</span>Customers</button>
+      <button onclick="v94More()"><span class="navicon">•••</span>More</button>
+    </nav>
+    <main class="v93-content">
+      <div class="v93-grid">
+        <button class="v93-card primary" onclick="v94OpenDashboard()"><div class="v93-icon">📊</div><div class="v93-title">Dashboard</div><div class="v93-desc v93-primary-desc">Tap to see today's business and open individual entries.</div></button>
+        <button class="v93-card" onclick="v94Sales()"><div class="v93-icon">⛽</div><div class="v93-title">Sales</div><div class="v93-desc">Add, edit and delete sales.</div></button>
+        <button class="v93-card" onclick="v94Customers()"><div class="v93-icon">👥</div><div class="v93-title">Customers</div><div class="v93-desc">Add, edit and delete customers.</div></button>
+        <button class="v93-card" onclick="v93OpenStockSafe()"><div class="v93-icon">📦</div><div class="v93-title">Stock</div><div class="v93-desc">Fuel, lubes and purchases.</div></button>
+        <button class="v93-card" onclick="v93OpenMoneySafe()"><div class="v93-icon">💰</div><div class="v93-title">Money</div><div class="v93-desc">Cash, bank, expenses and closing.</div></button>
+      </div>
+      <div class="v93-section-title">Quick Actions</div>
+      <div class="v93-quick">
+        <button onclick="v94Purchase()">🧾 <b>Purchase</b><br><small>Add purchase</small></button>
+        <button onclick="v93OpenMoneyExpense()">💸 <b>Expense</b><br><small>Record expense</small></button>
+        <button onclick="v93OpenMoneyClosing()">🔒 <b>Daily Closing</b><br><small>Close today</small></button>
+        <button onclick="v93OpenBackup()">💾 <b>Backup</b><br><small>Protect data</small></button>
+      </div>
+      <div class="v93-footer">© 2026 Asian Filling Station • Smart Management System</div>
+    </main>`;
+  document.body.prepend(home);
+}
+function v94OpenDashboard(){if(typeof v6rDashboard==="function")v6rDashboard();else alert("Dashboard unavailable.")}
+function v93OpenStockSafe(){if(typeof v7StockDashboard==="function")v7StockDashboard();else alert("Stock unavailable.")}
+function v93OpenMoneySafe(){if(typeof v8Dashboard==="function")v8Dashboard();else alert("Money unavailable.")}
+function v93OpenMoneyExpense(){if(typeof v8Expense==="function")v8Expense();else alert("Expense entry unavailable.")}
+function v93OpenMoneyClosing(){if(typeof v8DailyClosing==="function")v8DailyClosing();else alert("Daily closing unavailable.")}
+function v93OpenBackup(){if(typeof v9Backup==="function")v9Backup();else alert("Backup unavailable.")}
+
+/* Global close behavior: clicking outside a modal closes it, but never hides
+   the modal behind the page. */
+document.addEventListener("click",function(e){
+  if(e.target.classList && e.target.classList.contains("modal")){
+    e.target.classList.remove("open");
+  }
+});
+
+
+/* =========================================================
+   v0.9.5 — CANONICAL CRUD UI
+   Uses the existing v0.5-v0.9 data/functions.
+   No second customer/sales database is created.
+   ========================================================= */
+function v95Close(id){const m=document.getElementById(id);if(m)m.classList.remove("open")}
+function v95Modal(id,title,body){
+ let m=document.getElementById(id);
+ if(!m){
+  m=document.createElement("div");m.id=id;m.className="v95-modal";
+  m.innerHTML=`<div class="v95-sheet"><button class="v95-x" onclick="v95Close('${id}')">×</button><h2 id="${id}T"></h2><div id="${id}B"></div></div>`;
+  document.body.appendChild(m);
+ }
+ document.getElementById(id+"T").textContent=title;document.getElementById(id+"B").innerHTML=body;m.classList.add("open");
+}
+function v95SaveDB(){localStorage.setItem(K,JSON.stringify(db));if(typeof render==="function")render()}
+
+/* ---------- ONE Customer screen ---------- */
+function v95Customers(){
+ const rows=(db.customers||[]).map(c=>`
+  <div class="v95-entry">
+   <div class="v95-entry-title">${esc(c.name)}</div>
+   <div class="v95-entry-meta">${esc(c.phone||"No phone")} • Outstanding: ${money(bal(c))}</div>
+   <div class="v95-row-actions" style="margin-top:8px">
+    <button onclick="ledger('${c.id}')">📒 Ledger</button>
+    <button onclick="v95EditCustomer('${c.id}')">✏️ Edit</button>
+    <button class="danger" onclick="deleteCustomer('${c.id}')">🗑️ Delete</button>
+   </div>
+  </div>`).join("");
+ v95Modal("v95Customer","Customers",
+  `<button class="v95-actions btn primary" onclick="openCustomer()">＋ Add Customer</button>
+   ${rows||'<div class="v95-empty">No customers yet.</div>'}`);
+}
+function v95EditCustomer(id){
+ const c=db.customers.find(x=>x.id===id);if(!c)return;
+ v95Modal("v95EditCustomer","Edit Customer",`
+ <div class="v95-form">
+  <label>Name<input id="v95EN" value="${esc(c.name)}"></label>
+  <label>Mobile<input id="v95EP" value="${esc(c.phone||"")}" type="tel"></label>
+  <label>Vehicle / Number<input id="v95EV" value="${esc(c.vehicle||"")}"></label>
+  <label>Type<select id="v95ET"><option ${c.type==="Fleet"?"selected":""}>Fleet</option><option ${c.type==="Individual"?"selected":""}>Individual</option></select></label>
+  <label>Credit Limit (₹)<input id="v95EL" type="number" value="${Number(c.creditLimit||0)}"></label>
+  <div class="v95-actions"><button class="btn primary" onclick="v95UpdateCustomer('${id}')">💾 Save Changes</button><button class="btn white" onclick="v95Close('v95EditCustomer');v95Customers()">Cancel</button></div>
+ </div>`);
+}
+function v95UpdateCustomer(id){
+ const c=db.customers.find(x=>x.id===id);if(!c)return;
+ const n=v95EN.value.trim();if(!n)return alert("Enter customer name.");
+ c.name=n;c.phone=v95EP.value.trim();c.vehicle=v95EV.value.trim();c.type=v95ET.value;c.creditLimit=Number(v95EL.value||0);
+ v95SaveDB();v95Close("v95EditCustomer");v95Customers();
+}
+
+/* ---------- ONE Sales/Transactions screen ---------- */
+function v95Sales(){
+ const tx=(db.tx||[]).slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
+ const rows=tx.map(t=>{
+   const customer=db.customers.find(c=>c.id===t.cid);
+   const isSale=!!t.l;
+   const title=isSale?`${t.fuel||"Fuel"} Sale`:t.type==="payment"?"Payment Received":(t.desc||"Transaction");
+   const detail=`${formatDate(String(t.date||"").slice(0,10))} • ${esc(customer?customer.name:"Customer")} • ${money(t.amount||0)}`;
+   return `<div class="v95-entry"><div class="v95-entry-title">${esc(title)}</div><div class="v95-entry-meta">${detail}</div>
+   <div class="v95-row-actions" style="margin-top:8px">
+    <button onclick="v95OpenTransaction('${t.id}')">👁️ Open</button>
+    <button onclick="editTx('${t.id}')">✏️ Edit</button>
+    <button class="danger" onclick="deleteTx('${t.id}')">🗑️ Delete</button>
+   </div></div>`;
+ }).join("");
+ v95Modal("v95Sales","Sales & Transactions",`
+  <div class="v95-actions">
+   <button class="btn primary" onclick="v95AddSale()">＋ Fuel Sale</button>
+   <button class="btn white" onclick="v95AddPayment()">＋ Payment</button>
+  </div>
+  ${rows||'<div class="v95-empty">No transactions yet.</div>'}`);
+}
+function v95AddSale(){
+ if(!db.customers.length){alert("Add a customer first.");return}
+ v95Close("v95Sales");openFuel();
+}
+function v95AddPayment(){
+ if(!db.customers.length){alert("Add a customer first.");return}
+ v95Close("v95Sales");openPayment();
+}
+function v95OpenTransaction(id){
+ const t=db.tx.find(x=>x.id===id);if(!t)return;
+ const c=db.customers.find(x=>x.id===t.cid);
+ const detail=t.l?`${t.fuel||"Fuel"}<br>${t.l} L × ${money(t.r||0)}/L`:t.type==="payment"?`Payment • ${esc(t.mode||"")}`:esc(t.desc||"Opening Balance");
+ v95Modal("v95Transaction","Transaction",`
+  <div class="v95-entry"><b>${esc(c?c.name:"Customer")}</b><div class="v95-entry-meta">${formatDate(String(t.date||"").slice(0,10))}</div><p>${detail}</p><h3>${money(t.amount||0)}</h3></div>
+  <div class="v95-actions"><button class="btn primary" onclick="v95Close('v95Transaction');editTx('${id}')">✏️ Edit</button><button class="btn danger" onclick="v95Close('v95Transaction');deleteTx('${id}')">🗑️ Delete</button></div>`);
+}
+
+/* ---------- Existing modules, opened ONCE ---------- */
+function v95Stock(){if(typeof v7StockDashboard==="function")v7StockDashboard()}
+function v95Money(){if(typeof v8Dashboard==="function")v8Dashboard()}
+function v95Dashboard(){if(typeof v6rDashboard==="function")v6rDashboard()}
+function v95More(){
+ v95Modal("v95More","More",`
+  <div class="v95-entry"><b>📦 Stock</b><div class="v95-row-actions"><button onclick="v95Close('v95More');v95Stock()">Open</button></div></div>
+  <div class="v95-entry"><b>💰 Money & Daily Closing</b><div class="v95-row-actions"><button onclick="v95Close('v95More');v95Money()">Open</button></div></div>
+  <div class="v95-entry"><b>🔐 Users & Security</b><div class="v95-row-actions"><button onclick="v95Close('v95More');v9Center()">Open</button></div></div>
+  <div class="v95-entry"><b>📋 Reports</b><div class="v95-row-actions"><button onclick="v95Close('v95More');v6rFuelReport()">Fuel Sales</button><button onclick="v95Close('v95More');v8ExpenseReport()">Expenses</button></div></div>
+  <div class="v95-entry"><b>⚙️ Settings</b><div class="v95-row-actions"><button onclick="v95Close('v95More');v9Settings()">Open</button></div></div>`);
+}
+
+/* ---------- Single, short home ---------- */
+function v95Home(){
+ const old=document.getElementById("v95Home");if(old)old.remove();
+ const h=document.createElement("div");h.id="v95Home";h.className="v95-home";
+ h.innerHTML=`
+  <header class="v95-head"><div class="v95-brand">ASIAN FILLING STATION</div><div class="v95-sub">Smart Management • Simple & Fast</div></header>
+  <nav class="v95-nav">
+   <button class="active" onclick="v95Home()"><b>⌂</b>Home</button>
+   <button onclick="v95Dashboard()"><b>📊</b>Dashboard</button>
+   <button onclick="v95Sales()"><b>⛽</b>Sales</button>
+   <button onclick="v95Customers()"><b>👥</b>Customers</button>
+   <button onclick="v95More()"><b>•••</b>More</button>
+  </nav>
+  <main class="v95-body">
+   <div class="v95-grid">
+    <button class="v95-tile primary" onclick="v95Dashboard()"><div class="v95-icon">📊</div><div class="v95-title">Dashboard</div><div class="v95-desc v95-primary-desc">Today's business, totals and individual entries.</div></button>
+    <button class="v95-tile" onclick="v95Sales()"><div class="v95-icon">⛽</div><div class="v95-title">Sales</div><div class="v95-desc">Add • Edit • Delete</div></button>
+    <button class="v95-tile" onclick="v95Customers()"><div class="v95-icon">👥</div><div class="v95-title">Customers</div><div class="v95-desc">Add • Edit • Delete</div></button>
+    <button class="v95-tile" onclick="v95Stock()"><div class="v95-icon">📦</div><div class="v95-title">Stock</div><div class="v95-desc">Fuel • Lubes • Purchases</div></button>
+    <button class="v95-tile" onclick="v95Money()"><div class="v95-icon">💰</div><div class="v95-title">Money</div><div class="v95-desc">Cash • Bank • Expense • Closing</div></button>
+   </div>
+  </main>
+  <div class="v95-bottom">Asian Filling Station • v0.9.5</div>`;
+ document.body.prepend(h);
+}
+
+/* Prevent old duplicate visible shells; keep their functions/data only. */
+document.addEventListener("DOMContentLoaded",()=>{
+ Array.from(document.body.children).forEach(el=>{
+  if(!["SCRIPT","STYLE"].includes(el.tagName) && !["v95Home"].includes(el.id))el.style.display="none";
+ });
+ v95Home();
+});
+
+/* Guarantee every modal is above every page layer. */
+document.addEventListener("DOMContentLoaded",()=>{
+ document.querySelectorAll(".modal,.v95-modal").forEach(m=>{m.style.zIndex="200000";});
+});
+</script><script>
+document.addEventListener("DOMContentLoaded",function(){
+  document.querySelectorAll(".modal").forEach(function(m){
+    m.style.zIndex="100000";
+  });
+});
 </script></body></html>
