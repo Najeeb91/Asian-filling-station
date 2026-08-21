@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PumpOS Master Prototype v3</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#f5f7fa;color:#172033}
+button,input,select{font:inherit}button{cursor:pointer;border:0}.app{max-width:760px;margin:auto;min-height:100vh;background:#fff}
+header{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #e5e7eb;padding:14px 16px}.brand{display:flex;justify-content:space-between;align-items:center}.brand h1{font-size:20px;margin:0}.sub{font-size:12px;color:#6b7280;margin-top:3px}
+main{padding:14px 16px 90px}.section-title{font-size:14px;font-weight:800;margin:20px 0 10px;text-transform:uppercase;letter-spacing:.04em;color:#4b5563}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.card{border:1px solid #e5e7eb;border-radius:14px;padding:14px;background:#fff;box-shadow:0 2px 8px #00000008}.metric{font-size:23px;font-weight:800;margin-top:4px}.label{font-size:12px;color:#6b7280}.positive{color:#087443}.negative{color:#b42318}.amber{color:#9a6700}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.menu button{background:#f8fafc;border:1px solid #e5e7eb;border-radius:14px;padding:15px;text-align:left;font-weight:700}.menu small{display:block;color:#6b7280;font-weight:400;margin-top:4px}
+.action{width:100%;background:#111827;color:#fff;border-radius:12px;padding:13px;font-weight:750;margin-top:10px}.secondary{background:#eef2f7;color:#172033;border-radius:10px;padding:8px 10px;font-weight:700}.danger{background:#fff1f2;color:#b42318}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #edf0f3}.row:last-child{border-bottom:0}.pill{padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700;background:#eef2ff}.form{display:grid;gap:10px}.form label{font-size:12px;font-weight:700;color:#4b5563}.form input,.form select{width:100%;padding:11px;border:1px solid #d7dce3;border-radius:10px;background:#fff}
+.back{background:transparent;padding:0 0 8px;color:#374151;font-weight:700}.hidden{display:none}.note{font-size:12px;color:#6b7280;line-height:1.45}.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;display:none;z-index:20}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(760px,100%);background:#fff;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:repeat(3,1fr);padding:8px 12px calc(8px + env(safe-area-inset-bottom));z-index:15}nav button{background:none;padding:8px;font-size:12px;font-weight:700;color:#6b7280}nav button.active{color:#111827}
+.modal{position:fixed;inset:0;background:#0006;display:none;align-items:flex-end;z-index:30}.modal.show{display:flex}.sheet{width:min(760px,100%);margin:auto;background:#fff;border-radius:18px 18px 0 0;padding:18px;max-height:85vh;overflow:auto}.sheet h3{margin:0 0 14px}
+.status{font-size:12px;font-weight:700}.ok{color:#087443}.warn{color:#9a6700}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><div><h1>Asian Filling Station</h1><div class="sub">PumpOS Master • Daily Operations</div></div><span class="pill">LOCAL PROTOTYPE</span></div></header>
+
+<main>
+<section id="home">
+<div class="section-title">Today’s Summary</div>
+<div class="grid">
+<div class="card"><div class="label">Fuel Sales</div><div id="fuelSales" class="metric">₹0</div></div>
+<div class="card"><div class="label">Fuel Volume</div><div id="fuelVolume" class="metric">0 L</div></div>
+<div class="card"><div class="label">Credit Sales</div><div id="creditSales" class="metric amber">₹0</div></div>
+<div class="card"><div class="label">Payments Received</div><div id="paymentsReceived" class="metric positive">₹0</div></div>
+</div>
+<div class="section-title">Departments</div>
+<div class="menu">
+<button onclick="openPage('customer')">👥 Customer<small>Credit, payments, outstanding</small></button>
+<button onclick="openPage('fuel')">⛽ Fuel & Sales<small>Sales, rates, meter readings</small></button>
+<button onclick="openPage('shift')">🧾 Shift & Reconciliation<small>Daily closing and audit</small></button>
+<button onclick="openPage('settings')">⚙️ Master Settings<small>Department configuration</small></button>
+</div>
+<div class="section-title">Daily Workflow</div>
+<div class="card"><div id="dailyHomeList"></div><button class="action" onclick="openPage('daily')">Open Daily Update</button></div>
+</section>
+
+<section id="customer" class="hidden">
+<button class="back" onclick="openPage('home')">← Dashboard</button><h2>Customer Department</h2>
+<div class="card form"><label>Search customers</label><input id="search" placeholder="Name / phone / account" oninput="renderCustomers()"></div>
+<div class="grid" style="margin-top:10px"><div class="card"><div class="label">Total Customers</div><div id="customerCount" class="metric">0</div></div><div class="card"><div class="label">Outstanding</div><div id="outstanding" class="metric amber">₹0</div></div></div>
+<div class="section-title">Customers</div><div class="card" id="customers"></div>
+</section>
+
+<section id="fuel" class="hidden">
+<button class="back" onclick="openPage('home')">← Dashboard</button><h2>Fuel & Sales</h2>
+<div class="card"><div class="label">Current rates</div><div id="rateDisplay" class="metric"></div><div class="note">Rates are controlled from Master Settings.</div></div>
+<div class="section-title">Transactions</div><div class="menu">
+<button onclick="openPage('credit')">Give Fuel on Credit<small>Record credit sale</small></button>
+<button onclick="openPage('payment')">Receive Payment<small>Record customer payment</small></button>
+</div>
+<div class="section-title">Meter Readings</div><div class="card" id="meterList"></div>
+</section>
+
+<section id="credit" class="hidden">
+<button class="back" onclick="openPage('fuel')">← Fuel & Sales</button><h2>Give Fuel on Credit</h2>
+<div class="card form">
+<label>Customer</label><select id="creditCustomer"></select>
+<label>Fuel</label><select id="creditFuel"><option value="diesel">Diesel</option><option value="petrol">Petrol</option></select>
+<label>Quantity (L)</label><input id="creditQty" type="number" min="0" step="0.01" value="100">
+<div class="row"><span>Rate</span><b id="creditRate"></b></div><div class="row"><span>Total</span><b id="creditTotal"></b></div>
+<button class="action" onclick="saveCredit()">Confirm Credit Sale</button>
+</div></section>
+
+<section id="payment" class="hidden">
+<button class="back" onclick="openPage('fuel')">← Fuel & Sales</button><h2>Receive Payment</h2>
+<div class="card form">
+<label>Customer</label><select id="paymentCustomer"></select>
+<label>Amount</label><input id="paymentAmount" type="number" min="0" step="0.01" placeholder="₹">
+<label>Payment mode</label><select id="paymentMode"><option>Cash</option><option>UPI</option><option>Bank</option><option>POS/Card</option></select>
+<label>Reference / UTR</label><input id="paymentRef" placeholder="Optional for cash">
+<button class="action" onclick="savePayment()">Receive Payment</button>
+</div></section>
+
+<section id="shift" class="hidden">
+<button class="back" onclick="openPage('home')">← Dashboard</button><h2>Shift & Reconciliation</h2>
+<div class="grid"><div class="card"><div class="label">Gross Sales</div><div id="shiftSales" class="metric">₹0</div></div><div class="card"><div class="label">Expected Cash</div><div id="expectedCash" class="metric">₹0</div></div></div>
+<div class="card" style="margin-top:10px"><div class="form"><label>Actual cash counted</label><input id="actualCash" type="number" min="0" step="0.01" oninput="renderShift()"></div>
+<div class="row"><span>Difference</span><b id="difference">₹0</b></div><div class="row"><span>Status</span><span id="shiftStatus" class="pill">CHECK</span></div>
+<button class="action" onclick="lockShift()">Sign Off & Lock Shift</button></div>
+</section>
+
+<section id="daily" class="hidden">
+<button class="back" onclick="openPage('home')">← Dashboard</button><h2>Daily Update</h2>
+<div class="note">Only enabled items appear in the daily workflow. Disabling an item does not delete its master setting.</div>
+<div class="section-title">Today's tasks</div><div class="card" id="dailyTasks"></div>
+</section>
+
+<section id="settings" class="hidden">
+<button class="back" onclick="openPage('home')">← Dashboard</button><h2>Master Settings</h2>
+<div class="section-title">Fuel Department</div>
+<div class="card form">
+<label>Diesel selling price (₹/L)</label><input id="dieselPrice" type="number" step="0.01">
+<label>Petrol selling price (₹/L)</label><input id="petrolPrice" type="number" step="0.01">
+<button class="action" onclick="saveRates()">Save Fuel Rates</button>
+</div>
+<div class="section-title">Daily Update Controls</div><div class="card" id="dailySettings"></div>
+<div class="section-title">Customer Department</div>
+<div class="card form">
+<label>Default credit limit (₹)</label><input id="creditLimit" type="number" step="0.01">
+<button class="action" onclick="saveCustomerSettings()">Save Customer Settings</button>
+</div>
+</section>
+</main>
+
+<nav><button data-nav="home" onclick="openPage('home')">⌂ Home</button><button data-nav="daily" onclick="openPage('daily')">✓ Daily</button><button data-nav="settings" onclick="openPage('settings')">⚙ Settings</button></nav>
+<div id="toast" class="toast"></div>
+<div id="modal" class="modal" onclick="if(event.target.id==='modal')closeModal()"><div class="sheet"><h3 id="modalTitle"></h3><div id="modalBody"></div><button class="action secondary" onclick="closeModal()">Close</button></div></div>
+</div>
+
+<script>
+const KEY='pumpos_v3_state';
+const defaultState={
+rates:{diesel:89.62,petrol:104.50},
+settings:{creditLimit:50000,daily:{fuelPrice:true,nozzleReadings:true,payments:true,creditSales:true}},
+customers:[
+{id:1,name:'ABC Transport',phone:'',balance:42500},{id:2,name:'M/S Khan Logistics',phone:'',balance:31200},
+{id:3,name:'Rajasthan Roadways',phone:'',balance:18900},{id:4,name:'Nuh Construction',phone:'',balance:9800}],
+meters:[{id:1,name:'Nozzle 1 • Petrol',opening:14000,closing:14590.20},{id:2,name:'Nozzle 2 • Diesel',opening:88000,closing:88640.50}],
+transactions:[],locked:false
+};
+let state=JSON.parse(localStorage.getItem(KEY)||'null')||structuredClone(defaultState);
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function money(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
+function toast(m){let t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
+function openPage(id){document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.nav===id));renderAll();scrollTo(0,0)}
+function totals(){let fuelSales=0,volume=0,credit=0,payments=0;state.transactions.forEach(t=>{if(t.type==='credit'){fuelSales+=t.amount;volume+=t.litres;credit+=t.amount}else if(t.type==='payment')payments+=t.amount});return {fuelSales,volume,credit,payments}}
+function renderHome(){let t=totals();fuelSales.textContent=money(t.fuelSales);fuelVolume.textContent=t.volume.toFixed(2)+' L';creditSales.textContent=money(t.credit);paymentsReceived.textContent=money(t.payments);dailyHomeList.innerHTML=dailyItems().map(x=>`<div class="row"><span>${x.label}</span><span class="pill">${x.on?'ACTIVE':'OFF'}</span></div>`).join('')}
+function dailyItems(){return[
+{key:'fuelPrice',label:'Fuel price'},{key:'nozzleReadings',label:'Nozzle readings'},{key:'payments',label:'Cash / UPI / POS'},{key:'creditSales',label:'Credit sales'}].map(x=>({...x,on:state.settings.daily[x.key]}))}
+function renderCustomers(){let q=(document.getElementById('search')?.value||'').toLowerCase();customerCount.textContent=state.customers.length;outstanding.textContent=money(state.customers.reduce((a,c)=>a+c.balance,0));customers.innerHTML=state.customers.filter(c=>(c.name+' '+c.phone).toLowerCase().includes(q)).map(c=>`<div class="row" onclick="customerDetail(${c.id})"><span>${c.name}</span><b>${money(c.balance)}</b></div>`).join('')||'<div class="note">No customer found.</div>'}
+function customerDetail(id){let c=state.customers.find(x=>x.id===id);showModal(c.name,`<p><b>Outstanding:</b> ${money(c.balance)}</p><p><b>Credit limit:</b> ${money(state.settings.creditLimit)}</p><p class="note">Transactions are stored locally in this prototype.</p>`)}
+function renderFuel(){rateDisplay.innerHTML=`Diesel ${money(state.rates.diesel)}/L<br>Petrol ${money(state.rates.petrol)}/L`;meterList.innerHTML=state.meters.map((m,i)=>`<div class="row"><span>${m.name}</span><b>${Number(m.closing).toFixed(2)} L</b></div>`).join('')}
+function fillSelects(){creditCustomer.innerHTML=state.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');paymentCustomer.innerHTML=creditCustomer.innerHTML}
+function updateCreditTotal(){let fuel=creditFuel.value,q=Number(creditQty.value||0),rate=state.rates[fuel];creditRate.textContent=money(rate)+'/L';creditTotal.textContent=money(q*rate)}
+function saveCredit(){if(state.locked)return toast('Shift is locked');let id=Number(creditCustomer.value),q=Number(creditQty.value||0),fuel=creditFuel.value,rate=state.rates[fuel];if(q<=0)return toast('Enter a valid quantity');let amount=q*rate,c=state.customers.find(x=>x.id===id);c.balance+=amount;state.transactions.push({type:'credit',customerId:id,fuel,litres:q,amount,date:new Date().toISOString()});save();toast('Credit sale recorded');openPage('fuel')}
+function savePayment(){if(state.locked)return toast('Shift is locked');let id=Number(paymentCustomer.value),amount=Number(paymentAmount.value||0);if(amount<=0)return toast('Enter a valid amount');let c=state.customers.find(x=>x.id===id);c.balance=Math.max(0,c.balance-amount);state.transactions.push({type:'payment',customerId:id,amount,mode:paymentMode.value,ref:paymentRef.value,date:new Date().toISOString()});save();toast('Payment recorded');paymentAmount.value='';paymentRef.value='';openPage('customer')}
+function renderShift(){let t=totals(),digital=state.transactions.filter(x=>x.type==='payment'&&x.mode!=='Cash').reduce((a,x)=>a+x.amount,0);let expected=Math.max(0,t.fuelSales-digital-t.credit);shiftSales.textContent=money(t.fuelSales);expectedCash.textContent=money(expected);let actual=Number(actualCash.value||0),diff=actual-expected;difference.textContent=money(diff);difference.className=diff===0?'positive':(diff<0?'negative':'amber');shiftStatus.textContent=Math.abs(diff)<5?'AUDIT PASSED':'DISCREPANCY';shiftStatus.className='pill '+(Math.abs(diff)<5?'ok':'warn')}
+function lockShift(){if(state.locked)return toast('Shift already locked');renderShift();let d=(document.getElementById('difference').textContent||'').replace(/[₹,]/g,'');if(Math.abs(Number(d))>=5)return toast('Resolve discrepancy before locking');state.locked=true;save();toast('Shift locked successfully')}
+function renderDaily(){dailyTasks.innerHTML=dailyItems().filter(x=>x.on).map(x=>`<div class="row"><span>${x.label}</span><button class="secondary" onclick="openDailyTask('${x.key}')">Open</button></div>`).join('')||'<div class="note">No daily items enabled.</div>'}
+function openDailyTask(key){if(key==='fuelPrice')openPage('settings');else if(key==='nozzleReadings')showModal('Nozzle Readings','<p>Meter editing is available in the next prototype layer. Current readings are shown under Fuel & Sales.</p>');else showModal('Daily Task',`<p><b>${key==='payments'?'Payment collections':'Credit sales'}</b> is enabled for today.</p><p class="note">Use Fuel & Sales to record the transaction.</p>`)}
+function renderDailySettings(){dailySettings.innerHTML=dailyItems().map(x=>`<div class="row"><span>${x.label}</span><button class="secondary" onclick="toggleDaily('${x.key}')">${x.on?'Enabled':'Disabled'}</button></div>`).join('')}
+function toggleDaily(key){state.settings.daily[key]=!state.settings.daily[key];save();renderAll();toast(state.settings.daily[key]?'Added to Daily Update':'Removed from Daily Update')}
+function saveRates(){let d=Number(dieselPrice.value),p=Number(petrolPrice.value);if(d<=0||p<=0)return toast('Enter valid rates');state.rates.diesel=d;state.rates.petrol=p;save();toast('Fuel rates saved');renderAll()}
+function saveCustomerSettings(){let v=Number(creditLimit.value);if(v<=0)return toast('Enter a valid limit');state.settings.creditLimit=v;save();toast('Customer setting saved');renderAll()}
+function showModal(title,body){modalTitle.textContent=title;modalBody.innerHTML=body;modal.classList.add('show')}function closeModal(){modal.classList.remove('show')}
+function renderSettings(){dieselPrice.value=state.rates.diesel;petrolPrice.value=state.rates.petrol;creditLimit.value=state.settings.creditLimit;renderDailySettings()}
+function renderAll(){renderHome();renderCustomers();renderFuel();fillSelects();updateCreditTotal();renderShift();renderDaily();renderSettings()}
+creditFuel.addEventListener('change',updateCreditTotal);creditQty.addEventListener('input',updateCreditTotal);
+renderAll();openPage('home');
+</script>
+</body>
+</html>
