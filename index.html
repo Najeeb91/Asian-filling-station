@@ -2,409 +2,239 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>PumpOS Staff Module — Premium Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PumpOS — Staff Dashboard</title>
 <style>
-:root{
- --bg:#f4f7fb;--card:#fff;--ink:#142033;--muted:#6b7788;--line:#e2e8f0;
- --accent:#173f72;--accent2:#2463a6;--ok:#16805b;--warn:#b7791f;--danger:#b42318;
- --shadow:0 8px 24px rgba(16,35,58,.08);--r:18px;
-}
-*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
-button,input,select{font:inherit}button{cursor:pointer}
-.app{height:100dvh;display:flex;flex-direction:column;max-width:480px;margin:auto;background:var(--bg)}
-.top{padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:linear-gradient(135deg,#102e54,#1e568f);color:#fff;flex:0 0 auto}
-.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-weight:900;letter-spacing:.2px}.sub{font-size:11px;opacity:.78;margin-top:2px}
-.avatar{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-weight:900}
-.main{flex:1;min-height:0;overflow:auto;padding:12px 14px 86px;-webkit-overflow-scrolling:touch}
-.screen{display:none}.screen.active{display:block}
-.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:2px 0 12px}.hero h1{font-size:22px;margin:0 0 4px}.hero p{margin:0;color:var(--muted);font-size:12px}
-.badge{padding:6px 9px;border-radius:999px;background:#eaf7f1;color:var(--ok);font-size:10px;font-weight:900;white-space:nowrap}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:12px}
-.kpi{min-height:82px}.kpi .label{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase}.kpi .num{font-size:21px;font-weight:950;margin-top:7px}.kpi .hint{font-size:9px;color:var(--muted);margin-top:3px}
-.section{font-size:12px;font-weight:950;margin:15px 2px 7px}
-.tile{border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px;min-height:82px;box-shadow:0 5px 16px rgba(16,35,58,.06);text-align:left}.tile b{display:block;font-size:14px}.tile span{display:block;color:var(--muted);font-size:10px;margin-top:4px}.tile:active{transform:scale(.985)}.tile .ico{font-size:19px;margin-bottom:7px}
-.action{display:flex;align-items:center;gap:10px}.action .iconbox{width:40px;height:40px;border-radius:13px;background:#edf4fb;display:grid;place-items:center;font-size:18px}
-.btn{border:0;border-radius:12px;padding:10px 13px;font-weight:900;font-size:12px}.primary{background:var(--accent);color:#fff}.ghost{background:#eef3f8;color:var(--ink)}.danger{background:#fff0ef;color:var(--danger)}.success{background:#e9f8f1;color:var(--ok)}.full{width:100%}
-.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);gap:5px;z-index:20}.navbtn{border:0;background:transparent;color:#718096;padding:6px 2px;border-radius:11px;font-size:9px;font-weight:800}.navbtn.active{background:#edf4fb;color:var(--accent)}.navbtn .nicon{font-size:18px;display:block;margin-bottom:2px}
-.pagebar{display:flex;align-items:center;gap:8px;margin-bottom:12px}.back{border:0;background:#fff;border:1px solid var(--line);width:38px;height:38px;border-radius:12px;font-size:18px}.pagebar h2{font-size:17px;margin:0}.meta{font-size:10px;color:var(--muted)}
-.row{display:flex;align-items:center;justify-content:space-between;gap:8px}.list{display:flex;flex-direction:column;gap:8px}.status{font-size:9px;font-weight:900;padding:5px 8px;border-radius:999px;background:#eef3f8;color:#52606d}.status.ok{background:#e8f7f0;color:var(--ok)}.status.pending{background:#fff7df;color:#9a6700}
-.machine{min-height:88px;text-align:center}.machine .big{font-size:21px;font-weight:950}.machine small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
-.fuel{min-height:74px}.fuel .big{font-size:18px;font-weight:950}
-.input,.select{width:100%;border:1px solid #cfd8e3;border-radius:11px;padding:10px;background:#fff;color:var(--ink);font-weight:750}.label{font-size:10px;color:var(--muted);font-weight:850;margin:10px 0 5px}
-.nozzle{display:grid;grid-template-columns:42px 1fr 1fr 1fr;gap:5px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:13px;background:#fff}.nbox{width:38px;height:38px;border-radius:12px;background:#edf4fb;display:grid;place-items:center;font-weight:950;color:var(--accent)}.cell .cap{font-size:8px;color:var(--muted);font-weight:850;text-transform:uppercase}.cell .val{font-size:12px;font-weight:950;margin-top:3px}.testrow{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center;background:#f0faf5;border:1px solid #cceedd;border-radius:12px;padding:8px;margin-top:5px}.testrow .cap{font-size:9px;color:var(--ok);font-weight:900}
-.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%) translateY(15px);opacity:0;background:#132238;color:#fff;padding:10px 13px;border-radius:12px;font-size:11px;font-weight:800;z-index:50;transition:.2s;max-width:88%;text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.modalwrap{position:fixed;inset:0;background:rgba(8,20,34,.45);display:none;align-items:flex-end;justify-content:center;z-index:40}.modalwrap.show{display:flex}.modal{width:min(480px,100%);max-height:92dvh;background:#fff;border-radius:22px 22px 0 0;padding:14px 15px calc(14px + env(safe-area-inset-bottom));overflow:auto;box-shadow:0 -10px 40px rgba(0,0,0,.18)}.grab{width:38px;height:4px;border-radius:99px;background:#d8dee7;margin:0 auto 12px}.modal h3{margin:0;font-size:17px}.modal p{font-size:11px;color:var(--muted)}
-.empty{text-align:center;padding:25px 12px;color:var(--muted);font-size:11px}
-.progress{height:7px;background:#edf1f5;border-radius:99px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--accent);border-radius:99px}
-.smallnote{font-size:9px;color:var(--muted)}
-@media(max-height:700px){.main{padding-top:9px}.card{padding:10px}.tile{min-height:72px;padding:9px}.kpi{min-height:70px}.kpi .num{font-size:18px}.section{margin-top:10px}.top{padding-bottom:8px}}
-html,body{overflow-x:hidden} .page{box-sizing:border-box;max-width:100vw} *{box-sizing:border-box} @media(max-width:480px){.card{margin-left:0;margin-right:0}.btn{min-height:44px}} </style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#17202a;--muted:#6b7280;--line:#e6e9ed;--accent:#1d4ed8;--good:#16834a;--bad:#c62828;--warn:#b7791f}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;overflow-x:hidden}
+body{min-height:100vh}.app{width:100%;max-width:480px;margin:auto;min-height:100vh;background:var(--bg)}
+.top{position:sticky;top:0;z-index:5;background:rgba(244,246,248,.96);backdrop-filter:blur(12px);padding:16px 16px 10px;border-bottom:1px solid var(--line)}
+.brand{font-weight:800;font-size:20px}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+.page{display:none;padding:14px 14px 92px}.page.active{display:block}.pagebar{display:flex;align-items:center;gap:10px;margin-bottom:12px}.back{width:40px;height:40px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:25px}.page h2{font-size:18px;margin:0}.meta{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:10px;box-shadow:0 5px 20px rgba(15,23,42,.04)}
+.kpi .label{font-size:11px;color:var(--muted)}.kpi .num{font-size:21px;font-weight:800;margin-top:5px}.section{font-weight:750;font-size:14px;margin-bottom:10px}.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f0f1f3}.row:last-child{border-bottom:0}.pill{display:inline-flex;align-items:center;justify-content:center;min-width:52px;height:40px;padding:0 12px;border:1px solid #dfe3e8;border-radius:12px;background:#fff;font-weight:800}.pill.selected{border-color:var(--accent);background:#eef4ff;color:var(--accent)}.fuelgrid,.machinegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.nozzlegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.nozzle{padding:10px 7px;border:1px solid var(--line);border-radius:14px;background:#fff}.nozzle b{display:block;margin-bottom:8px}.input{width:100%;height:42px;border:1px solid #dfe3e8;border-radius:11px;padding:0 10px;font-size:15px;background:#fff}.label{font-size:11px;color:var(--muted);display:block;margin:9px 0 5px}.btn{width:100%;min-height:44px;border:0;border-radius:13px;padding:10px 12px;font-weight:750;font-size:14px;cursor:pointer}.primary{background:var(--accent);color:#fff}.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}.danger{background:#fff1f2;color:var(--bad);border:1px solid #ffd8dd}.btn+.btn{margin-top:8px}.status{display:inline-flex;padding:6px 9px;border-radius:999px;font-size:11px;font-weight:750;background:#eef4ff;color:var(--accent)}.good{color:var(--good)}.bad{color:var(--bad)}.warning{color:var(--warn)}.small{font-size:11px}.empty{text-align:center;color:var(--muted);padding:20px}.bottom{position:fixed;bottom:0;left:0;right:0;z-index:6;max-width:480px;margin:auto;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);padding:7px 8px calc(7px + env(safe-area-inset-bottom))}.navbtn{border:0;background:transparent;font-size:11px;color:var(--muted);padding:8px 3px}.navbtn.active{color:var(--accent);font-weight:800}.modal{position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;align-items:flex-end;z-index:20}.modal.show{display:flex}.sheet{width:100%;max-width:480px;margin:auto;background:#fff;border-radius:22px 22px 0 0;padding:18px;max-height:88vh;overflow:auto}.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:12px;font-size:12px;display:none;z-index:30;max-width:90%;text-align:center}
+@media(min-width:481px){.app{box-shadow:0 0 50px rgba(0,0,0,.08)}}
+</style>
 </head>
 <body>
 <div class="app">
-<header class="top">
- <div class="toprow">
-  <div><div class="brand">PumpOS</div><div class="sub">Staff Operations • Asian Filling Station</div></div>
-  <button class="avatar" onclick="openProfile()">MN</button>
- </div>
-</header>
+<header class="top"><div class="brand">PumpOS · Staff</div><div class="sub" id="shiftLabel">Shift not started</div></header>
 
-<main class="main">
-<section id="home" class="screen active">
- <div class="hero"><div><h1>Staff Dashboard</h1><p>Sunday, 23 Aug 2026 • Evening</p></div><span class="badge">Shift Active</span></div>
- <div class="grid">
-  <div class="card kpi"><div class="label">Petrol Sold</div><div class="num" id="kPetrol">0.00 L</div><div class="hint">Net after testing</div></div>
-  <div class="card kpi"><div class="label">Diesel Sold</div><div class="num" id="kDiesel">0.00 L</div><div class="hint">Net after testing</div></div>
-  <div class="card kpi"><div class="label">Total Sales</div><div class="num" id="kValue">₹0</div><div class="hint">Calculated value</div></div>
-  <div class="card kpi"><div class="label">Expenses</div><div class="num" id="kExpenses">₹0</div><div class="hint">Today's expenses</div></div>
-  <div class="card kpi"><div class="label">Net After Expenses</div><div class="num" id="kNetPayable">₹0</div><div class="hint">Sales minus expenses</div></div>
- </div>
-
- <div class="section">Quick Actions</div>
- <div class="grid">
-  <button class="tile" onclick="startHandover()"><div class="ico">⛽</div><b>Machine Handover</b><span>Readings & testing</span></button>
-  <button class="tile" onclick="openShiftClosing()"><div class="ico">✓</div><b>Shift Closing</b><span>Payments & reconciliation</span></button>
-  <button class="tile" onclick="openTransactions()"><div class="ico">↔</div><b>My Transactions</b><span>View and add entries</span></button>
-  <button class="tile" onclick="openExpenses()"><div class="ico">₹</div><b>Expenses</b><span>Today's expenses</span></button>
- </div>
-
- <div class="section">Today Summary</div>
+<section id="home" class="page active">
  <div class="card">
-   <div class="row"><span class="smallnote">Machine readings</span><b id="summaryMachines">0 / 6</b></div>
-   <div class="progress" style="margin:7px 0 10px"><i id="summaryProgress" style="width:0%"></i></div>
-   <div class="list">
-    <div class="row"><span class="meta">Credit entries</span><b id="sCredit">0</b></div>
-    <div class="row"><span class="meta">Expenses</span><b id="sExpenses">₹0</b></div>
-    <div class="row"><span class="meta">Net after expenses</span><b id="sNet">₹0</b></div>
-    <div class="row"><span class="meta">Shortage / Excess</span><b id="sShortage">—</b></div>
-   </div>
- </div>
-</section>
-
-<section id="handover" class="screen">
- <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Machine Handover</h2><div class="meta">Select a machine to continue</div></div></div>
- <div class="section">Machines</div>
- <div class="grid3" id="machineGrid"></div>
- <div class="section">Handover status</div>
- <div class="card"><div class="row"><span class="meta">Completed</span><b id="handoverCount">0 / 6</b></div><div class="progress" style="margin-top:8px"><i id="handoverProgress" style="width:0%"></i></div></div>
-</section>
-
-<section id="fuel" class="screen">
- <div class="pagebar"><button class="back" onclick="show('handover')">‹</button><div><h2 id="fuelTitle">Fuel</h2><div class="meta">Choose fuel type</div></div></div>
- <div class="grid">
-  <button class="tile fuel" onclick="openNozzles('Petrol')"><div class="big">P</div><b>Petrol</b><span>3 nozzles • ₹100/L</span></button>
-  <button class="tile fuel" onclick="openNozzles('Diesel')"><div class="big">D</div><b>Diesel</b><span>3 nozzles • ₹95/L</span></button>
- </div>
- <div class="section">Selected machine</div><div class="card" id="selectedMachineCard"></div>
-</section>
-
-<section id="nozzles" class="screen">
- <div class="pagebar"><button class="back" onclick="show('fuel')">‹</button><div><h2 id="nozzleTitle">Petrol Nozzles</h2><div class="meta" id="nozzleSub"></div></div><button class="btn ghost full" onclick="show('transactionSummary')">View Collection Summary</button>
-<button class="btn primary" onclick="openTesting()">＋ Testing</button></div>
- <div id="nozzleList" class="list"></div>
- <div class="card" style="margin-top:9px"><div class="row"><span class="meta" id="netLabel">Petrol Sold</span><b id="netTotal">0.00 L</b></div></div>
- <div class="grid" style="margin-top:8px"><button class="btn ghost full" onclick="editNozzles()">Edit</button><button class="btn primary full" onclick="saveFuel()">Save</button></div>
-</section>
-
-<section id="fuelSaved" class="screen">
- <div class="pagebar"><button class="back" onclick="show('fuel')">‹</button><div><h2>Saved</h2><div class="meta">Readings saved for this fuel</div></div></div>
- <div class="card" id="savedCard"></div>
- <div class="grid" style="margin-top:10px"><button class="btn ghost full" onclick="show('nozzles');editNozzles()">Edit</button><button class="btn primary full" onclick="viewFuelSummary()">View Summary</button></div>
-</section>
-
-<section id="transactions" class="screen">
- <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>My Transactions</h2><div class="meta">Enter & edit payments • one transaction entry location</div></div></div>
- <button class="btn primary full" onclick="openTransactionForm()">＋ Add Transaction</button>
- <div class="section">Today's entries</div><div id="transactionList" class="list"></div>
-</section>
-
-<section id="expenses" class="screen">
- <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Expenses</h2><div class="meta">Today's operating expenses</div></div></div>
- <button class="btn primary full" onclick="openExpenseForm()">＋ Add Expense</button>
- <div class="section">Today</div><div id="expenseList" class="list"></div>
-</section>
-
-
-<section id="transactionSummary" class="page">
- <div class="pagebar">
-  <button class="back" onclick="show('home')">‹</button>
-  <div><h2>Collection Summary</h2><div class="meta">Today's fuel and payment position</div></div>
- </div>
-
- <div class="card">
-  <div class="section">Fuel Sales</div>
-  <div class="row"><span class="meta">Petrol Sold</span><b id="tsPetrol">0.00 L</b></div>
-  <div class="row"><span class="meta">Diesel Sold</span><b id="tsDiesel">0.00 L</b></div>
-  <div class="row"><span class="meta">Total Sales Value</span><b id="tsValue">₹0</b></div>
- </div>
-
- <div class="card">
-  <div class="section">Collection Position</div>
-  <div class="row"><span class="meta">Expected After Expenses</span><b id="tsExpected">₹0</b></div>
-  <div class="row"><span class="meta">Collected / Entered</span><b id="tsCollected">₹0</b></div>
-  <div class="row"><span class="meta">Short</span><b id="tsShort">₹0</b></div>
-  <div class="row"><span class="meta">Excess</span><b id="tsExcess">₹0</b></div>
- </div>
-
- <div class="card">
-  <div class="section">Payment Breakdown</div>
-  <div class="row"><span class="meta">Cash</span><b id="tsCash">₹0</b></div>
-  <div class="row"><span class="meta">UPI / Digital</span><b id="tsUPI">₹0</b></div>
-  <div class="row"><span class="meta">Card</span><b id="tsCard">₹0</b></div>
-  <div class="row"><span class="meta">Bank Transfer</span><b id="tsBank">₹0</b></div>
-  <div class="row"><span class="meta">Credit</span><b id="tsCreditValue">₹0</b></div>
- </div>
-
- 
-</section>
-<section id="closing" class="screen">
- <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Shift Closing</h2><div class="meta">Enter payment totals, then submit</div></div></div>
- 
- <div class="card">
-  <div class="section">Final Shift Summary</div>
-  <div class="row"><span class="meta">Petrol Sold</span><b id="fcPetrol">0.00 L</b></div>
-  <div class="row"><span class="meta">Diesel Sold</span><b id="fcDiesel">0.00 L</b></div>
-  <div class="row"><span class="meta">Sales Value</span><b id="fcValue">₹0</b></div>
-  <div class="row"><span class="meta">Expenses</span><b id="fcExpenses">₹0</b></div>
-  <div class="row"><span class="meta">Expected Collection</span><b id="fcExpected">₹0</b></div>
-  <div class="row"><span class="meta">Actual Collection</span><b id="fcCollected">₹0</b></div>
-  <div class="row"><span class="meta">Short</span><b id="fcShort">₹0</b></div>
-  <div class="row"><span class="meta">Excess</span><b id="fcExcess">₹0</b></div>
- </div>
-<div class="card">
-  <div class="row"><span class="meta">Petrol</span><b id="closePetrol">0.00 L</b></div>
-  <div class="row" style="margin-top:7px"><span class="meta">Diesel</span><b id="closeDiesel">0.00 L</b></div>
-  <div class="row" style="margin-top:7px"><span class="meta">Total value</span><b id="closeValue">₹0</b></div>
- </div>
- <div class="section">Payment reconciliation</div>
- <div class="card">
-  <label class="label">Cash</label><input class="input" id="cash" type="number" min="0" placeholder="₹">
-  <label class="label">UPI / Digital</label><input class="input" id="upi" type="number" min="0" placeholder="₹">
-  <label class="label">Card</label><input class="input" id="card" type="number" min="0" placeholder="₹">
-  <label class="label">Credit</label><input class="input" id="credit" type="number" min="0" placeholder="₹">
-  <label class="label">Bank Transfer</label><input class="input" id="bank" type="number" min="0" placeholder="₹">
- </div>
- <div class="card" style="margin-top:9px"><div class="row"><span class="meta">Entered payments</span><b id="paymentTotal">₹0</b></div><div class="row" style="margin-top:7px"><span class="meta">Difference</span><b id="difference">₹0</b></div></div>
- <button class="btn primary full" style="margin-top:10px" onclick="submitClosing()">Submit for Manager Approval</button>
-</section>
-
-<section id="profile" class="screen">
- <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>My Profile</h2><div class="meta">Staff account</div></div></div>
- <div class="card">
-  <div class="row"><div><b style="font-size:16px">Mohammad Najib</b><div class="meta">Staff • PumpOS</div></div><div class="avatar" style="background:#edf4fb;color:var(--accent)">MN</div></div>
-  <div class="list" style="margin-top:12px">
-   <div class="row"><span class="meta">Shift</span><b>Evening</b></div>
-   <div class="row"><span class="meta">Status</span><span class="status ok">Active</span></div>
-   <div class="row"><span class="meta">Approval</span><span class="status pending">Manager</span></div>
+  <div class="row"><div><b>Today's Sales</b><div class="meta">From nozzle readings after testing</div></div><span class="status" id="shiftStatus">Draft</span></div>
+  <div class="grid">
+   <div class="card kpi"><div class="label">Petrol Sold</div><div class="num" id="hPetrol">0.00 L</div></div>
+   <div class="card kpi"><div class="label">Diesel Sold</div><div class="num" id="hDiesel">0.00 L</div></div>
   </div>
+  <div class="row"><span class="meta">Total Sales Value</span><b id="hSales">₹0</b></div>
+ </div>
+ <div class="grid">
+  <div class="card kpi"><div class="label">Expenses</div><div class="num" id="hExpenses">₹0</div></div>
+  <div class="card kpi"><div class="label">Expected Collection</div><div class="num" id="hExpected">₹0</div></div>
+ </div>
+ <div class="card">
+  <div class="section">Quick Actions</div>
+  <button class="btn primary" onclick="show('handover')">Machine Handover</button>
+  <button class="btn ghost" onclick="show('expenses')">Add Expense</button>
+  <button class="btn ghost" onclick="show('transactions')">My Transactions</button>
+  <button class="btn ghost" onclick="show('summary')">Collection Summary</button>
+  <button class="btn ghost" onclick="show('closing')">Shift Closing</button>
  </div>
 </section>
-</main>
 
-<nav class="bottom">
- <button class="navbtn active" data-nav="home" onclick="show('home')"><span class="nicon">⌂</span>Home</button>
- <button class="navbtn" data-nav="handover" onclick="startHandover()"><span class="nicon">⛽</span>Machines</button>
- <button class="navbtn" data-nav="transactions" onclick="openTransactions()"><span class="nicon">↔</span>Transactions</button>
- <button class="navbtn" data-nav="profile" onclick="openProfile()"><span class="nicon">●</span>Profile</button>
-</nav>
+<section id="handover" class="page">
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Machine Handover</h2><div class="meta">Select machine → fuel → nozzle</div></div></div>
+ <div class="card"><div class="section">Select Machine</div><div class="machinegrid" id="machineGrid"></div></div>
+ <div id="fuelStep"></div>
+ <div id="nozzleStep"></div>
+</section>
 
-<div id="modalwrap" class="modalwrap" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="grab"></div><div id="modal"></div></div></div>
-<div id="toast" class="toast"></div>
+<section id="expenses" class="page">
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Expenses</h2><div class="meta">Add or edit operating expenses</div></div></div>
+ <button class="btn primary" onclick="expenseForm()">+ Add Expense</button>
+ <div id="expenseList" style="margin-top:10px"></div>
+</section>
+
+<section id="transactions" class="page">
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>My Transactions</h2><div class="meta">Only place for collection entry/editing</div></div></div>
+ <button class="btn primary" onclick="transactionForm()">+ Add Transaction</button>
+ <div id="transactionList" style="margin-top:10px"></div>
+</section>
+
+<section id="summary" class="page">
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Collection Summary</h2><div class="meta">Read-only — no transaction entry here</div></div></div>
+ <div class="card"><div class="section">Fuel Sales</div>
+  <div class="row"><span class="meta">Petrol Sold</span><b id="sPetrol">0.00 L</b></div>
+  <div class="row"><span class="meta">Diesel Sold</span><b id="sDiesel">0.00 L</b></div>
+  <div class="row"><span class="meta">Total Sales Value</span><b id="sValue">₹0</b></div>
+ </div>
+ <div class="card"><div class="section">Collection Position</div>
+  <div class="row"><span class="meta">Expenses</span><b id="sExpenses">₹0</b></div>
+  <div class="row"><span class="meta">Expected Collection</span><b id="sExpected">₹0</b></div>
+  <div class="row"><span class="meta">Actual Collection</span><b id="sActual">₹0</b></div>
+  <div class="row"><span class="meta">Short</span><b class="bad" id="sShort">₹0</b></div>
+  <div class="row"><span class="meta">Excess</span><b class="good" id="sExcess">₹0</b></div>
+ </div>
+ <div class="card"><div class="section">Payment Breakdown</div>
+  <div class="row"><span class="meta">Cash</span><b id="sCash">₹0</b></div>
+  <div class="row"><span class="meta">UPI / Digital</span><b id="sUPI">₹0</b></div>
+  <div class="row"><span class="meta">Card</span><b id="sCard">₹0</b></div>
+  <div class="row"><span class="meta">Bank Transfer</span><b id="sBank">₹0</b></div>
+  <div class="row"><span class="meta">Credit</span><b id="sCredit">₹0</b></div>
+ </div>
+ <button class="btn ghost" onclick="show('transactions')">Go to My Transactions</button>
+</section>
+
+<section id="closing" class="page">
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Shift Closing</h2><div class="meta">Final review before manager approval</div></div></div>
+ <div class="card"><div class="section">Final Shift Summary</div>
+  <div class="row"><span class="meta">Petrol Sold</span><b id="cPetrol">0.00 L</b></div>
+  <div class="row"><span class="meta">Diesel Sold</span><b id="cDiesel">0.00 L</b></div>
+  <div class="row"><span class="meta">Sales Value</span><b id="cValue">₹0</b></div>
+  <div class="row"><span class="meta">Expenses</span><b id="cExpenses">₹0</b></div>
+  <div class="row"><span class="meta">Expected Collection</span><b id="cExpected">₹0</b></div>
+  <div class="row"><span class="meta">Actual Collection</span><b id="cActual">₹0</b></div>
+  <div class="row"><span class="meta">Short</span><b class="bad" id="cShort">₹0</b></div>
+  <div class="row"><span class="meta">Excess</span><b class="good" id="cExcess">₹0</b></div>
+ </div>
+ <div class="card"><div class="section">Staff Confirmation</div><div class="meta">Review all machine readings, testing, expenses and transactions before submitting.</div>
+  <label style="display:flex;gap:9px;align-items:flex-start;margin-top:12px;font-size:13px"><input type="checkbox" id="confirm"> I have reviewed the shift figures.</label>
+ </div>
+ <button class="btn primary" onclick="submitClosing()">Review & Submit for Manager Approval</button>
+</section>
+
+<div class="bottom">
+ <button class="navbtn active" id="navHome" onclick="show('home')">Home</button>
+ <button class="navbtn" id="navWork" onclick="show('handover')">Operations</button>
+ <button class="navbtn" id="navClose" onclick="show('closing')">Closing</button>
+</div>
+</div>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
 
 <script>
+const rates={Petrol:100,Diesel:95};
 const state={
- machine:null,fuel:null,editing:false,
- machines:{}, transactions:[], expenses:[], closingStatus:'Draft',
- rates:{Petrol:100,Diesel:95},
- machineIds:['M1','M2','M3','M4','M5','M6'], nozzles:{Petrol:['P1','P2','P3'],Diesel:['D1','D2','D3']},
- tests:{}
+ status:'Draft', selectedMachine:null, selectedFuel:null,
+ machines:{}, expenses:[], transactions:[]
 };
-for(let m=1;m<=6;m++){state.machines['M'+m]={Petrol:{P1:{o:0,c:null},P2:{o:0,c:null},P3:{o:0,c:null}},Diesel:{D1:{o:0,c:null},D2:{o:0,c:null},D3:{o:0,c:null}}}}
-function qs(x){return document.querySelector(x)}
-function money(n){return '₹'+Math.round(n||0).toLocaleString('en-IN')}
-function toast(t){const e=qs('#toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+const q=s=>document.querySelector(s);
+const money=n=>'₹'+Math.round(n||0).toLocaleString('en-IN');
+function toast(t){q('#toast').textContent=t;q('#toast').style.display='block';setTimeout(()=>q('#toast').style.display='none',1800)}
 function show(id){
- document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));qs('#'+id).classList.add('active');
- document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.nav===id));
- qs('.main').scrollTop=0;updateDashboard();
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+ q('#'+id).classList.add('active');
+ document.querySelectorAll('.navbtn').forEach(x=>x.classList.remove('active'));
+ if(id==='home')q('#navHome').classList.add('active');
+ else if(id==='closing')q('#navClose').classList.add('active');
+ else q('#navWork').classList.add('active');
+ refresh();
 }
-function openModal(html){qs('#modal').innerHTML=html;qs('#modalwrap').classList.add('show')}
-function closeModal(){qs('#modalwrap').classList.remove('show')}
-function openProfile(){show('profile')}
-function startHandover(){show('handover');renderMachines()}
-function renderMachines(){
- const g=qs('#machineGrid');g.innerHTML='';
- for(const id of state.machineIds){const done=machineDone(id);g.innerHTML+=`<button class="tile machine" onclick="selectMachine('${id}')"><div class="big">${id}</div><small>${done?'Handover saved':'Select machine'}</small>${done?'<span class="status ok" style="display:inline-block;margin-top:7px">Ready</span>':''}</button>`}
- const count=Object.keys(state.machines).filter(machineDone).length;qs('#handoverCount').textContent=count+' / 6';qs('#handoverProgress').style.width=(count/6*100)+'%';
-}
-function machineDone(m){return ['Petrol','Diesel'].some(f=>state.nozzles[f].some(n=>state.machines[m][f][n].c!==null))}
-function selectMachine(m){state.machine=m;qs('#selectedMachineCard').innerHTML=`<div class="row"><div><b style="font-size:18px">${m}</b><div class="meta">3 Petrol + 3 Diesel nozzles</div></div><span class="status ok">Selected</span></div>`;show('fuel')}
-function openNozzles(fuel){
- if(!state.machine){toast('Select a machine first');return}
- state.fuel=fuel;state.editing=false;
- qs('#nozzleTitle').textContent=fuel+' Nozzles';qs('#nozzleSub').textContent=state.machine+' • Opening readings are automatic';
- renderNozzles();show('nozzles')
-}
-function renderNozzles(){
- const m=state.machine,f=state.fuel,list=qs('#nozzleList');
- list.innerHTML=state.nozzles[f].map(n=>{
-  const x=state.machines[m][f][n], tests=state.tests[m+'-'+f+'-'+n]||[], t=tests.reduce((a,z)=>a+z.qty,0), sale=x.c===null?null:Math.max(0,x.c-x.o), net=sale===null?null:Math.max(0,sale-t);
-  return `<div><div class="nozzle"><div class="nbox">${n}</div><div class="cell"><div class="cap">Opening</div><div class="val">${x.o.toFixed(2)}</div></div><div class="cell"><div class="cap">Closing</div>${state.editing?`<input class="input" style="padding:7px" id="c_${n}" type="number" min="${x.o}" step=".01" value="${x.c===null?'':x.c}">`:`<div class="val">${x.c===null?'—':x.c.toFixed(2)}</div>`}</div><div class="cell"><div class="cap">Net</div><div class="val">${net===null?'—':net.toFixed(2)+' L'}</div></div></div>${t>0?`<div class="testrow"><div><div class="cap">Testing • ${t.toFixed(2)} L</div><div class="smallnote">${tests.length} test entry</div></div><button class="btn ghost" onclick="editTesting('${n}')">Edit</button></div>`:''}</div>`
- }).join('');
- updateNetTotal()
-}
-function updateNetTotal(){
- const f=state.fuel,m=state.machine;if(!f||!m)return;
- const total=state.nozzles[f].reduce((a,n)=>{const x=state.machines[m][f][n];const t=(state.tests[m+'-'+f+'-'+n]||[]).reduce((s,z)=>s+z.qty,0);return a+(x.c===null?0:Math.max(0,x.c-x.o-t))},0);
- qs('#netTotal').textContent=total.toFixed(2)+' L';
-}
-function editNozzles(){state.editing=true;renderNozzles()}
-function saveFuel(){
- const f=state.fuel,m=state.machine;
- for(const n of state.nozzles[f]){
-  const el=qs('#c_'+n);if(!el)continue;const v=Number(el.value),o=state.machines[m][f][n].o;
-  if(!Number.isFinite(v)||v<o){toast('Enter valid closing for '+n);return}
-  state.machines[m][f][n].c=v
+function openModal(body){q('#sheet').innerHTML=body;q('#modal').classList.add('show')}
+function closeModal(){q('#modal').classList.remove('show')}
+q('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+
+function initMachines(){
+ const g=q('#machineGrid');g.innerHTML='';
+ for(let m=1;m<=6;m++){
+  if(!state.machines[m])state.machines[m]={Petrol:{P1:{o:0,c:'',t:''},P2:{o:0,c:'',t:''},P3:{o:0,c:'',t:''}},Diesel:{D1:{o:0,c:'',t:''},D2:{o:0,c:'',t:''},D3:{o:0,c:'',t:''}}};
+  g.innerHTML+=`<button class="pill ${state.selectedMachine===m?'selected':''}" onclick="selectMachine(${m})">M${m}</button>`;
  }
- state.editing=false;state.tests;toast(f+' readings saved');showSaved()
 }
-function showSaved(){qs('#savedCard').innerHTML=`<div class="row"><div><b>${state.machine} • ${state.fuel}</b><div class="meta">Saved successfully</div></div><span class="status ok">Saved</span></div><div style="margin-top:10px">${state.nozzles[state.fuel].map(n=>{const x=state.machines[state.machine][state.fuel][n];return `<div class="row" style="margin-top:7px"><span class="meta">${n}</span><b>${x.c.toFixed(2)} closing</b></div>`}).join('')}</div>`;show('fuelSaved')}
-function viewFuelSummary(){show('fuelSaved');toast('Summary is up to date')}
-function openTesting(){
- const f=state.fuel;openModal(`<h3>Add Testing</h3><p>Testing is attached to one selected nozzle. It will be deducted from that nozzle's meter sale.</p><label class="label">Select Nozzle</label><select class="select" id="tn">${state.nozzles[f].map(n=>`<option>${n}</option>`).join('')}</select><label class="label">Testing Quantity (L)</label><input class="input" id="tq" type="number" min="0" step=".01" placeholder="Enter litres"><label class="label">Note (optional)</label><input class="input" id="tnote" placeholder="Optional"><button class="btn primary full" style="margin-top:12px" onclick="addTesting()">Add Testing</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)
+function selectMachine(m){state.selectedMachine=m;state.selectedFuel=null;renderFuel();q('#nozzleStep').innerHTML='';initMachines()}
+function renderFuel(){
+ const el=q('#fuelStep');
+ if(!state.selectedMachine){el.innerHTML='';return}
+ el.innerHTML=`<div class="card"><div class="section">M${state.selectedMachine} · Select Fuel Type</div><div class="fuelgrid"><button class="pill ${state.selectedFuel==='Petrol'?'selected':''}" onclick="selectFuel('Petrol')">PETROL</button><button class="pill ${state.selectedFuel==='Diesel'?'selected':''}" onclick="selectFuel('Diesel')">DIESEL</button></div></div>`;
 }
-function addTesting(){
- const n=qs('#tn').value,q=Number(qs('#tq').value);if(!Number.isFinite(q)||q<=0){toast('Enter a valid testing quantity');return}
- const key=state.machine+'-'+state.fuel+'-'+n;(state.tests[key] ||= []).push({qty:q,note:qs('#tnote').value||''});closeModal();renderNozzles();toast('Testing added to '+n)
+function selectFuel(f){state.selectedFuel=f;renderFuel();renderNozzles()}
+function renderNozzles(){
+ const f=state.selectedFuel,m=state.selectedMachine;
+ if(!f||!m){q('#nozzleStep').innerHTML='';return}
+ const ns=f==='Petrol'?['P1','P2','P3']:['D1','D2','D3'];
+ const data=state.machines[m][f];
+ q('#nozzleStep').innerHTML=`<div class="card"><div class="row"><div><div class="section">${f} Nozzles</div><div class="meta">Add Testing is one action for the selected fuel.</div></div><button class="btn ghost" style="width:auto" onclick="testingForm()">Add Testing</button></div><div class="nozzlegrid">${ns.map(n=>{
+  const x=data[n], c=x.c===''?'—':x.c, t=x.t===''?'':`<div class="small warning">Testing: ${x.t} L</div>`;
+  const net=x.c===''?'—':Math.max(0,Number(x.c)-Number(x.o)-Number(x.t||0)).toFixed(2)+' L';
+  return `<div class="nozzle"><b><span class="pill">${n}</span></b><label class="label">Opening</label><input class="input" value="${x.o}" disabled><label class="label">Closing</label><input class="input" type="number" min="${x.o}" value="${x.c}" placeholder="Enter" onchange="setClosing('${n}',this.value)">${t}<div class="small" style="margin-top:8px"><b>Net: ${net}</b></div></div>`
+ }).join('')}</div><div class="row" style="margin-top:10px"><span class="meta">${f} total sold</span><b>${fuelTotal(m,f).toFixed(2)} L</b></div></div>`;
 }
-function editTesting(n){
- const key=state.machine+'-'+state.fuel+'-'+n,tests=state.tests[key]||[],t=tests.reduce((a,z)=>a+z.qty,0);
- openModal(`<h3>Edit Testing • ${n}</h3><p>Set quantity to 0 or blank to reset testing. No separate remove button is used.</p><label class="label">Testing Quantity (L)</label><input class="input" id="etq" type="number" min="0" step=".01" value="${t}"><label class="label">Note</label><input class="input" id="etn" value="${tests[0]?.note||''}"><button class="btn primary full" style="margin-top:12px" onclick="saveTestingEdit('${n}')">Save Testing</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)
+function setClosing(n,v){
+ if(v===''||Number(v)<0){state.machines[state.selectedMachine][state.selectedFuel][n].c='';}
+ else state.machines[state.selectedMachine][state.selectedFuel][n].c=Number(v);
+ refresh();renderNozzles();
 }
-function saveTestingEdit(n){
- const q=Number(qs('#etq').value),key=state.machine+'-'+state.fuel+'-'+n;
- if(!qs('#etq').value.trim()||q===0){delete state.tests[key]} else if(Number.isFinite(q)&&q>0){state.tests[key]=[{qty:q,note:qs('#etn').value||''}]} else {toast('Enter a valid quantity');return}
- closeModal();renderNozzles();toast('Testing updated')
+function testingForm(){
+ const f=state.selectedFuel,m=state.selectedMachine, ns=f==='Petrol'?['P1','P2','P3']:['D1','D2','D3'];
+ openModal(`<h3>Add Testing · M${m} · ${f}</h3><div class="meta">Choose the nozzle and enter testing litres. Leave blank or 0 to reset testing for that nozzle.</div><label class="label">Select Nozzle</label><select class="input" id="tn">${ns.map(n=>`<option>${n}</option>`).join('')}</select><label class="label">Testing (L)</label><input class="input" id="tv" type="number" min="0" placeholder="0"><button class="btn primary" style="margin-top:12px" onclick="saveTesting()">Save Testing</button><button class="btn ghost" onclick="closeModal()">Cancel</button>`)
 }
-function openTransactions(){
- show('transactions');renderTransactions()
+function saveTesting(){
+ const n=q('#tn').value,v=Number(q('#tv').value)||0;
+ state.machines[state.selectedMachine][state.selectedFuel][n].t=v? v:'';
+ closeModal();renderNozzles();refresh();toast(v?'Testing added':'Testing reset')
+}
+function fuelTotal(m,f){
+ return Object.values(state.machines[m][f]).reduce((a,x)=>a+(x.c===''?0:Math.max(0,Number(x.c)-Number(x.o)-Number(x.t||0))),0)
+}
+function salesSummary(){
+ let p=0,d=0;
+ for(let m=1;m<=6;m++){p+=fuelTotal(m,'Petrol');d+=fuelTotal(m,'Diesel')}
+ return {p,d,v:p*rates.Petrol+d*rates.Diesel};
+}
+function expenseTotal(){return state.expenses.reduce((a,x)=>a+Number(x.amount||0),0)}
+function transactionTotals(){
+ const by={Cash:0,'UPI / Digital':0,Card:0,'Bank Transfer':0,Credit:0};
+ state.transactions.forEach(x=>by[x.type]=(by[x.type]||0)+Number(x.amount||0));
+ return {by,total:Object.values(by).reduce((a,b)=>a+b,0)};
+}
+function updateSummary(){
+ const s=salesSummary(),e=expenseTotal(),t=transactionTotals(),expected=s.v-e,delta=t.total-expected;
+ ['hPetrol','sPetrol','cPetrol'].forEach(id=>q('#'+id).textContent=s.p.toFixed(2)+' L');
+ ['hDiesel','sDiesel','cDiesel'].forEach(id=>q('#'+id).textContent=s.d.toFixed(2)+' L');
+ q('#hSales').textContent=money(s.v);q('#hExpenses').textContent=money(e);q('#hExpected').textContent=money(expected);
+ q('#sValue').textContent=money(s.v);q('#sExpenses').textContent=money(e);q('#sExpected').textContent=money(expected);q('#sActual').textContent=money(t.total);
+ q('#sShort').textContent=money(Math.max(0,-delta));q('#sExcess').textContent=money(Math.max(0,delta));
+ q('#sCash').textContent=money(t.by.Cash);q('#sUPI').textContent=money(t.by['UPI / Digital']);q('#sCard').textContent=money(t.by.Card);q('#sBank').textContent=money(t.by['Bank Transfer']);q('#sCredit').textContent=money(t.by.Credit);
+ q('#cValue').textContent=money(s.v);q('#cExpenses').textContent=money(e);q('#cExpected').textContent=money(expected);q('#cActual').textContent=money(t.total);q('#cShort').textContent=money(Math.max(0,-delta));q('#cExcess').textContent=money(Math.max(0,delta));
+ q('#shiftStatus').textContent=state.status;q('#shiftLabel').textContent=state.status==='Draft'?'Shift in progress':state.status;
+}
+function expenseForm(i=null){
+ const x=i===null?{category:'Cleaning',amount:'',note:''}:state.expenses[i];
+ openModal(`<h3>${i===null?'Add Expense':'Edit Expense'}</h3><label class="label">Category</label><select class="input" id="ec"><option ${x.category==='Cleaning'?'selected':''}>Cleaning</option><option ${x.category==='Station'?'selected':''}>Station</option><option ${x.category==='Repairing'?'selected':''}>Repairing</option><option ${x.category==='Maintenance'?'selected':''}>Maintenance</option><option ${x.category==='Other'?'selected':''}>Other</option></select><label class="label">Amount</label><input class="input" id="ea" type="number" min="0" value="${x.amount}"><label class="label">Note</label><input class="input" id="en" value="${x.note||''}"><button class="btn primary" style="margin-top:12px" onclick="saveExpense(${i})">Save</button><button class="btn ghost" onclick="closeModal()">Cancel</button>`)
+}
+function saveExpense(i){
+ const a=Number(q('#ea').value);if(!a){toast('Enter a valid amount');return}
+ const x={category:q('#ec').value,amount:a,note:q('#en').value};
+ if(i===null)state.expenses.push(x);else state.expenses[i]=x;
+ closeModal();renderExpenses();refresh();toast('Expense saved')
+}
+function renderExpenses(){
+ const el=q('#expenseList');if(!state.expenses.length){el.innerHTML='<div class="card empty">No expenses recorded.</div>';return}
+ el.innerHTML=state.expenses.map((x,i)=>`<div class="card"><div class="row"><div><b>${x.category}</b><div class="meta">${x.note||'No note'}</div></div><b>${money(x.amount)}</b></div><button class="btn ghost" onclick="expenseForm(${i})">Edit</button></div>`).join('')
+}
+function transactionForm(i=null){
+ const x=i===null?{type:'Cash',amount:'',note:''}:state.transactions[i];
+ openModal(`<h3>${i===null?'Add Transaction':'Edit Transaction'}</h3><label class="label">Payment Type</label><select class="input" id="tt"><option ${x.type==='Cash'?'selected':''}>Cash</option><option ${x.type==='UPI / Digital'?'selected':''}>UPI / Digital</option><option ${x.type==='Card'?'selected':''}>Card</option><option ${x.type==='Bank Transfer'?'selected':''}>Bank Transfer</option><option ${x.type==='Credit'?'selected':''}>Credit</option></select><label class="label">Amount</label><input class="input" id="ta" type="number" min="0" value="${x.amount}"><label class="label">Reference / Note</label><input class="input" id="tnote" value="${x.note||''}"><button class="btn primary" style="margin-top:12px" onclick="saveTransaction(${i})">Save</button><button class="btn ghost" onclick="closeModal()">Cancel</button>`)
+}
+function saveTransaction(i){
+ const a=Number(q('#ta').value);if(!a){toast('Enter a valid amount');return}
+ const x={type:q('#tt').value,amount:a,note:q('#tnote').value};
+ if(i===null)state.transactions.push(x);else state.transactions[i]=x;
+ closeModal();renderTransactions();refresh();toast('Transaction saved')
 }
 function renderTransactions(){
- const e=qs('#transactionList');
- if(!state.transactions.length){e.innerHTML='<div class="card empty">No transactions yet.<br>Add UPI, cash, card, bank transfer or credit entries.</div>';return}
- e.innerHTML=state.transactions.map((t,i)=>`<div class="card"><div class="row"><div><b>${t.type}</b><div class="meta">${t.note||'No note'}</div></div><b>${money(t.amount)}</b></div><button class="btn ghost full" style="margin-top:8px" onclick="editTransaction(${i})">Edit</button></div>`).join('')
-}
-function editTransaction(i){
- if(state.closingStatus!=='Draft'){toast('Transactions are locked after submission');return}
- const t=state.transactions[i];
- openModal(`<h3>Edit Transaction</h3><label class="label">Payment Type</label><select class="select" id="tt"><option ${t.type==='Cash'?'selected':''}>Cash</option><option ${t.type==='UPI / Digital'?'selected':''}>UPI / Digital</option><option ${t.type==='Card'?'selected':''}>Card</option><option ${t.type==='Bank Transfer'?'selected':''}>Bank Transfer</option><option ${t.type==='Credit'?'selected':''}>Credit</option></select><label class="label">Amount</label><input class="input" id="ta" type="number" min="0" value="${t.amount}"><label class="label">Reference / Note</label><input class="input" id="tnote2" value="${t.note||''}"><button class="btn primary full" style="margin-top:12px" onclick="saveTransactionEdit(${i})">Save Changes</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)
-}
-function saveTransactionEdit(i){
- const amount=Number(qs('#ta').value);
- if(!Number.isFinite(amount)||amount<0){toast('Enter a valid amount');return}
- state.transactions[i]={type:qs('#tt').value,amount,note:qs('#tnote2').value};
- closeModal();renderTransactions();updateDashboard();toast('Transaction updated')
-}
-function addTransaction(){const amount=Number(qs('#ta').value);if(!Number.isFinite(amount)||amount<0){toast('Enter a valid amount');return}state.transactions.push({type:qs('#tt').value,amount,note:qs('#tnote2').value});closeModal();renderTransactions();updateDashboard();toast('Transaction saved')}
-function openExpenses(){show('expenses');renderExpenses()}
-function renderExpenses(){
- const e=qs('#expenseList');
- if(!state.expenses.length){e.innerHTML='<div class="card empty">No expenses recorded today.</div>';return}
- e.innerHTML=state.expenses.map((x,i)=>`<div class="card"><div class="row"><div><b>${x.category}</b><div class="meta">${x.note||'No note'}</div></div><b>${money(x.amount)}</b></div><button class="btn ghost full" style="margin-top:8px" onclick="editExpense(${i})">Edit</button></div>`).join('')
-}
-function editExpense(i){
- if(state.closingStatus!=='Draft'){toast('Expenses are locked after submission');return}
- const x=state.expenses[i];
- openModal(`<h3>Edit Expense</h3><label class="label">Category</label><select class="select" id="ec"><option ${x.category==='Cleaning'?'selected':''}>Cleaning</option><option ${x.category==='Station'?'selected':''}>Station</option><option ${x.category==='Repairing'?'selected':''}>Repairing</option><option ${x.category==='Maintenance'?'selected':''}>Maintenance</option><option ${x.category==='Other'?'selected':''}>Other</option></select><label class="label">Amount</label><input class="input" id="ea" type="number" min="0" value="${x.amount}"><label class="label">Note</label><input class="input" id="en" value="${x.note||''}"><button class="btn primary full" style="margin-top:12px" onclick="saveExpenseEdit(${i})">Save Changes</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)
-}
-function saveExpenseEdit(i){
- const a=Number(qs('#ea').value);
- if(!Number.isFinite(a)||a<=0){toast('Enter a valid amount');return}
- state.expenses[i]={category:qs('#ec').value,amount:a,note:qs('#en').value};
- closeModal();renderExpenses();updateDashboard();toast('Expense updated')
-}
-function openExpenseForm(){openModal(`<h3>Add Expense</h3><label class="label">Category</label><select class="select" id="ec"><option>Cleaning</option><option>Station</option><option>Repairing</option><option>Maintenance</option><option>Other</option></select><label class="label">Amount</label><input class="input" id="ea" type="number" min="0" placeholder="₹"><label class="label">Note</label><input class="input" id="en" placeholder="Optional"><button class="btn primary full" style="margin-top:12px" onclick="addExpense()">Save Expense</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)}
-function addExpense(){const a=Number(qs('#ea').value);if(!Number.isFinite(a)||a<=0){toast('Enter a valid amount');return}state.expenses.push({category:qs('#ec').value,amount:a,note:qs('#en').value});closeModal();renderExpenses();updateDashboard();toast('Expense saved')}
-function openShiftClosing(){show('closing');updateClosing()}
-function expenseTotal(){return state.expenses.reduce((a,x)=>a+(Number(x.amount)||0),0)}
-function updateClosing(){
- const {p,d,v}=salesSummary(),e=expenseTotal();
- qs('#closePetrol').textContent=p.toFixed(2)+' L';
- qs('#closeDiesel').textContent=d.toFixed(2)+' L';
- qs('#closeValue').textContent=money(v);
- ['cash','upi','card','credit','bank'].forEach(id=>qs('#'+id).oninput=calcPayments);
- calcPayments()
-}
-function calcPayments(){
- const sum=['cash','upi','card','credit','bank'].reduce((a,id)=>a+(Number(qs('#'+id).value)||0),0);
- const net=salesSummary().v-expenseTotal();
- qs('#paymentTotal').textContent=money(sum);
- qs('#difference').textContent=money(sum-net)
-}
-
-function updateFinalClosingSummary(){
- const s=salesSummary(),e=expenseTotal(),expected=s.v-e,t=transactionTotals(),delta=t.total-expected;
- qs('#fcPetrol').textContent=s.p.toFixed(2)+' L';
- qs('#fcDiesel').textContent=s.d.toFixed(2)+' L';
- qs('#fcValue').textContent=money(s.v);
- qs('#fcExpenses').textContent=money(e);
- qs('#fcExpected').textContent=money(expected);
- qs('#fcCollected').textContent=money(t.total);
- qs('#fcShort').textContent=money(Math.max(0,-delta));
- qs('#fcExcess').textContent=money(Math.max(0,delta));
+ const el=q('#transactionList');if(!state.transactions.length){el.innerHTML='<div class="card empty">No transactions entered yet.</div>';return}
+ el.innerHTML=state.transactions.map((x,i)=>`<div class="card"><div class="row"><div><b>${x.type}</b><div class="meta">${x.note||'No note'}</div></div><b>${money(x.amount)}</b></div><button class="btn ghost" onclick="transactionForm(${i})">Edit</button></div>`).join('')
 }
 function submitClosing(){
- const net=salesSummary().v-expenseTotal();
- const paid=['cash','upi','card','credit','bank'].reduce((a,id)=>a+(Number(qs('#'+id).value)||0),0);
- const diff=net-paid;
- if(Math.abs(diff)>0.5){toast('Reconciliation difference must be reviewed');return}
- state.closingStatus='Pending Manager Approval';
- openModal(`<h3>Submitted</h3><p>Today's expenses have been deducted from sales before reconciliation. Transactions and expenses are now locked pending Manager Approval.</p><div class="status pending" style="display:inline-block">Pending Manager Approval</div><button class="btn primary full" style="margin-top:14px" onclick="closeModal();show('home')">Done</button>`)
+ if(!q('#confirm').checked){toast('Please confirm the figures first');return}
+ const s=salesSummary(),e=expenseTotal(),t=transactionTotals(),expected=s.v-e,diff=t.total-expected;
+ openModal(`<h3>Submit Shift?</h3><div class="card"><div class="row"><span class="meta">Expected</span><b>${money(expected)}</b></div><div class="row"><span class="meta">Actual</span><b>${money(t.total)}</b></div><div class="row"><span class="meta">${diff<0?'Short':'Excess'}</span><b class="${diff<0?'bad':'good'}">${money(Math.abs(diff))}</b></div></div><div class="meta">After submission, transactions and expenses will be locked pending Manager Approval.</div><button class="btn primary" style="margin-top:12px" onclick="state.status='Pending Manager Approval';closeModal();refresh();toast('Submitted for Manager Approval')">Submit for Manager Approval</button><button class="btn ghost" onclick="closeModal()">Cancel</button>`)
 }
-
-function salesSummary(){let p=0,d=0;for(const [mid,m] of Object.entries(state.machines))for(const f of ['Petrol','Diesel'])for(const n of state.nozzles[f]){const x=m[f][n],key=mid+'-'+f+'-'+n;const t=(state.tests[key]||[]).reduce((a,z)=>a+z.qty,0);if(x.c!==null){const net=Math.max(0,x.c-x.o-t);if(f==='Petrol')p+=net;else d+=net}}return {p,d,v:p*state.rates.Petrol+d*state.rates.Diesel}}
-
-function transactionTotals(){
- const total=state.transactions.reduce((a,x)=>a+(Number(x.amount)||0),0);
- const by={Cash:0,'UPI / Digital':0,Card:0,'Bank Transfer':0,Credit:0};
- state.transactions.forEach(x=>{if(by[x.type]!==undefined) by[x.type]+=Number(x.amount)||0});
- return {total,by};
-}
-function updateTransactionSummary(){
- const s=salesSummary(), e=expenseTotal(), expected=s.v-e, t=transactionTotals();
- qs('#tsPetrol').textContent=s.p.toFixed(2)+' L';
- qs('#tsDiesel').textContent=s.d.toFixed(2)+' L';
- qs('#tsValue').textContent=money(s.v);
- qs('#tsExpected').textContent=money(expected);
- qs('#tsCollected').textContent=money(t.total);
- const delta=t.total-expected;
- qs('#tsShort').textContent=money(Math.max(0,-delta));
- qs('#tsExcess').textContent=money(Math.max(0,delta));
- qs('#tsCash').textContent=money(t.by.Cash);
- qs('#tsUPI').textContent=money(t.by['UPI / Digital']);
- qs('#tsCard').textContent=money(t.by.Card);
- qs('#tsBank').textContent=money(t.by['Bank Transfer']);
- qs('#tsCreditValue').textContent=money(t.by.Credit);
-}
-function updateDashboard(){
- const s=salesSummary(),e=expenseTotal(),net=s.v-e;
- qs('#kPetrol').textContent=s.p.toFixed(2)+' L';
- qs('#kDiesel').textContent=s.d.toFixed(2)+' L';
- qs('#kValue').textContent=money(s.v);
- qs('#kExpenses').textContent=money(e);
- qs('#kNetPayable').textContent=money(net);
- const count=Object.keys(state.machines).filter(machineDone).length;
- qs('#summaryMachines').textContent=count+' / 6';
- qs('#summaryProgress').style.width=(count/6*100)+'%';
- qs('#sCredit').textContent=state.transactions.filter(x=>x.type==='Credit').length;
- qs('#sExpenses').textContent=money(e);
- qs('#sNet').textContent=money(net);
- qs('#sShortage').textContent='—'
- updateTransactionSummary();  updateFinalClosingSummary(); }
-updateDashboard();
+function refresh(){initMachines();renderFuel();renderNozzles();renderExpenses();renderTransactions();updateSummary()}
+refresh();
 </script>
-</div>
 </body>
 </html>
