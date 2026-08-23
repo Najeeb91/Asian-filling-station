@@ -40,7 +40,7 @@ button,input,select{font:inherit}button{cursor:pointer}
 .progress{height:7px;background:#edf1f5;border-radius:99px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--accent);border-radius:99px}
 .smallnote{font-size:9px;color:var(--muted)}
 @media(max-height:700px){.main{padding-top:9px}.card{padding:10px}.tile{min-height:72px;padding:9px}.kpi{min-height:70px}.kpi .num{font-size:18px}.section{margin-top:10px}.top{padding-bottom:8px}}
-</style>
+html,body{overflow-x:hidden} .page{box-sizing:border-box;max-width:100vw} *{box-sizing:border-box} @media(max-width:480px){.card{margin-left:0;margin-right:0}.btn{min-height:44px}} </style>
 </head>
 <body>
 <div class="app">
@@ -58,7 +58,8 @@ button,input,select{font:inherit}button{cursor:pointer}
   <div class="card kpi"><div class="label">Petrol Sold</div><div class="num" id="kPetrol">0.00 L</div><div class="hint">Net after testing</div></div>
   <div class="card kpi"><div class="label">Diesel Sold</div><div class="num" id="kDiesel">0.00 L</div><div class="hint">Net after testing</div></div>
   <div class="card kpi"><div class="label">Total Sales</div><div class="num" id="kValue">₹0</div><div class="hint">Calculated value</div></div>
-  <div class="card kpi"><div class="label">Reconciliation</div><div class="num" id="kRecon">Ready</div><div class="hint">Based on entered payments</div></div>
+  <div class="card kpi"><div class="label">Expenses</div><div class="num" id="kExpenses">₹0</div><div class="hint">Today's expenses</div></div>
+  <div class="card kpi"><div class="label">Net After Expenses</div><div class="num" id="kNetPayable">₹0</div><div class="hint">Sales minus expenses</div></div>
  </div>
 
  <div class="section">Quick Actions</div>
@@ -76,6 +77,7 @@ button,input,select{font:inherit}button{cursor:pointer}
    <div class="list">
     <div class="row"><span class="meta">Credit entries</span><b id="sCredit">0</b></div>
     <div class="row"><span class="meta">Expenses</span><b id="sExpenses">₹0</b></div>
+    <div class="row"><span class="meta">Net after expenses</span><b id="sNet">₹0</b></div>
     <div class="row"><span class="meta">Shortage / Excess</span><b id="sShortage">—</b></div>
    </div>
  </div>
@@ -99,7 +101,8 @@ button,input,select{font:inherit}button{cursor:pointer}
 </section>
 
 <section id="nozzles" class="screen">
- <div class="pagebar"><button class="back" onclick="show('fuel')">‹</button><div><h2 id="nozzleTitle">Petrol Nozzles</h2><div class="meta" id="nozzleSub"></div></div><button class="btn primary" onclick="openTesting()">＋ Testing</button></div>
+ <div class="pagebar"><button class="back" onclick="show('fuel')">‹</button><div><h2 id="nozzleTitle">Petrol Nozzles</h2><div class="meta" id="nozzleSub"></div></div><button class="btn ghost full" onclick="show('transactionSummary')">View Collection Summary</button>
+<button class="btn primary" onclick="openTesting()">＋ Testing</button></div>
  <div id="nozzleList" class="list"></div>
  <div class="card" style="margin-top:9px"><div class="row"><span class="meta" id="netLabel">Petrol Sold</span><b id="netTotal">0.00 L</b></div></div>
  <div class="grid" style="margin-top:8px"><button class="btn ghost full" onclick="editNozzles()">Edit</button><button class="btn primary full" onclick="saveFuel()">Save</button></div>
@@ -112,7 +115,7 @@ button,input,select{font:inherit}button{cursor:pointer}
 </section>
 
 <section id="transactions" class="screen">
- <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>My Transactions</h2><div class="meta">Payments and credit records</div></div></div>
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>My Transactions</h2><div class="meta">Enter & edit payments • one transaction entry location</div></div></div>
  <button class="btn primary full" onclick="openTransactionForm()">＋ Add Transaction</button>
  <div class="section">Today's entries</div><div id="transactionList" class="list"></div>
 </section>
@@ -123,9 +126,54 @@ button,input,select{font:inherit}button{cursor:pointer}
  <div class="section">Today</div><div id="expenseList" class="list"></div>
 </section>
 
+
+<section id="transactionSummary" class="page">
+ <div class="pagebar">
+  <button class="back" onclick="show('home')">‹</button>
+  <div><h2>Collection Summary</h2><div class="meta">Today's fuel and payment position</div></div>
+ </div>
+
+ <div class="card">
+  <div class="section">Fuel Sales</div>
+  <div class="row"><span class="meta">Petrol Sold</span><b id="tsPetrol">0.00 L</b></div>
+  <div class="row"><span class="meta">Diesel Sold</span><b id="tsDiesel">0.00 L</b></div>
+  <div class="row"><span class="meta">Total Sales Value</span><b id="tsValue">₹0</b></div>
+ </div>
+
+ <div class="card">
+  <div class="section">Collection Position</div>
+  <div class="row"><span class="meta">Expected After Expenses</span><b id="tsExpected">₹0</b></div>
+  <div class="row"><span class="meta">Collected / Entered</span><b id="tsCollected">₹0</b></div>
+  <div class="row"><span class="meta">Short</span><b id="tsShort">₹0</b></div>
+  <div class="row"><span class="meta">Excess</span><b id="tsExcess">₹0</b></div>
+ </div>
+
+ <div class="card">
+  <div class="section">Payment Breakdown</div>
+  <div class="row"><span class="meta">Cash</span><b id="tsCash">₹0</b></div>
+  <div class="row"><span class="meta">UPI / Digital</span><b id="tsUPI">₹0</b></div>
+  <div class="row"><span class="meta">Card</span><b id="tsCard">₹0</b></div>
+  <div class="row"><span class="meta">Bank Transfer</span><b id="tsBank">₹0</b></div>
+  <div class="row"><span class="meta">Credit</span><b id="tsCreditValue">₹0</b></div>
+ </div>
+
+ 
+</section>
 <section id="closing" class="screen">
  <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Shift Closing</h2><div class="meta">Enter payment totals, then submit</div></div></div>
+ 
  <div class="card">
+  <div class="section">Final Shift Summary</div>
+  <div class="row"><span class="meta">Petrol Sold</span><b id="fcPetrol">0.00 L</b></div>
+  <div class="row"><span class="meta">Diesel Sold</span><b id="fcDiesel">0.00 L</b></div>
+  <div class="row"><span class="meta">Sales Value</span><b id="fcValue">₹0</b></div>
+  <div class="row"><span class="meta">Expenses</span><b id="fcExpenses">₹0</b></div>
+  <div class="row"><span class="meta">Expected Collection</span><b id="fcExpected">₹0</b></div>
+  <div class="row"><span class="meta">Actual Collection</span><b id="fcCollected">₹0</b></div>
+  <div class="row"><span class="meta">Short</span><b id="fcShort">₹0</b></div>
+  <div class="row"><span class="meta">Excess</span><b id="fcExcess">₹0</b></div>
+ </div>
+<div class="card">
   <div class="row"><span class="meta">Petrol</span><b id="closePetrol">0.00 L</b></div>
   <div class="row" style="margin-top:7px"><span class="meta">Diesel</span><b id="closeDiesel">0.00 L</b></div>
   <div class="row" style="margin-top:7px"><span class="meta">Total value</span><b id="closeValue">₹0</b></div>
@@ -244,29 +292,117 @@ function openTransactions(){
  show('transactions');renderTransactions()
 }
 function renderTransactions(){
- const e=qs('#transactionList');if(!state.transactions.length){e.innerHTML='<div class="card empty">No transactions yet.<br>Add UPI, cash, card, bank transfer or credit entries.</div>';return}
- e.innerHTML=state.transactions.map((t,i)=>`<div class="card"><div class="row"><div><b>${t.type}</b><div class="meta">${t.note||'No note'}</div></div><b>${money(t.amount)}</b></div></div>`).join('')
+ const e=qs('#transactionList');
+ if(!state.transactions.length){e.innerHTML='<div class="card empty">No transactions yet.<br>Add UPI, cash, card, bank transfer or credit entries.</div>';return}
+ e.innerHTML=state.transactions.map((t,i)=>`<div class="card"><div class="row"><div><b>${t.type}</b><div class="meta">${t.note||'No note'}</div></div><b>${money(t.amount)}</b></div><button class="btn ghost full" style="margin-top:8px" onclick="editTransaction(${i})">Edit</button></div>`).join('')
 }
-function openTransactionForm(){
- openModal(`<h3>Add Transaction</h3><label class="label">Payment Type</label><select class="select" id="tt"><option>Cash</option><option>UPI / Digital</option><option>Card</option><option>Bank Transfer</option><option>Credit</option></select><label class="label">Amount</label><input class="input" id="ta" type="number" min="0" placeholder="₹"><label class="label">Reference / Note</label><input class="input" id="tnote2" placeholder="Optional"><button class="btn primary full" style="margin-top:12px" onclick="addTransaction()">Save Transaction</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)
+function editTransaction(i){
+ if(state.closingStatus!=='Draft'){toast('Transactions are locked after submission');return}
+ const t=state.transactions[i];
+ openModal(`<h3>Edit Transaction</h3><label class="label">Payment Type</label><select class="select" id="tt"><option ${t.type==='Cash'?'selected':''}>Cash</option><option ${t.type==='UPI / Digital'?'selected':''}>UPI / Digital</option><option ${t.type==='Card'?'selected':''}>Card</option><option ${t.type==='Bank Transfer'?'selected':''}>Bank Transfer</option><option ${t.type==='Credit'?'selected':''}>Credit</option></select><label class="label">Amount</label><input class="input" id="ta" type="number" min="0" value="${t.amount}"><label class="label">Reference / Note</label><input class="input" id="tnote2" value="${t.note||''}"><button class="btn primary full" style="margin-top:12px" onclick="saveTransactionEdit(${i})">Save Changes</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)
+}
+function saveTransactionEdit(i){
+ const amount=Number(qs('#ta').value);
+ if(!Number.isFinite(amount)||amount<0){toast('Enter a valid amount');return}
+ state.transactions[i]={type:qs('#tt').value,amount,note:qs('#tnote2').value};
+ closeModal();renderTransactions();updateDashboard();toast('Transaction updated')
 }
 function addTransaction(){const amount=Number(qs('#ta').value);if(!Number.isFinite(amount)||amount<0){toast('Enter a valid amount');return}state.transactions.push({type:qs('#tt').value,amount,note:qs('#tnote2').value});closeModal();renderTransactions();updateDashboard();toast('Transaction saved')}
 function openExpenses(){show('expenses');renderExpenses()}
-function renderExpenses(){const e=qs('#expenseList');if(!state.expenses.length){e.innerHTML='<div class="card empty">No expenses recorded today.</div>';return}e.innerHTML=state.expenses.map(x=>`<div class="card"><div class="row"><div><b>${x.category}</b><div class="meta">${x.note||'No note'}</div></div><b>${money(x.amount)}</b></div></div>`).join('')}
+function renderExpenses(){
+ const e=qs('#expenseList');
+ if(!state.expenses.length){e.innerHTML='<div class="card empty">No expenses recorded today.</div>';return}
+ e.innerHTML=state.expenses.map((x,i)=>`<div class="card"><div class="row"><div><b>${x.category}</b><div class="meta">${x.note||'No note'}</div></div><b>${money(x.amount)}</b></div><button class="btn ghost full" style="margin-top:8px" onclick="editExpense(${i})">Edit</button></div>`).join('')
+}
+function editExpense(i){
+ if(state.closingStatus!=='Draft'){toast('Expenses are locked after submission');return}
+ const x=state.expenses[i];
+ openModal(`<h3>Edit Expense</h3><label class="label">Category</label><select class="select" id="ec"><option ${x.category==='Cleaning'?'selected':''}>Cleaning</option><option ${x.category==='Station'?'selected':''}>Station</option><option ${x.category==='Repairing'?'selected':''}>Repairing</option><option ${x.category==='Maintenance'?'selected':''}>Maintenance</option><option ${x.category==='Other'?'selected':''}>Other</option></select><label class="label">Amount</label><input class="input" id="ea" type="number" min="0" value="${x.amount}"><label class="label">Note</label><input class="input" id="en" value="${x.note||''}"><button class="btn primary full" style="margin-top:12px" onclick="saveExpenseEdit(${i})">Save Changes</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)
+}
+function saveExpenseEdit(i){
+ const a=Number(qs('#ea').value);
+ if(!Number.isFinite(a)||a<=0){toast('Enter a valid amount');return}
+ state.expenses[i]={category:qs('#ec').value,amount:a,note:qs('#en').value};
+ closeModal();renderExpenses();updateDashboard();toast('Expense updated')
+}
 function openExpenseForm(){openModal(`<h3>Add Expense</h3><label class="label">Category</label><select class="select" id="ec"><option>Cleaning</option><option>Station</option><option>Repairing</option><option>Maintenance</option><option>Other</option></select><label class="label">Amount</label><input class="input" id="ea" type="number" min="0" placeholder="₹"><label class="label">Note</label><input class="input" id="en" placeholder="Optional"><button class="btn primary full" style="margin-top:12px" onclick="addExpense()">Save Expense</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)}
 function addExpense(){const a=Number(qs('#ea').value);if(!Number.isFinite(a)||a<=0){toast('Enter a valid amount');return}state.expenses.push({category:qs('#ec').value,amount:a,note:qs('#en').value});closeModal();renderExpenses();updateDashboard();toast('Expense saved')}
 function openShiftClosing(){show('closing');updateClosing()}
+function expenseTotal(){return state.expenses.reduce((a,x)=>a+(Number(x.amount)||0),0)}
 function updateClosing(){
- const {p,d,v}=salesSummary();qs('#closePetrol').textContent=p.toFixed(2)+' L';qs('#closeDiesel').textContent=d.toFixed(2)+' L';qs('#closeValue').textContent=money(v);
- ['cash','upi','card','credit','bank'].forEach(id=>qs('#'+id).oninput=calcPayments);calcPayments()
+ const {p,d,v}=salesSummary(),e=expenseTotal();
+ qs('#closePetrol').textContent=p.toFixed(2)+' L';
+ qs('#closeDiesel').textContent=d.toFixed(2)+' L';
+ qs('#closeValue').textContent=money(v);
+ ['cash','upi','card','credit','bank'].forEach(id=>qs('#'+id).oninput=calcPayments);
+ calcPayments()
 }
-function calcPayments(){const sum=['cash','upi','card','credit','bank'].reduce((a,id)=>a+(Number(qs('#'+id).value)||0),0);const v=salesSummary().v;qs('#paymentTotal').textContent=money(sum);qs('#difference').textContent=money(sum-v)}
-function submitClosing(){const diff=salesSummary().v-['cash','upi','card','credit','bank'].reduce((a,id)=>a+(Number(qs('#'+id).value)||0),0);if(Math.abs(diff)>0.5){toast('Reconciliation difference must be reviewed');return}state.closingStatus='Pending Manager Approval';closeModal();openModal(`<h3>Submitted</h3><p>Your shift closing is now pending Manager Approval. Meter handover remains recorded separately.</p><div class="status pending" style="display:inline-block">Pending Manager Approval</div><button class="btn primary full" style="margin-top:14px" onclick="closeModal();show('home')">Done</button>`)}
+function calcPayments(){
+ const sum=['cash','upi','card','credit','bank'].reduce((a,id)=>a+(Number(qs('#'+id).value)||0),0);
+ const net=salesSummary().v-expenseTotal();
+ qs('#paymentTotal').textContent=money(sum);
+ qs('#difference').textContent=money(sum-net)
+}
+
+function updateFinalClosingSummary(){
+ const s=salesSummary(),e=expenseTotal(),expected=s.v-e,t=transactionTotals(),delta=t.total-expected;
+ qs('#fcPetrol').textContent=s.p.toFixed(2)+' L';
+ qs('#fcDiesel').textContent=s.d.toFixed(2)+' L';
+ qs('#fcValue').textContent=money(s.v);
+ qs('#fcExpenses').textContent=money(e);
+ qs('#fcExpected').textContent=money(expected);
+ qs('#fcCollected').textContent=money(t.total);
+ qs('#fcShort').textContent=money(Math.max(0,-delta));
+ qs('#fcExcess').textContent=money(Math.max(0,delta));
+}
+function submitClosing(){
+ const net=salesSummary().v-expenseTotal();
+ const paid=['cash','upi','card','credit','bank'].reduce((a,id)=>a+(Number(qs('#'+id).value)||0),0);
+ const diff=net-paid;
+ if(Math.abs(diff)>0.5){toast('Reconciliation difference must be reviewed');return}
+ state.closingStatus='Pending Manager Approval';
+ openModal(`<h3>Submitted</h3><p>Today's expenses have been deducted from sales before reconciliation. Transactions and expenses are now locked pending Manager Approval.</p><div class="status pending" style="display:inline-block">Pending Manager Approval</div><button class="btn primary full" style="margin-top:14px" onclick="closeModal();show('home')">Done</button>`)
+}
+
 function salesSummary(){let p=0,d=0;for(const [mid,m] of Object.entries(state.machines))for(const f of ['Petrol','Diesel'])for(const n of state.nozzles[f]){const x=m[f][n],key=mid+'-'+f+'-'+n;const t=(state.tests[key]||[]).reduce((a,z)=>a+z.qty,0);if(x.c!==null){const net=Math.max(0,x.c-x.o-t);if(f==='Petrol')p+=net;else d+=net}}return {p,d,v:p*state.rates.Petrol+d*state.rates.Diesel}}
-function updateDashboard(){
- const s=salesSummary();qs('#kPetrol').textContent=s.p.toFixed(2)+' L';qs('#kDiesel').textContent=s.d.toFixed(2)+' L';qs('#kValue').textContent=money(s.v);qs('#kRecon').textContent=state.closingStatus==='Pending Manager Approval'?'Pending':'Ready';
- const count=Object.keys(state.machines).filter(machineDone).length;qs('#summaryMachines').textContent=count+' / 6';qs('#summaryProgress').style.width=(count/6*100)+'%';qs('#sCredit').textContent=state.transactions.filter(x=>x.type==='Credit').length;qs('#sExpenses').textContent=money(state.expenses.reduce((a,x)=>a+x.amount,0));qs('#sShortage').textContent='—'
+
+function transactionTotals(){
+ const total=state.transactions.reduce((a,x)=>a+(Number(x.amount)||0),0);
+ const by={Cash:0,'UPI / Digital':0,Card:0,'Bank Transfer':0,Credit:0};
+ state.transactions.forEach(x=>{if(by[x.type]!==undefined) by[x.type]+=Number(x.amount)||0});
+ return {total,by};
 }
+function updateTransactionSummary(){
+ const s=salesSummary(), e=expenseTotal(), expected=s.v-e, t=transactionTotals();
+ qs('#tsPetrol').textContent=s.p.toFixed(2)+' L';
+ qs('#tsDiesel').textContent=s.d.toFixed(2)+' L';
+ qs('#tsValue').textContent=money(s.v);
+ qs('#tsExpected').textContent=money(expected);
+ qs('#tsCollected').textContent=money(t.total);
+ const delta=t.total-expected;
+ qs('#tsShort').textContent=money(Math.max(0,-delta));
+ qs('#tsExcess').textContent=money(Math.max(0,delta));
+ qs('#tsCash').textContent=money(t.by.Cash);
+ qs('#tsUPI').textContent=money(t.by['UPI / Digital']);
+ qs('#tsCard').textContent=money(t.by.Card);
+ qs('#tsBank').textContent=money(t.by['Bank Transfer']);
+ qs('#tsCreditValue').textContent=money(t.by.Credit);
+}
+function updateDashboard(){
+ const s=salesSummary(),e=expenseTotal(),net=s.v-e;
+ qs('#kPetrol').textContent=s.p.toFixed(2)+' L';
+ qs('#kDiesel').textContent=s.d.toFixed(2)+' L';
+ qs('#kValue').textContent=money(s.v);
+ qs('#kExpenses').textContent=money(e);
+ qs('#kNetPayable').textContent=money(net);
+ const count=Object.keys(state.machines).filter(machineDone).length;
+ qs('#summaryMachines').textContent=count+' / 6';
+ qs('#summaryProgress').style.width=(count/6*100)+'%';
+ qs('#sCredit').textContent=state.transactions.filter(x=>x.type==='Credit').length;
+ qs('#sExpenses').textContent=money(e);
+ qs('#sNet').textContent=money(net);
+ qs('#sShortage').textContent='—'
+ updateTransactionSummary();  updateFinalClosingSummary(); }
 updateDashboard();
 </script>
 </div>
