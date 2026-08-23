@@ -3,789 +3,272 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b2a52">
-<title>PumpOS Staff Prototype — Mobile Optimized v3</title>
+<title>PumpOS Staff Module — Premium Prototype</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#10213b;font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-.app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:82px}
-header{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #e5e7eb;padding:13px 15px;display:flex;justify-content:space-between;align-items:center}
-.brand{font-size:24px;font-weight:900;color:#0b2a52}.brand i{color:#f59e0b;font-style:normal}
-button,input,select{font:inherit}button{cursor:pointer}.icon{border:0;background:#f1f3f6;border-radius:13px;width:42px;height:42px}
-.card,.item,.stat,.action{background:#fff;border:1px solid #e5e7eb;border-radius:17px}.card{padding:15px;margin-bottom:12px}
-.hero{background:linear-gradient(135deg,#0b2a52,#19579a);color:#fff;border:0}.hero .muted{color:#dbeafe}.muted{color:#6b7280}
-.small{font-size:12px}.bold{font-weight:800}.row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.stat{padding:12px}.stat .v{font-size:19px;font-weight:900;margin-top:7px}.stat .s{font-size:11px;color:#6b7280;margin-top:3px}
-.section{font-weight:900;margin:8px 2px 9px}.action{padding:13px 8px;text-align:center;min-height:96px}.action .ico{font-size:25px}.action b{display:block;font-size:12px;margin-top:6px}.action small{color:#6b7280;font-size:10px}
-.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:800}.primary{background:#0b2a52;color:white}.ghost{background:#f1f3f6;color:#10213b}.full{width:100%}
-.ok,.bad,.warn{padding:10px 12px;border-radius:13px;font-size:13px}.ok{background:#ecfdf3;color:#087a31}.bad{background:#fef2f2;color:#a91b1b}.warn{background:#fff7ed;color:#9a5700}
-.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:#fff;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:repeat(4,1fr);padding:7px 7px env(safe-area-inset-bottom);z-index:20}
-.nav{border:0;background:transparent;color:#667085;border-radius:12px;padding:6px;font-size:11px}.nav div{font-size:21px}.nav.active{background:#eef4ff;color:#2563eb;font-weight:800}
-.sheetbg{position:fixed;inset:0;background:#0008;z-index:50;display:flex;align-items:flex-end}.sheet{background:white;width:100%;max-width:520px;max-height:92vh;overflow:auto;margin:auto 0 0;border-radius:24px 24px 0 0;padding:17px}
-.close{float:right;border:0;background:#f1f3f6;border-radius:50%;width:40px;height:40px;font-size:24px;line-height:40px}
-.input,.select{width:100%;padding:11px;border:1px solid #d8dde6;border-radius:11px;background:white}label{display:block;font-size:12px;font-weight:800;margin:12px 0 6px}
-.machinegrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.machine{border:2px solid #e5e7eb;border-radius:15px;background:#fff;padding:12px;text-align:left}.machine.sel{border-color:#2563eb;background:#eff6ff}
-.noz{display:inline-block;background:#f1f3f6;border-radius:7px;padding:4px 5px;font-size:9px;margin:3px 2px 0 0}
-.list{display:grid;gap:8px}.item{padding:12px;text-align:left}.meta{font-size:11px;color:#6b7280;margin-top:4px}
-.tabs{display:flex;gap:6px;overflow:auto;margin:10px 0}.tab{border:1px solid #e5e7eb;background:#fff;border-radius:20px;padding:7px 11px;white-space:nowrap;font-size:11px}.tab.active{background:#0b2a52;color:#fff}
-.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);background:#111827;color:white;padding:10px 14px;border-radius:11px;z-index:100;font-size:12px;max-width:90%;text-align:center}
-.reading{font-size:20px;font-weight:900}.locked{background:#f8fafc;border:1px dashed #cbd5e1;padding:10px;border-radius:12px}
-
-.fuelbtn{border:2px solid #e5e7eb;background:#fff;border-radius:15px;padding:14px;font-weight:900;text-align:center}
-.fuelbtn.petrol.sel{border-color:#15803d;background:#ecfdf3;color:#166534}
-.fuelbtn.diesel.sel{border-color:#1d4ed8;background:#eff6ff;color:#1e40af}
-.nozzlecard{background:#fff;border:1px solid #dfe5ec;border-radius:16px;padding:12px;margin-top:9px}
-.nozzlehead{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.readrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
-.readbox{background:#f8fafc;border:1px solid #e2e8f0;border-radius:11px;padding:9px}
-.readbox .cap{font-size:10px;color:#64748b;font-weight:800}
-.readbox .num{font-size:18px;font-weight:900;margin-top:3px}
-.testrow{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:8px;margin-top:7px}
-.fuelsummary{border-radius:15px;padding:12px;margin-top:11px;border:1px solid #dbe5ee}
-.fuelsummary.petrol{background:#f0fdf4;border-color:#bbf7d0}
-.fuelsummary.diesel{background:#eff6ff;border-color:#bfdbfe}
-.finalfuel{border:1px solid #dbe5ee;border-radius:16px;padding:16px;text-align:center}
-.finalfuel.petrol{background:#f0fdf4}
-.finalfuel.diesel{background:#eff6ff}
-.finalnum{font-size:30px;font-weight:950;margin-top:5px}
-
-html,body{overflow-x:hidden}
-.modal{max-height:100dvh!important;overflow:hidden!important}
-.modal .body{overflow:hidden!important}
-.pump-mobile{height:calc(100dvh - 112px);display:flex;flex-direction:column;overflow:hidden}
-.pump-head{flex:0 0 auto}
-.pump-grid{display:grid;grid-template-columns:1fr;gap:6px;flex:1;min-height:0}
-.pump-row{display:grid;grid-template-columns:38px 1fr 1fr;gap:5px;align-items:center;background:#fff;border:1px solid #dfe5ec;border-radius:10px;padding:6px}
-.pump-row.with-test{grid-template-columns:34px 1fr 1fr 1fr}
-.pump-label{font-weight:950;font-size:13px}
-.pump-field{min-width:0}
-.pump-field .cap{font-size:8px;color:#64748b;font-weight:900;text-transform:uppercase;white-space:nowrap}
-.pump-field .val{font-size:13px;font-weight:900;line-height:1.15}
-.pump-input{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;padding:7px 5px;font-size:14px;font-weight:900;background:#fff}
-.pump-total{display:flex;justify-content:space-between;align-items:center;background:#f8fafc;border:1px solid #dbe5ee;border-radius:11px;padding:8px 10px;flex:0 0 auto}
-.pump-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;flex:0 0 auto}
-.pump-actions .btn{min-height:38px;padding:8px}
-.pump-testing-strip{display:none;grid-template-columns:1fr auto;gap:6px;align-items:center;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:5px 8px;font-size:11px}
-.pump-testing-strip.show{display:grid}
-.pump-summary-screen{height:calc(100dvh - 112px);display:flex;flex-direction:column;overflow:hidden}
-.pump-summary-screen .finalfuel{padding:10px}
-.pump-summary-screen .finalnum{font-size:25px}
-@media(max-height:700px){
-  .pump-mobile{height:calc(100dvh - 100px)}
-  .pump-row{padding:4px}
-  .pump-input{padding:5px 4px}
-  .pump-field .cap{font-size:7px}
-  .pump-field .val{font-size:12px}
-  .pump-total{padding:6px 8px}
-  .pump-actions .btn{min-height:34px;padding:6px}
+:root{
+ --bg:#f4f7fb;--card:#fff;--ink:#142033;--muted:#6b7788;--line:#e2e8f0;
+ --accent:#173f72;--accent2:#2463a6;--ok:#16805b;--warn:#b7791f;--danger:#b42318;
+ --shadow:0 8px 24px rgba(16,35,58,.08);--r:18px;
 }
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+button,input,select{font:inherit}button{cursor:pointer}
+.app{height:100dvh;display:flex;flex-direction:column;max-width:480px;margin:auto;background:var(--bg)}
+.top{padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:linear-gradient(135deg,#102e54,#1e568f);color:#fff;flex:0 0 auto}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-weight:900;letter-spacing:.2px}.sub{font-size:11px;opacity:.78;margin-top:2px}
+.avatar{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-weight:900}
+.main{flex:1;min-height:0;overflow:auto;padding:12px 14px 86px;-webkit-overflow-scrolling:touch}
+.screen{display:none}.screen.active{display:block}
+.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:2px 0 12px}.hero h1{font-size:22px;margin:0 0 4px}.hero p{margin:0;color:var(--muted);font-size:12px}
+.badge{padding:6px 9px;border-radius:999px;background:#eaf7f1;color:var(--ok);font-size:10px;font-weight:900;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:12px}
+.kpi{min-height:82px}.kpi .label{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase}.kpi .num{font-size:21px;font-weight:950;margin-top:7px}.kpi .hint{font-size:9px;color:var(--muted);margin-top:3px}
+.section{font-size:12px;font-weight:950;margin:15px 2px 7px}
+.tile{border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px;min-height:82px;box-shadow:0 5px 16px rgba(16,35,58,.06);text-align:left}.tile b{display:block;font-size:14px}.tile span{display:block;color:var(--muted);font-size:10px;margin-top:4px}.tile:active{transform:scale(.985)}.tile .ico{font-size:19px;margin-bottom:7px}
+.action{display:flex;align-items:center;gap:10px}.action .iconbox{width:40px;height:40px;border-radius:13px;background:#edf4fb;display:grid;place-items:center;font-size:18px}
+.btn{border:0;border-radius:12px;padding:10px 13px;font-weight:900;font-size:12px}.primary{background:var(--accent);color:#fff}.ghost{background:#eef3f8;color:var(--ink)}.danger{background:#fff0ef;color:var(--danger)}.success{background:#e9f8f1;color:var(--ok)}.full{width:100%}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);gap:5px;z-index:20}.navbtn{border:0;background:transparent;color:#718096;padding:6px 2px;border-radius:11px;font-size:9px;font-weight:800}.navbtn.active{background:#edf4fb;color:var(--accent)}.navbtn .nicon{font-size:18px;display:block;margin-bottom:2px}
+.pagebar{display:flex;align-items:center;gap:8px;margin-bottom:12px}.back{border:0;background:#fff;border:1px solid var(--line);width:38px;height:38px;border-radius:12px;font-size:18px}.pagebar h2{font-size:17px;margin:0}.meta{font-size:10px;color:var(--muted)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}.list{display:flex;flex-direction:column;gap:8px}.status{font-size:9px;font-weight:900;padding:5px 8px;border-radius:999px;background:#eef3f8;color:#52606d}.status.ok{background:#e8f7f0;color:var(--ok)}.status.pending{background:#fff7df;color:#9a6700}
+.machine{min-height:88px;text-align:center}.machine .big{font-size:21px;font-weight:950}.machine small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
+.fuel{min-height:74px}.fuel .big{font-size:18px;font-weight:950}
+.input,.select{width:100%;border:1px solid #cfd8e3;border-radius:11px;padding:10px;background:#fff;color:var(--ink);font-weight:750}.label{font-size:10px;color:var(--muted);font-weight:850;margin:10px 0 5px}
+.nozzle{display:grid;grid-template-columns:42px 1fr 1fr 1fr;gap:5px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:13px;background:#fff}.nbox{width:38px;height:38px;border-radius:12px;background:#edf4fb;display:grid;place-items:center;font-weight:950;color:var(--accent)}.cell .cap{font-size:8px;color:var(--muted);font-weight:850;text-transform:uppercase}.cell .val{font-size:12px;font-weight:950;margin-top:3px}.testrow{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center;background:#f0faf5;border:1px solid #cceedd;border-radius:12px;padding:8px;margin-top:5px}.testrow .cap{font-size:9px;color:var(--ok);font-weight:900}
+.toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%) translateY(15px);opacity:0;background:#132238;color:#fff;padding:10px 13px;border-radius:12px;font-size:11px;font-weight:800;z-index:50;transition:.2s;max-width:88%;text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modalwrap{position:fixed;inset:0;background:rgba(8,20,34,.45);display:none;align-items:flex-end;justify-content:center;z-index:40}.modalwrap.show{display:flex}.modal{width:min(480px,100%);max-height:92dvh;background:#fff;border-radius:22px 22px 0 0;padding:14px 15px calc(14px + env(safe-area-inset-bottom));overflow:auto;box-shadow:0 -10px 40px rgba(0,0,0,.18)}.grab{width:38px;height:4px;border-radius:99px;background:#d8dee7;margin:0 auto 12px}.modal h3{margin:0;font-size:17px}.modal p{font-size:11px;color:var(--muted)}
+.empty{text-align:center;padding:25px 12px;color:var(--muted);font-size:11px}
+.progress{height:7px;background:#edf1f5;border-radius:99px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.smallnote{font-size:9px;color:var(--muted)}
+@media(max-height:700px){.main{padding-top:9px}.card{padding:10px}.tile{min-height:72px;padding:9px}.kpi{min-height:70px}.kpi .num{font-size:18px}.section{margin-top:10px}.top{padding-bottom:8px}}
 </style>
 </head>
 <body>
 <div class="app">
-<header>
-  <button class="icon" onclick="go('more')" aria-label="Menu">☰</button>
-  <div class="brand">Pump<i>OS</i></div>
-  <button class="icon" onclick="notify()" aria-label="Notifications">🔔</button>
+<header class="top">
+ <div class="toprow">
+  <div><div class="brand">PumpOS</div><div class="sub">Staff Operations • Asian Filling Station</div></div>
+  <button class="avatar" onclick="openProfile()">MN</button>
+ </div>
 </header>
-<main id="screen"></main>
+
+<main class="main">
+<section id="home" class="screen active">
+ <div class="hero"><div><h1>Staff Dashboard</h1><p>Sunday, 23 Aug 2026 • Evening</p></div><span class="badge">Shift Active</span></div>
+ <div class="grid">
+  <div class="card kpi"><div class="label">Petrol Sold</div><div class="num" id="kPetrol">0.00 L</div><div class="hint">Net after testing</div></div>
+  <div class="card kpi"><div class="label">Diesel Sold</div><div class="num" id="kDiesel">0.00 L</div><div class="hint">Net after testing</div></div>
+  <div class="card kpi"><div class="label">Total Sales</div><div class="num" id="kValue">₹0</div><div class="hint">Calculated value</div></div>
+  <div class="card kpi"><div class="label">Reconciliation</div><div class="num" id="kRecon">Ready</div><div class="hint">Based on entered payments</div></div>
+ </div>
+
+ <div class="section">Quick Actions</div>
+ <div class="grid">
+  <button class="tile" onclick="startHandover()"><div class="ico">⛽</div><b>Machine Handover</b><span>Readings & testing</span></button>
+  <button class="tile" onclick="openShiftClosing()"><div class="ico">✓</div><b>Shift Closing</b><span>Payments & reconciliation</span></button>
+  <button class="tile" onclick="openTransactions()"><div class="ico">↔</div><b>My Transactions</b><span>View and add entries</span></button>
+  <button class="tile" onclick="openExpenses()"><div class="ico">₹</div><b>Expenses</b><span>Today's expenses</span></button>
+ </div>
+
+ <div class="section">Today Summary</div>
+ <div class="card">
+   <div class="row"><span class="smallnote">Machine readings</span><b id="summaryMachines">0 / 6</b></div>
+   <div class="progress" style="margin:7px 0 10px"><i id="summaryProgress" style="width:0%"></i></div>
+   <div class="list">
+    <div class="row"><span class="meta">Credit entries</span><b id="sCredit">0</b></div>
+    <div class="row"><span class="meta">Expenses</span><b id="sExpenses">₹0</b></div>
+    <div class="row"><span class="meta">Shortage / Excess</span><b id="sShortage">—</b></div>
+   </div>
+ </div>
+</section>
+
+<section id="handover" class="screen">
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Machine Handover</h2><div class="meta">Select a machine to continue</div></div></div>
+ <div class="section">Machines</div>
+ <div class="grid3" id="machineGrid"></div>
+ <div class="section">Handover status</div>
+ <div class="card"><div class="row"><span class="meta">Completed</span><b id="handoverCount">0 / 6</b></div><div class="progress" style="margin-top:8px"><i id="handoverProgress" style="width:0%"></i></div></div>
+</section>
+
+<section id="fuel" class="screen">
+ <div class="pagebar"><button class="back" onclick="show('handover')">‹</button><div><h2 id="fuelTitle">Fuel</h2><div class="meta">Choose fuel type</div></div></div>
+ <div class="grid">
+  <button class="tile fuel" onclick="openNozzles('Petrol')"><div class="big">P</div><b>Petrol</b><span>3 nozzles • ₹100/L</span></button>
+  <button class="tile fuel" onclick="openNozzles('Diesel')"><div class="big">D</div><b>Diesel</b><span>3 nozzles • ₹95/L</span></button>
+ </div>
+ <div class="section">Selected machine</div><div class="card" id="selectedMachineCard"></div>
+</section>
+
+<section id="nozzles" class="screen">
+ <div class="pagebar"><button class="back" onclick="show('fuel')">‹</button><div><h2 id="nozzleTitle">Petrol Nozzles</h2><div class="meta" id="nozzleSub"></div></div><button class="btn primary" onclick="openTesting()">＋ Testing</button></div>
+ <div id="nozzleList" class="list"></div>
+ <div class="card" style="margin-top:9px"><div class="row"><span class="meta" id="netLabel">Petrol Sold</span><b id="netTotal">0.00 L</b></div></div>
+ <div class="grid" style="margin-top:8px"><button class="btn ghost full" onclick="editNozzles()">Edit</button><button class="btn primary full" onclick="saveFuel()">Save</button></div>
+</section>
+
+<section id="fuelSaved" class="screen">
+ <div class="pagebar"><button class="back" onclick="show('fuel')">‹</button><div><h2>Saved</h2><div class="meta">Readings saved for this fuel</div></div></div>
+ <div class="card" id="savedCard"></div>
+ <div class="grid" style="margin-top:10px"><button class="btn ghost full" onclick="show('nozzles');editNozzles()">Edit</button><button class="btn primary full" onclick="viewFuelSummary()">View Summary</button></div>
+</section>
+
+<section id="transactions" class="screen">
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>My Transactions</h2><div class="meta">Payments and credit records</div></div></div>
+ <button class="btn primary full" onclick="openTransactionForm()">＋ Add Transaction</button>
+ <div class="section">Today's entries</div><div id="transactionList" class="list"></div>
+</section>
+
+<section id="expenses" class="screen">
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Expenses</h2><div class="meta">Today's operating expenses</div></div></div>
+ <button class="btn primary full" onclick="openExpenseForm()">＋ Add Expense</button>
+ <div class="section">Today</div><div id="expenseList" class="list"></div>
+</section>
+
+<section id="closing" class="screen">
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>Shift Closing</h2><div class="meta">Enter payment totals, then submit</div></div></div>
+ <div class="card">
+  <div class="row"><span class="meta">Petrol</span><b id="closePetrol">0.00 L</b></div>
+  <div class="row" style="margin-top:7px"><span class="meta">Diesel</span><b id="closeDiesel">0.00 L</b></div>
+  <div class="row" style="margin-top:7px"><span class="meta">Total value</span><b id="closeValue">₹0</b></div>
+ </div>
+ <div class="section">Payment reconciliation</div>
+ <div class="card">
+  <label class="label">Cash</label><input class="input" id="cash" type="number" min="0" placeholder="₹">
+  <label class="label">UPI / Digital</label><input class="input" id="upi" type="number" min="0" placeholder="₹">
+  <label class="label">Card</label><input class="input" id="card" type="number" min="0" placeholder="₹">
+  <label class="label">Credit</label><input class="input" id="credit" type="number" min="0" placeholder="₹">
+  <label class="label">Bank Transfer</label><input class="input" id="bank" type="number" min="0" placeholder="₹">
+ </div>
+ <div class="card" style="margin-top:9px"><div class="row"><span class="meta">Entered payments</span><b id="paymentTotal">₹0</b></div><div class="row" style="margin-top:7px"><span class="meta">Difference</span><b id="difference">₹0</b></div></div>
+ <button class="btn primary full" style="margin-top:10px" onclick="submitClosing()">Submit for Manager Approval</button>
+</section>
+
+<section id="profile" class="screen">
+ <div class="pagebar"><button class="back" onclick="show('home')">‹</button><div><h2>My Profile</h2><div class="meta">Staff account</div></div></div>
+ <div class="card">
+  <div class="row"><div><b style="font-size:16px">Mohammad Najib</b><div class="meta">Staff • PumpOS</div></div><div class="avatar" style="background:#edf4fb;color:var(--accent)">MN</div></div>
+  <div class="list" style="margin-top:12px">
+   <div class="row"><span class="meta">Shift</span><b>Evening</b></div>
+   <div class="row"><span class="meta">Status</span><span class="status ok">Active</span></div>
+   <div class="row"><span class="meta">Approval</span><span class="status pending">Manager</span></div>
+  </div>
+ </div>
+</section>
+</main>
+
 <nav class="bottom">
-  <button class="nav active" id="n-home" onclick="go('home')"><div>⌂</div>Home</button>
-  <button class="nav" id="n-tx" onclick="go('tx')"><div>▤</div>Transactions</button>
-  <button class="nav" id="n-more" onclick="go('more')"><div>⋮</div>More</button>
-  <button class="nav" id="n-profile" onclick="go('profile')"><div>♙</div>Profile</button>
+ <button class="navbtn active" data-nav="home" onclick="show('home')"><span class="nicon">⌂</span>Home</button>
+ <button class="navbtn" data-nav="handover" onclick="startHandover()"><span class="nicon">⛽</span>Machines</button>
+ <button class="navbtn" data-nav="transactions" onclick="openTransactions()"><span class="nicon">↔</span>Transactions</button>
+ <button class="navbtn" data-nav="profile" onclick="openProfile()"><span class="nicon">●</span>Profile</button>
 </nav>
-</div>
-<div id="modal"></div>
+
+<div id="modalwrap" class="modalwrap" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="grab"></div><div id="modal"></div></div></div>
+<div id="toast" class="toast"></div>
 
 <script>
-const KEY='pumpos_staff_reset_v1';
-const PRICE={Petrol:100,Diesel:95};
-const NOZZLES=['P1 Petrol','P2 Petrol','P3 Petrol','D1 Diesel','D2 Diesel','D3 Diesel'];
-const MACHINES=Array.from({length:6},(_,i)=>'M-0'+(i+1));
-
-function blankMeters(){return Object.fromEntries(NOZZLES.map(n=>[n,0]));}
-function fresh(){
-  const openings={}; MACHINES.forEach(m=>openings[m]=blankMeters());
-  return {
-    version:1,
-    staff:{name:'Demo Staff',id:'ST-001',role:'Staff'},
-    machine:'',
-    shift:{type:'8 Hours',start:'06:00',end:'14:00'},
-    openings,
-    handovers:[],
-    collections:[],
-    credits:[],
-    expenses:[],
-    tests:[],
-    closing:null
-  };
+const state={
+ machine:null,fuel:null,editing:false,
+ machines:{}, transactions:[], expenses:[], closingStatus:'Draft',
+ rates:{Petrol:100,Diesel:95},
+ machineIds:['M1','M2','M3','M4','M5','M6'], nozzles:{Petrol:['P1','P2','P3'],Diesel:['D1','D2','D3']},
+ tests:{}
+};
+for(let m=1;m<=6;m++){state.machines['M'+m]={Petrol:{P1:{o:0,c:null},P2:{o:0,c:null},P3:{o:0,c:null}},Diesel:{D1:{o:0,c:null},D2:{o:0,c:null},D3:{o:0,c:null}}}}
+function qs(x){return document.querySelector(x)}
+function money(n){return '₹'+Math.round(n||0).toLocaleString('en-IN')}
+function toast(t){const e=qs('#toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+function show(id){
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));qs('#'+id).classList.add('active');
+ document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.nav===id));
+ qs('.main').scrollTop=0;updateDashboard();
 }
-let S=JSON.parse(localStorage.getItem(KEY)||'null');
-if(!S || S.version!==1) S=fresh();
-function save(){localStorage.setItem(KEY,JSON.stringify(S))}
-function money(x){return '₹'+Number(x||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
-function now(){return new Date().toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'})}
-function toast(x){const t=document.createElement('div');t.className='toast';t.textContent=x;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)}
-function currentOpening(){return S.machine ? (S.openings[S.machine]||blankMeters()) : blankMeters()}
-function fuelOf(noz){return noz.startsWith('P')?'Petrol':'Diesel'}
-function meterTotals(readings, opening){
-  let pL=0,dL=0;
-  NOZZLES.forEach(n=>{const diff=Math.max(0,(+readings[n]||0)-(+opening[n]||0)); if(fuelOf(n)==='Petrol')pL+=diff;else dL+=diff});
-  return {pL,dL,pA:pL*PRICE.Petrol,dA:dL*PRICE.Diesel,total:pL*PRICE.Petrol+dL*PRICE.Diesel};
+function openModal(html){qs('#modal').innerHTML=html;qs('#modalwrap').classList.add('show')}
+function closeModal(){qs('#modalwrap').classList.remove('show')}
+function openProfile(){show('profile')}
+function startHandover(){show('handover');renderMachines()}
+function renderMachines(){
+ const g=qs('#machineGrid');g.innerHTML='';
+ for(const id of state.machineIds){const done=machineDone(id);g.innerHTML+=`<button class="tile machine" onclick="selectMachine('${id}')"><div class="big">${id}</div><small>${done?'Handover saved':'Select machine'}</small>${done?'<span class="status ok" style="display:inline-block;margin-top:7px">Ready</span>':''}</button>`}
+ const count=Object.keys(state.machines).filter(machineDone).length;qs('#handoverCount').textContent=count+' / 6';qs('#handoverProgress').style.width=(count/6*100)+'%';
 }
-function latestHandover(){
-  return S.handovers.length ? S.handovers[S.handovers.length-1] : null;
+function machineDone(m){return ['Petrol','Diesel'].some(f=>state.nozzles[f].some(n=>state.machines[m][f][n].c!==null))}
+function selectMachine(m){state.machine=m;qs('#selectedMachineCard').innerHTML=`<div class="row"><div><b style="font-size:18px">${m}</b><div class="meta">3 Petrol + 3 Diesel nozzles</div></div><span class="status ok">Selected</span></div>`;show('fuel')}
+function openNozzles(fuel){
+ if(!state.machine){toast('Select a machine first');return}
+ state.fuel=fuel;state.editing=false;
+ qs('#nozzleTitle').textContent=fuel+' Nozzles';qs('#nozzleSub').textContent=state.machine+' • Opening readings are automatic';
+ renderNozzles();show('nozzles')
 }
-function todayTestsValue(){
-  return S.tests.reduce((a,x)=>a+(+x.qty||0)*PRICE[fuelOf(x.nozzle)],0);
+function renderNozzles(){
+ const m=state.machine,f=state.fuel,list=qs('#nozzleList');
+ list.innerHTML=state.nozzles[f].map(n=>{
+  const x=state.machines[m][f][n], tests=state.tests[m+'-'+f+'-'+n]||[], t=tests.reduce((a,z)=>a+z.qty,0), sale=x.c===null?null:Math.max(0,x.c-x.o), net=sale===null?null:Math.max(0,sale-t);
+  return `<div><div class="nozzle"><div class="nbox">${n}</div><div class="cell"><div class="cap">Opening</div><div class="val">${x.o.toFixed(2)}</div></div><div class="cell"><div class="cap">Closing</div>${state.editing?`<input class="input" style="padding:7px" id="c_${n}" type="number" min="${x.o}" step=".01" value="${x.c===null?'':x.c}">`:`<div class="val">${x.c===null?'—':x.c.toFixed(2)}</div>`}</div><div class="cell"><div class="cap">Net</div><div class="val">${net===null?'—':net.toFixed(2)+' L'}</div></div></div>${t>0?`<div class="testrow"><div><div class="cap">Testing • ${t.toFixed(2)} L</div><div class="smallnote">${tests.length} test entry</div></div><button class="btn ghost" onclick="editTesting('${n}')">Edit</button></div>`:''}</div>`
+ }).join('');
+ updateNetTotal()
 }
-function saleSummary(){
-  if(!S.machine) return {pL:0,dL:0,pA:0,dA:0,total:0,meterP:0,meterD:0,testP:0,testD:0};
-  const op=currentOpening();
-  const h=S.handovers.filter(x=>x.machine===S.machine).slice(-1)[0];
-  if(!h) return {pL:0,dL:0,pA:0,dA:0,total:0,meterP:0,meterD:0,testP:0,testD:0};
-
-  // IMPORTANT: The handover's own opening is authoritative.
-  // Do not compare it with currentOpening(), because currentOpening() becomes
-  // the next shift's opening after a handover.
-  const meter=meterTotals(h.readings,h.opening);
-  let testP=0,testD=0;
-  S.tests.filter(x=>x.machine===S.machine && x.time>=h.time).forEach(x=>{
-    if(fuelOf(x.nozzle)==='Petrol') testP += +x.qty||0;
-    else testD += +x.qty||0;
-  });
-
-  // Testing is never subtracted from the physical meter.
-  // It is deducted only from accounting/sale quantity.
-  const pL=Math.max(0,meter.pL-testP);
-  const dL=Math.max(0,meter.dL-testD);
-  return {
-    pL,dL,
-    pA:pL*PRICE.Petrol,
-    dA:dL*PRICE.Diesel,
-    total:pL*PRICE.Petrol+dL*PRICE.Diesel,
-    meterP:meter.pL,meterD:meter.dL,testP,testD
-  };
+function updateNetTotal(){
+ const f=state.fuel,m=state.machine;if(!f||!m)return;
+ const total=state.nozzles[f].reduce((a,n)=>{const x=state.machines[m][f][n];const t=(state.tests[m+'-'+f+'-'+n]||[]).reduce((s,z)=>s+z.qty,0);return a+(x.c===null?0:Math.max(0,x.c-x.o-t))},0);
+ qs('#netTotal').textContent=total.toFixed(2)+' L';
 }
-function collectionTotals(){
-  const c={Cash:0,UPI:0,Card:0,'Bank Transfer':0,Credit:0};
-  S.collections.forEach(x=>c[x.mode]=(c[x.mode]||0)+(+x.amount||0));
-  S.credits.forEach(x=>c.Credit+=+x.amount||0);
-  return c;
+function editNozzles(){state.editing=true;renderNozzles()}
+function saveFuel(){
+ const f=state.fuel,m=state.machine;
+ for(const n of state.nozzles[f]){
+  const el=qs('#c_'+n);if(!el)continue;const v=Number(el.value),o=state.machines[m][f][n].o;
+  if(!Number.isFinite(v)||v<o){toast('Enter valid closing for '+n);return}
+  state.machines[m][f][n].c=v
+ }
+ state.editing=false;state.tests;toast(f+' readings saved');showSaved()
 }
-function go(p){
-  document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));
-  const id=p==='tx'?'n-tx':p==='more'?'n-more':p==='profile'?'n-profile':'n-home';
-  document.getElementById(id).classList.add('active');
-  if(p==='home')home(); else if(p==='tx')tx(); else if(p==='more')more(); else profile();
+function showSaved(){qs('#savedCard').innerHTML=`<div class="row"><div><b>${state.machine} • ${state.fuel}</b><div class="meta">Saved successfully</div></div><span class="status ok">Saved</span></div><div style="margin-top:10px">${state.nozzles[state.fuel].map(n=>{const x=state.machines[state.machine][state.fuel][n];return `<div class="row" style="margin-top:7px"><span class="meta">${n}</span><b>${x.c.toFixed(2)} closing</b></div>`}).join('')}</div>`;show('fuelSaved')}
+function viewFuelSummary(){show('fuelSaved');toast('Summary is up to date')}
+function openTesting(){
+ const f=state.fuel;openModal(`<h3>Add Testing</h3><p>Testing is attached to one selected nozzle. It will be deducted from that nozzle's meter sale.</p><label class="label">Select Nozzle</label><select class="select" id="tn">${state.nozzles[f].map(n=>`<option>${n}</option>`).join('')}</select><label class="label">Testing Quantity (L)</label><input class="input" id="tq" type="number" min="0" step=".01" placeholder="Enter litres"><label class="label">Note (optional)</label><input class="input" id="tnote" placeholder="Optional"><button class="btn primary full" style="margin-top:12px" onclick="addTesting()">Add Testing</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)
 }
-function home(){
-  const s=saleSummary(), c=collectionTotals(), totalCollected=Object.values(c).reduce((a,b)=>a+b,0);
-  const variance=totalCollected-s.total;
-  const op=S.machine?currentOpening():blankMeters();
-  const h=latestHandover();
-  document.getElementById('screen').innerHTML=`
-    <div class="card hero">
-      <div class="row between"><div><div class="muted small">Good day</div><h2>${S.staff.name} 👋</h2></div><b>${S.machine?'ACTIVE':'READY'}</b></div>
-      <div class="row between" style="margin-top:12px">
-        <div><div class="muted small">My Machine</div><b style="font-size:24px">${S.machine||'Not selected'}</b></div>
-        <div style="text-align:right"><div class="muted small">Shift</div><b>${S.shift.type}</b></div>
-      </div>
-      <button class="btn ${S.machine?'ghost':'primary'} full" style="margin-top:12px" onclick="machines()">${S.machine?'Change Machine':'Choose Machine'}</button>
-    </div>
-
-    <div class="section">TODAY'S SALES</div>
-    <div class="grid3">
-      <div class="stat"><div class="small">⛽ PETROL SOLD</div><div class="v">${s.pL.toFixed(2)} L</div><div class="s">${money(s.pA)}</div></div>
-      <div class="stat"><div class="small">🛢️ DIESEL SOLD</div><div class="v">${s.dL.toFixed(2)} L</div><div class="s">${money(s.dA)}</div></div>
-      <div class="stat"><div class="small">₹ TOTAL SALE</div><div class="v" style="font-size:16px">${money(s.total)}</div><div class="s">After testing adjustment</div></div>
-    </div>
-
-    <div class="card" style="margin-top:12px">
-      <div class="row between"><div class="section" style="margin:0">COLLECTION SUMMARY</div><button class="btn ghost" onclick="go('tx')">Details</button></div>
-      <div class="list" style="margin-top:10px">
-        ${[['Cash','💵'],['UPI','📱'],['Card','💳'],['Bank Transfer','🏦'],['Credit','👤']].map(x=>`<div class="row between"><span>${x[1]} ${x[0]}</span><b>${money(c[x[0]])}</b></div>`).join('')}
-      </div>
-      <hr style="border:0;border-top:1px solid #e5e7eb">
-      <div class="row between"><b>Total Collected</b><b>${money(totalCollected)}</b></div>
-      <div style="margin-top:9px" class="${variance===0?'ok':variance<0?'bad':'ok'}">
-        ${variance===0?'✅ MATCHED':variance<0?'🔴 SHORTAGE':'🟢 EXCESS'}
-        <b style="float:right">${money(Math.abs(variance))}</b>
-      </div>
-    </div>
-
-    <div class="section">QUICK ACTIONS</div>
-    <div class="grid2">
-      <button class="action" onclick="startHandover()"><div class="ico">🔄</div><b>Machine Handover</b><small>Closing + optional testing</small></button>
-      <button class="action" onclick="collection('Cash')"><div class="ico">💵</div><b>Cash Entry</b><small>Amount only</small></button>
-      <button class="action" onclick="collection('UPI')"><div class="ico">📱</div><b>UPI / Digital</b><small>Amount + reference</small></button>
-      <button class="action" onclick="credit()"><div class="ico">👤</div><b>Credit Entry</b><small>Customer + fuel detail</small></button>
-    </div>
-
-    <div class="card" style="margin-top:12px">
-      <div class="section">CURRENT METER STATE</div>
-      ${S.machine?`<div class="row between"><span>Opening</span><b>000000 (initial reset)</b></div>
-      <div class="row between" style="margin-top:8px"><span>Latest Handover</span><b>${h&&h.machine===S.machine?'Saved & Locked':'Not entered'}</b></div>
-      <div class="meta" style="margin-top:8px">Rates: Petrol ${money(PRICE.Petrol)}/L • Diesel ${money(PRICE.Diesel)}/L</div>
-      <div class="meta" style="margin-top:7px">Testing is deducted from sale/accounting, never from the meter reading.</div>`
-      :`<div class="muted">Choose a machine to begin.</div>`}
-    </div>`;
+function addTesting(){
+ const n=qs('#tn').value,q=Number(qs('#tq').value);if(!Number.isFinite(q)||q<=0){toast('Enter a valid testing quantity');return}
+ const key=state.machine+'-'+state.fuel+'-'+n;(state.tests[key] ||= []).push({qty:q,note:qs('#tnote').value||''});closeModal();renderNozzles();toast('Testing added to '+n)
 }
-
-function open(title,body){
-  const modal=document.getElementById('modal');
-  modal.innerHTML=`<div class="sheetbg" onclick="if(event.target===this)closeModal()">
-    <div class="sheet" role="dialog" aria-modal="true">
-      <button class="close" onclick="closeModal()" aria-label="Close">×</button>
-      <h2>${title}</h2>${body}
-    </div></div>`;
+function editTesting(n){
+ const key=state.machine+'-'+state.fuel+'-'+n,tests=state.tests[key]||[],t=tests.reduce((a,z)=>a+z.qty,0);
+ openModal(`<h3>Edit Testing • ${n}</h3><p>Set quantity to 0 or blank to reset testing. No separate remove button is used.</p><label class="label">Testing Quantity (L)</label><input class="input" id="etq" type="number" min="0" step=".01" value="${t}"><label class="label">Note</label><input class="input" id="etn" value="${tests[0]?.note||''}"><button class="btn primary full" style="margin-top:12px" onclick="saveTestingEdit('${n}')">Save Testing</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)
 }
-function closeModal(){document.getElementById('modal').innerHTML='';}
-function machines(){
-  open('Choose Machine',`
-    <div class="warn">Prototype reset: all 6 machines are selectable. Manager assignment/locking will be connected later.</div>
-    <div class="machinegrid" style="margin-top:10px">
-      ${MACHINES.map(m=>`<button class="machine ${S.machine===m?'sel':''}" onclick="pickMachine('${m}')">
-        <b>${m}</b><div class="meta">6 nozzles • Opening 000000</div>
-        <div>${['P1','P2','P3'].map(n=>`<span class="noz">${n} Petrol</span>`).join('')}
-        ${['D1','D2','D3'].map(n=>`<span class="noz">${n} Diesel</span>`).join('')}</div>
-      </button>`).join('')}
-    </div>
-    <button class="btn ghost full" style="margin-top:12px" onclick="closeModal()">Back</button>`);
+function saveTestingEdit(n){
+ const q=Number(qs('#etq').value),key=state.machine+'-'+state.fuel+'-'+n;
+ if(!qs('#etq').value.trim()||q===0){delete state.tests[key]} else if(Number.isFinite(q)&&q>0){state.tests[key]=[{qty:q,note:qs('#etn').value||''}]} else {toast('Enter a valid quantity');return}
+ closeModal();renderNozzles();toast('Testing updated')
 }
-function pickMachine(m){S.machine=m;save();closeModal();toast(m+' selected');home()}
-
-function collection(mode){
-  if(!S.machine)return toast('Choose a machine first');
-  open(mode==='Bank Transfer'?'Bank Transfer Entry':mode+' Collection',`
-    <div class="ok">Meter decides the total fuel sale. This screen records only the actual amount collected by ${mode}.</div>
-    <label>Amount (₹)</label><input id="amt" class="input" type="number" min="0" step="0.01">
-    ${mode!=='Cash'?'<label>Reference / UTR (optional)</label><input id="ref" class="input">':''}
-    <label>Note (optional)</label><input id="note" class="input">
-    <button class="btn primary full" style="margin-top:15px" onclick="saveCollection('${mode}')">Save ${mode}</button>
-    <button class="btn ghost full" style="margin-top:8px" onclick="closeModal()">Back</button>`);
+function openTransactions(){
+ show('transactions');renderTransactions()
 }
-function saveCollection(mode){
-  const a=+document.getElementById('amt').value;
-  if(a<0 || !Number.isFinite(a))return toast('Enter a valid amount');
-  S.collections.push({id:Date.now(),time:now(),machine:S.machine,mode,amount:a,ref:document.getElementById('ref')?.value||'',note:document.getElementById('note').value});
-  save();closeModal();toast(mode+' collection saved');home();
+function renderTransactions(){
+ const e=qs('#transactionList');if(!state.transactions.length){e.innerHTML='<div class="card empty">No transactions yet.<br>Add UPI, cash, card, bank transfer or credit entries.</div>';return}
+ e.innerHTML=state.transactions.map((t,i)=>`<div class="card"><div class="row"><div><b>${t.type}</b><div class="meta">${t.note||'No note'}</div></div><b>${money(t.amount)}</b></div></div>`).join('')
 }
-
-function credit(){
-  if(!S.machine)return toast('Choose a machine first');
-  open('Credit Entry',`
-    <div class="ok">👤 Only Manager-approved customers are available. Credit remains customer-wise and fuel-wise.</div>
-    <label>Customer</label><select id="cust" class="select">
-      <option>ABC Transport — Available ₹32,000</option>
-      <option>XYZ Contractors — Available ₹18,500</option>
-      <option>Local Fleet — Available ₹12,000</option>
-    </select>
-    <label>Fuel Type</label><select id="cfuel" class="select"><option>Diesel</option><option>Petrol</option></select>
-    <label>Quantity (L)</label><input id="cqty" class="input" type="number" min="0" step="0.01">
-    <label>Rate (auto)</label><input id="crate" class="input" value="${PRICE.Diesel}" readonly>
-    <div class="card" style="margin-top:10px"><div class="row between"><span>Credit Sale</span><b id="creditTotal">₹0.00</b></div></div>
-    <button class="btn primary full" style="margin-top:8px" onclick="saveCredit()">Save Credit Sale</button>
-    <button class="btn ghost full" style="margin-top:8px" onclick="closeModal()">Back</button>`);
-  document.getElementById('cfuel').onchange=()=>{document.getElementById('crate').value=PRICE[document.getElementById('cfuel').value]; updateCreditTotal()};
-  document.getElementById('cqty').oninput=updateCreditTotal;
+function openTransactionForm(){
+ openModal(`<h3>Add Transaction</h3><label class="label">Payment Type</label><select class="select" id="tt"><option>Cash</option><option>UPI / Digital</option><option>Card</option><option>Bank Transfer</option><option>Credit</option></select><label class="label">Amount</label><input class="input" id="ta" type="number" min="0" placeholder="₹"><label class="label">Reference / Note</label><input class="input" id="tnote2" placeholder="Optional"><button class="btn primary full" style="margin-top:12px" onclick="addTransaction()">Save Transaction</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)
 }
-function updateCreditTotal(){
-  const fuel=document.getElementById('cfuel').value,q=+document.getElementById('cqty').value||0;
-  document.getElementById('creditTotal').textContent=money(q*PRICE[fuel]);
+function addTransaction(){const amount=Number(qs('#ta').value);if(!Number.isFinite(amount)||amount<0){toast('Enter a valid amount');return}state.transactions.push({type:qs('#tt').value,amount,note:qs('#tnote2').value});closeModal();renderTransactions();updateDashboard();toast('Transaction saved')}
+function openExpenses(){show('expenses');renderExpenses()}
+function renderExpenses(){const e=qs('#expenseList');if(!state.expenses.length){e.innerHTML='<div class="card empty">No expenses recorded today.</div>';return}e.innerHTML=state.expenses.map(x=>`<div class="card"><div class="row"><div><b>${x.category}</b><div class="meta">${x.note||'No note'}</div></div><b>${money(x.amount)}</b></div></div>`).join('')}
+function openExpenseForm(){openModal(`<h3>Add Expense</h3><label class="label">Category</label><select class="select" id="ec"><option>Cleaning</option><option>Station</option><option>Repairing</option><option>Maintenance</option><option>Other</option></select><label class="label">Amount</label><input class="input" id="ea" type="number" min="0" placeholder="₹"><label class="label">Note</label><input class="input" id="en" placeholder="Optional"><button class="btn primary full" style="margin-top:12px" onclick="addExpense()">Save Expense</button><button class="btn ghost full" style="margin-top:7px" onclick="closeModal()">Cancel</button>`)}
+function addExpense(){const a=Number(qs('#ea').value);if(!Number.isFinite(a)||a<=0){toast('Enter a valid amount');return}state.expenses.push({category:qs('#ec').value,amount:a,note:qs('#en').value});closeModal();renderExpenses();updateDashboard();toast('Expense saved')}
+function openShiftClosing(){show('closing');updateClosing()}
+function updateClosing(){
+ const {p,d,v}=salesSummary();qs('#closePetrol').textContent=p.toFixed(2)+' L';qs('#closeDiesel').textContent=d.toFixed(2)+' L';qs('#closeValue').textContent=money(v);
+ ['cash','upi','card','credit','bank'].forEach(id=>qs('#'+id).oninput=calcPayments);calcPayments()
 }
-function saveCredit(){
-  const fuel=document.getElementById('cfuel').value,q=+document.getElementById('cqty').value||0;
-  if(q<=0)return toast('Enter a valid quantity');
-  const amount=q*PRICE[fuel];
-  S.credits.push({id:Date.now(),time:now(),machine:S.machine,customer:document.getElementById('cust').value,fuel,qty:q,rate:PRICE[fuel],amount});
-  save();closeModal();toast('Credit sale saved');home();
+function calcPayments(){const sum=['cash','upi','card','credit','bank'].reduce((a,id)=>a+(Number(qs('#'+id).value)||0),0);const v=salesSummary().v;qs('#paymentTotal').textContent=money(sum);qs('#difference').textContent=money(sum-v)}
+function submitClosing(){const diff=salesSummary().v-['cash','upi','card','credit','bank'].reduce((a,id)=>a+(Number(qs('#'+id).value)||0),0);if(Math.abs(diff)>0.5){toast('Reconciliation difference must be reviewed');return}state.closingStatus='Pending Manager Approval';closeModal();openModal(`<h3>Submitted</h3><p>Your shift closing is now pending Manager Approval. Meter handover remains recorded separately.</p><div class="status pending" style="display:inline-block">Pending Manager Approval</div><button class="btn primary full" style="margin-top:14px" onclick="closeModal();show('home')">Done</button>`)}
+function salesSummary(){let p=0,d=0;for(const [mid,m] of Object.entries(state.machines))for(const f of ['Petrol','Diesel'])for(const n of state.nozzles[f]){const x=m[f][n],key=mid+'-'+f+'-'+n;const t=(state.tests[key]||[]).reduce((a,z)=>a+z.qty,0);if(x.c!==null){const net=Math.max(0,x.c-x.o-t);if(f==='Petrol')p+=net;else d+=net}}return {p,d,v:p*state.rates.Petrol+d*state.rates.Diesel}}
+function updateDashboard(){
+ const s=salesSummary();qs('#kPetrol').textContent=s.p.toFixed(2)+' L';qs('#kDiesel').textContent=s.d.toFixed(2)+' L';qs('#kValue').textContent=money(s.v);qs('#kRecon').textContent=state.closingStatus==='Pending Manager Approval'?'Pending':'Ready';
+ const count=Object.keys(state.machines).filter(machineDone).length;qs('#summaryMachines').textContent=count+' / 6';qs('#summaryProgress').style.width=(count/6*100)+'%';qs('#sCredit').textContent=state.transactions.filter(x=>x.type==='Credit').length;qs('#sExpenses').textContent=money(state.expenses.reduce((a,x)=>a+x.amount,0));qs('#sShortage').textContent='—'
 }
-
-
-let handoverDraft = null;
-
-function startHandover(){
-  if(!S.machine){
-    handoverDraft=null;
-    return open('Machine Handover',`
-      <div class="warn">First select the machine that is being handed over.</div>
-      <button class="btn primary full" style="margin-top:12px" onclick="machinesForHandover()">Select Machine</button>
-      <button class="btn ghost full" style="margin-top:8px" onclick="closeModal()">Back</button>`);
-  }
-  handoverDraft={
-    machine:S.machine,
-    fuel:null,
-    readings:{...currentOpening()},
-    closing:{},
-    tests:{},
-  };
-  NOZZLES.forEach(n=>handoverDraft.tests[n]=[]);
-  handoverFuelSelect();
-}
-
-function machinesForHandover(){
-  open('Select Machine',`
-    <div class="ok">Choose the machine being handed over. All 6 machines are available in this standalone prototype.</div>
-    <div class="machinegrid" style="margin-top:10px">
-      ${MACHINES.map(m=>`<button class="machine" onclick="selectHandoverMachine('${m}')">
-        <b>${m}</b><div class="meta">6 nozzles</div>
-        <div>${['P1','P2','P3'].map(n=>`<span class="noz">${n} Petrol</span>`).join('')}
-        ${['D1','D2','D3'].map(n=>`<span class="noz">${n} Diesel</span>`).join('')}</div>
-      </button>`).join('')}
-    </div>
-    <button class="btn ghost full" style="margin-top:12px" onclick="closeModal()">Back</button>`);
-}
-
-function selectHandoverMachine(m){
-  S.machine=m; save();
-  handoverDraft={
-    machine:m,
-    fuel:null,
-    readings:{...(S.openings[m]||blankMeters())},
-    closing:{},
-    tests:{},
-  };
-  NOZZLES.forEach(n=>handoverDraft.tests[n]=[]);
-  handoverFuelSelect();
-}
-
-function handoverFuelSelect(){
-  const d=handoverDraft;
-  open('Machine Handover — '+d.machine,`
-    <div class="ok"><b>Opening readings are automatic.</b> They come from the last locked handover. First-time opening is 000000.00.</div>
-    <div class="section" style="margin-top:15px">SELECT FUEL TYPE</div>
-    <div class="grid2">
-      <button class="fuelbtn petrol" onclick="selectHandoverFuel('Petrol')">⛽<br>PETROL</button>
-      <button class="fuelbtn diesel" onclick="selectHandoverFuel('Diesel')">🛢️<br>DIESEL</button>
-    </div>
-    <div class="card" style="margin-top:12px">
-      <div class="row between"><span>Machine</span><b>${d.machine}</b></div>
-      <div class="row between" style="margin-top:7px"><span>Petrol nozzles</span><b>P1 • P2 • P3</b></div>
-      <div class="row between" style="margin-top:7px"><span>Diesel nozzles</span><b>D1 • D2 • D3</b></div>
-    </div>
-    <button class="btn ghost full" style="margin-top:8px" onclick="closeModal()">Back</button>`);
-}
-
-function selectHandoverFuel(fuel){
-  handoverDraft.fuel=fuel;
-  renderHandoverFuel();
-}
-
-function handoverNozzles(fuel){
-  return fuel==='Petrol'?['P1 Petrol','P2 Petrol','P3 Petrol']:['D1 Diesel','D2 Diesel','D3 Diesel'];
-}
-
-function handoverFuelTotals(fuel){
-  const ns=handoverNozzles(fuel);
-  let meter=0,test=0,net=0;
-  ns.forEach(n=>{
-    const o=+handoverDraft.readings[n]||0;
-    const c=handoverDraft.closing[n];
-    const m=Number.isFinite(c)?Math.max(0,c-o):0;
-    const t=handoverDraft.tests[n].reduce((a,x)=>a+(+x.qty||0),0);
-    meter+=m; test+=t; net+=Math.max(0,m-t);
-  });
-  return {meter,test,net};
-}
-
-
-function renderHandoverFuel(){
-  const d=handoverDraft, fuel=d.fuel, ns=handoverNozzles(fuel);
-  const total=handoverFuelTotals(fuel);
-  const testingExists=ns.some(n=>(d.tests[n]||[]).length);
-  open(`Machine ${d.machine} — ${fuel.toUpperCase()}`,`
-    <div class="pump-mobile">
-      <div class="pump-head">
-        <div class="row between">
-          <div>
-            <b style="font-size:17px">${fuel==='Petrol'?'⛽':'🛢️'} ${fuel} Nozzles</b>
-            <div class="meta">Opening automatic • closing entered by staff</div>
-          </div>
-          <button class="btn primary" style="padding:8px 10px" onclick="addHandoverTestingFromHeader()">＋ Testing</button>
-        </div>
-      </div>
-
-      <div class="pump-grid" style="margin-top:8px">
-        ${ns.map((n,i)=>{
-          const o=+d.readings[n]||0, c=d.closing[n];
-          const meter=Number.isFinite(c)?Math.max(0,c-o):null;
-          const tests=d.tests[n]||[];
-          const t=tests.reduce((x,z)=>x+(+z.qty||0),0);
-          const net=meter===null?null:Math.max(0,meter-t);
-          return `<div class="pump-row ${testingExists?'with-test':''}">
-            <div class="pump-label">${n.split(' ')[0]}</div>
-            <div class="pump-field"><div class="cap">Opening</div><div class="val">${o.toFixed(0)}</div></div>
-            <div class="pump-field">
-              <div class="cap">Closing</div>
-              <input class="pump-input" id="compact_close_${i}" type="number" min="${o}" step="0.01" value="${Number.isFinite(c)?c:''}" placeholder="Closing">
-            </div>
-            ${testingExists?`<div class="pump-field"><div class="cap">Testing</div><div class="val">${t?('− '+t.toFixed(2)):'—'}</div></div>`:''}
-          </div>`;
-        }).join('')}
-      </div>
-
-      ${testingExists?`<div class="pump-testing-strip show"><span>Testing is deducted from accounting sale only.</span><b>${total.test.toFixed(2)} L</b></div>`:''}
-
-      <div class="pump-total">
-        <span><b>${fuel} Sold</b></span>
-        <b style="font-size:17px">${total.net.toFixed(2)} L</b>
-      </div>
-
-      <div class="pump-actions">
-        <button class="btn ghost" onclick="enableCompactEdit()">✏️ Edit</button>
-        <button class="btn primary" onclick="saveCompactFuel()">💾 Save</button>
-      </div>
-      <button class="btn ghost full" style="flex:0 0 auto;margin-top:6px" onclick="handoverFuelSelect()">Back</button>
-    </div>`);
-}
-
-function enableCompactEdit(){
-  toast('Edit mode active — change closing readings, then Save');
-}
-
-function saveCompactFuel(){
-  const d=handoverDraft, fuel=d.fuel, ns=handoverNozzles(fuel);
-  for(let i=0;i<ns.length;i++){
-    const n=ns[i], input=document.getElementById('compact_close_'+i);
-    const v=+input.value, o=+d.readings[n]||0;
-    if(!Number.isFinite(v)||v<o){toast('Enter a valid closing for '+n.split(' ')[0]);return}
-    d.closing[n]=v;
-  }
-  toast(fuel+' readings saved');
-  renderHandoverSavedFuel();
-}
-
-function renderHandoverSavedFuel(){
-  const d=handoverDraft, fuel=d.fuel, total=handoverFuelTotals(fuel);
-  open(`${fuel} — Saved`,`
-    <div class="pump-summary-screen">
-      <div class="ok"><b>Saved successfully.</b> You can still edit before final lock.</div>
-      <div class="finalfuel ${fuel==='Petrol'?'petrol':'diesel'}" style="margin-top:12px">
-        <div class="small">${fuel.toUpperCase()} SOLD</div>
-        <div class="finalnum">${total.net.toFixed(2)} L</div>
-      </div>
-      <div class="card" style="margin-top:10px">
-        ${handoverNozzles(fuel).map(n=>{
-          const o=+d.readings[n]||0,c=+d.closing[n]||0,m=Math.max(0,c-o),t=(d.tests[n]||[]).reduce((a,x)=>a+(+x.qty||0),0);
-          return `<div class="row between" style="margin-top:5px"><span>${n.split(' ')[0]}</span><b>${Math.max(0,m-t).toFixed(2)} L</b></div>`;
-        }).join('')}
-      </div>
-      <div style="flex:1"></div>
-      <div class="pump-actions">
-        <button class="btn ghost" onclick="renderHandoverFuel()">✏️ Edit</button>
-        <button class="btn primary" onclick="handoverSummary()">👁 View Summary</button>
-      </div>
-      <button class="btn ghost full" style="margin-top:7px" onclick="handoverFuelSelect()">Back</button>
-    </div>`);
-}
-
-function addHandoverTestingFromHeader(){
-  open(`Add Testing — ${handoverDraft.fuel}`,`
-    <div class="ok"><b>Select one nozzle.</b> Testing attaches to that exact nozzle.</div>
-    <label>Select Nozzle</label>
-    <select id="header_test_nozzle" class="input">
-      ${handoverNozzles(handoverDraft.fuel).map(n=>`<option value="${n}">${n.split(' ')[0]}</option>`).join('')}
-    </select>
-    <label>Testing Quantity (L)</label>
-    <input id="htq" class="input" type="number" min="0.01" step="0.01" placeholder="Enter quantity">
-    <label>Note (optional)</label>
-    <input id="htn" class="input">
-    <button class="btn primary full" style="margin-top:12px" onclick="saveHeaderTesting()">Add Testing</button>
-    <button class="btn ghost full" style="margin-top:8px" onclick="renderHandoverFuel()">Back</button>`);
-}
-
-function saveHeaderTesting(){
-  const noz=document.getElementById('header_test_nozzle').value;
-  const q=+document.getElementById('htq').value;
-  if(!Number.isFinite(q)||q<=0)return toast('Enter a valid testing quantity');
-  handoverDraft.tests[noz].push({qty:q,note:document.getElementById('htn').value||''});
-  toast('Testing added to '+noz.split(' ')[0]);
-  renderHandoverFuel();
-}
-
-function saveHandoverClosing(noz,index,fuel){
-  const input=document.getElementById('hc_'+index);
-  const v=+input.value;
-  const o=+handoverDraft.readings[noz]||0;
-  if(!Number.isFinite(v)||v<o)return toast('Closing must be entered and cannot be below opening');
-  handoverDraft.closing[noz]=v;
-  toast(noz+' closing saved');
-  renderHandoverFuel();
-}
-
-function addHandoverTesting(noz,fuel){
-  open(`Add Testing — ${noz.split(' ')[0]} ${fuel}`,`
-    <div class="ok"><b>${noz.split(' ')[0]}</b> is selected automatically. Testing is linked to this exact machine + nozzle.</div>
-    <label>Testing Quantity (L)</label>
-    <input id="htq" class="input" type="number" min="0.01" step="0.01" placeholder="Enter quantity">
-    <label>Note (optional)</label>
-    <input id="htn" class="input">
-    <button class="btn primary full" style="margin-top:14px" onclick="saveHandoverTesting('${noz}','${fuel}')">Add Testing</button>
-    <button class="btn ghost full" style="margin-top:8px" onclick="renderHandoverFuel()">Back</button>`);
-}
-
-function saveHandoverTesting(noz,fuel){
-  const q=+document.getElementById('htq').value;
-  if(!Number.isFinite(q)||q<=0)return toast('Enter a valid testing quantity');
-  handoverDraft.tests[noz].push({qty:q,note:document.getElementById('htn').value||''});
-  toast('Testing added to '+noz.split(' ')[0]);
-  renderHandoverFuel();
-}
-
-function removeHandoverTesting(noz,index){
-  handoverDraft.tests[noz].splice(index,1);
-  renderHandoverFuel();
-}
-
-function handoverSummary(){
-  const d=handoverDraft;
-  const p=handoverFuelTotals('Petrol'), de=handoverFuelTotals('Diesel');
-  const missing=NOZZLES.filter(n=>!Number.isFinite(d.closing[n]));
-  if(missing.length)return toast('Enter closing for: '+missing.map(n=>n.split(' ')[0]).join(', '));
-
-  open('MACHINE HANDOVER — FINAL SUMMARY',`
-    <div class="ok"><b>Final accounting quantity only.</b> Testing has already been deducted separately inside Petrol and Diesel. No ₹ value is shown here.</div>
-
-    <div class="finalfuel petrol" style="margin-top:12px">
-      <div class="small">⛽ PETROL SOLD</div>
-      <div class="finalnum">${p.net.toFixed(2)} L</div>
-    </div>
-
-    <div class="finalfuel diesel" style="margin-top:10px">
-      <div class="small">🛢️ DIESEL SOLD</div>
-      <div class="finalnum">${de.net.toFixed(2)} L</div>
-    </div>
-
-    <div class="card" style="margin-top:12px">
-      <div class="section" style="margin:0 0 8px">Fuel-wise review</div>
-      <div class="row between"><span>Petrol meter sale</span><b>${p.meter.toFixed(2)} L</b></div>
-      <div class="row between" style="margin-top:5px"><span>Petrol testing deducted</span><b>− ${p.test.toFixed(2)} L</b></div>
-      <div class="row between" style="margin-top:5px"><span><b>Petrol sold</b></span><b>${p.net.toFixed(2)} L</b></div>
-      <hr style="border:0;border-top:1px solid #e5e7eb;margin:10px 0">
-      <div class="row between"><span>Diesel meter sale</span><b>${de.meter.toFixed(2)} L</b></div>
-      <div class="row between" style="margin-top:5px"><span>Diesel testing deducted</span><b>− ${de.test.toFixed(2)} L</b></div>
-      <div class="row between" style="margin-top:5px"><span><b>Diesel sold</b></span><b>${de.net.toFixed(2)} L</b></div>
-    </div>
-
-    <div class="warn">After locking, every closing reading becomes the next opening automatically. The meter itself is never reduced by testing.</div>
-
-    <button class="btn primary full" style="margin-top:12px" onclick="confirmHandover()">🔒 Confirm & Lock Machine Handover</button>
-    <button class="btn ghost full" style="margin-top:8px" onclick="selectHandoverFuel('Petrol')">Back to Petrol</button>`);
-}
-
-function confirmHandover(){
-  const d=handoverDraft;
-  const missing=NOZZLES.filter(n=>!Number.isFinite(d.closing[n]));
-  if(missing.length)return toast('Closing missing for: '+missing.map(n=>n.split(' ')[0]).join(', '));
-
-  const op={...d.readings}, r={...d.closing};
-  const totals=meterTotals(r,op);
-  const handId=Date.now();
-  const testsToSave=[];
-  NOZZLES.forEach(n=>{
-    (d.tests[n]||[]).forEach(x=>testsToSave.push({
-      id:Date.now()+testsToSave.length,
-      handoverId:handId,
-      time:now(),
-      machine:d.machine,
-      nozzle:n,
-      qty:+x.qty||0,
-      note:x.note||''
-    }));
-  });
-
-  const hand={
-    id:handId,
-    time:now(),
-    machine:d.machine,
-    opening:op,
-    readings:r,
-    totals,
-    locked:true,
-    testingByNozzle:Object.fromEntries(NOZZLES.map(n=>[n,(d.tests[n]||[]).map(x=>({...x}))]))
-  };
-
-  S.handovers.push(hand);
-  S.tests.push(...testsToSave);
-  S.openings[d.machine]={...r};
-  S.closing=null;
-  S.machine=d.machine;
-  handoverDraft=null;
-  save();
-  closeModal();
-  toast('Machine handover locked • next opening created');
-  home();
-}
-
-// Backward-compatible aliases for any existing buttons.
-function meter(){startHandover()}
-function testing(){startHandover()}
-
-function expense(){
-  open('Add Expense',`
-    <label>Category</label><select id="cat" class="select"><option>Tea / Refreshment</option><option>Cleaning</option><option>Stationery</option><option>Repair</option><option>Maintenance</option><option>Other</option></select>
-    <label>Amount (₹)</label><input id="eamt" class="input" type="number" min="0" step="0.01">
-    <label>Payment Mode</label><select id="emode" class="select"><option>Cash</option><option>UPI</option><option>Card</option><option>Bank Transfer</option></select>
-    <label>Vendor / Person</label><input id="person" class="input">
-    <label>Description</label><input id="desc" class="input">
-    <button class="btn primary full" style="margin-top:15px" onclick="saveExpense()">Save Expense</button>
-    <button class="btn ghost full" style="margin-top:8px" onclick="closeModal()">Back</button>`);
-}
-function saveExpense(){
-  const a=+document.getElementById('eamt').value;
-  if(a<=0)return toast('Enter a valid amount');
-  S.expenses.push({id:Date.now(),time:now(),machine:S.machine,category:document.getElementById('cat').value,amount:a,mode:document.getElementById('emode').value,person:document.getElementById('person').value,description:document.getElementById('desc').value,status:'Submitted'});
-  save();closeModal();toast('Expense recorded');more();
-}
-
-function testingAudit(){
-  const rows=S.tests.slice().reverse();
-  open('Testing Audit',`
-    <div class="ok"><b>Audit rule:</b> testing is visible here for review. The physical meter reading is never changed by testing.</div>
-    <div class="list" style="margin-top:10px">
-      ${rows.length?rows.map(x=>`<div class="item">
-        <div class="row between"><b>${x.machine} • ${x.nozzle}</b><b>${(+x.qty||0).toFixed(2)} L</b></div>
-        <div class="meta">${x.time} • ${fuelOf(x.nozzle)} • Accounting adjustment ${money((+x.qty||0)*PRICE[fuelOf(x.nozzle)])}</div>
-        ${x.note?`<div class="meta">${x.note}</div>`:''}
-      </div>`).join(''):'<div class="card muted">No testing recorded.</div>'}
-    </div>
-    <button class="btn ghost full" style="margin-top:12px" onclick="closeModal()">Back</button>`);
-}
-function closing(){
-  const s=saleSummary(),c=collectionTotals(),totalCollected=Object.values(c).reduce((a,b)=>a+b,0);
-  const exp=S.expenses.reduce((a,x)=>a+(+x.amount||0),0), variance=totalCollected-s.total;
-  open('Shift Closing',`
-    <div class="warn">Financial closing goes to Manager approval. Meter Handover is already locked separately, so the next staff does not wait for this financial approval.</div>
-    <div class="card" style="margin-top:10px">
-      <div class="row between"><span>System Fuel Sale</span><b>${money(s.total)}</b></div>
-      <div class="row between"><span>Petrol</span><b>${s.pL.toFixed(2)} L • ${money(s.pA)}</b></div>
-      <div class="row between"><span>Diesel</span><b>${s.dL.toFixed(2)} L • ${money(s.dA)}</b></div>
-      <div class="row between"><span>Expenses</span><b>${money(exp)}</b></div>
-      <div class="row between"><span>Current variance</span><b>${money(Math.abs(variance))}</b></div>
-    </div>
-    ${['Cash','UPI','Card','Bank Transfer','Credit'].map(m=>`<label>${m} — Actual Amount</label><input id="cl_${m.replace(/ /g,'_')}" class="input" type="number" min="0" step="0.01" value="${c[m].toFixed(2)}">`).join('')}
-    <label>Closing Note (optional)</label><input id="clnote" class="input">
-    <button class="btn primary full" style="margin-top:15px" onclick="submitClose()">Submit Shift Closing for Manager Approval</button>
-    <button class="btn ghost full" style="margin-top:8px" onclick="closeModal()">Back</button>`);
-}
-function submitClose(){
-  const s=saleSummary();
-  let actual=0; const modes={};
-  ['Cash','UPI','Card','Bank Transfer','Credit'].forEach(m=>{const v=+document.getElementById('cl_'+m.replace(/ /g,'_')).value||0;modes[m]=v;actual+=v});
-  S.closing={time:now(),machine:S.machine,expected:s.total,actual,diff:actual-s.total,modes,note:document.getElementById('clnote').value,status:'Pending Manager Approval'};
-  save();closeModal();toast('Shift closing submitted to Manager');home();
-}
-
-function more(){
-  document.getElementById('screen').innerHTML=`
-    <h2 style="margin-bottom:12px">More</h2>
-    <div class="list">
-      <button class="item" onclick="expense()">🧾 <b>Expenses</b><div class="meta">Record daily expenses</div></button>
-      <button class="item" onclick="meter()">🔄 <b>Machine Handover</b><div class="meta">Machine → Fuel → Nozzle Closing + Optional Testing</div></button>
-      <button class="item" onclick="closing()">🔐 <b>Shift Closing</b><div class="meta">Financial closing → Manager approval</div></button>
-      <button class="item" onclick="notify()">🔔 <b>Notifications</b></button>
-      <button class="item" onclick="qaChecklist()">🧪 <b>Prototype QA Checklist</b><div class="meta">Run the main workflow checks</div></button>
-      <button class="item" onclick="resetDemo()">♻️ <b>Reset Prototype</b><div class="meta">Returns all readings/data to Day-1</div></button>
-    </div>`;
-}
-
-function tx(){
-  const arr=[
-    ...S.collections.map(x=>({type:'Collection',...x})),
-    ...S.credits.map(x=>({type:'Credit',...x})),
-    ...S.expenses.map(x=>({type:'Expense',...x})),
-    ...S.tests.map(x=>({type:'Testing',...x})),
-    ...S.handovers.map(x=>({type:'Meter Handover',...x}))
-  ];
-  document.getElementById('screen').innerHTML=`
-    <div class="row between"><h2>My Transactions</h2><button class="btn ghost" onclick="resetDemo()">Reset</button></div>
-    <div class="tabs">
-      <button class="tab active" onclick="filterTx('All',this)">All</button>
-      <button class="tab" onclick="filterTx('Collection',this)">Collections</button>
-      <button class="tab" onclick="filterTx('Credit',this)">Credit</button>
-      <button class="tab" onclick="filterTx('Expense',this)">Expenses</button>
-      <button class="tab" onclick="filterTx('Meter Handover',this)">Meter</button>
-      <button class="tab" onclick="filterTx('Testing',this)">Testing</button>
-    </div>
-    <div id="txlist" class="list">${txhtml(arr)}</div>`;
-}
-function txhtml(a){
-  if(!a.length)return '<div class="card muted">No transactions yet.</div>';
-  return a.slice().reverse().map(x=>`<button class="item" onclick='detail(${JSON.stringify(x).replace(/'/g,"&#39;")})'>
-    <div class="row between"><b>${x.type}${x.mode?' • '+x.mode:''}</b><b>${x.amount!==undefined?money(x.amount):''}</b></div>
-    <div class="meta">${x.time||''} ${x.machine?'• '+x.machine:''} ${x.fuel?'• '+x.fuel+' • '+x.qty+' L':''} ${x.nozzle?'• '+x.nozzle:''} ${x.customer?'• '+x.customer:''}</div>
-  </button>`).join('');
-}
-function filterTx(t,b){
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');
-  const a=[
-    ...S.collections.map(x=>({type:'Collection',...x})),
-    ...S.credits.map(x=>({type:'Credit',...x})),
-    ...S.expenses.map(x=>({type:'Expense',...x})),
-    ...S.tests.map(x=>({type:'Testing',...x})),
-    ...S.handovers.map(x=>({type:'Meter Handover',...x}))
-  ];
-  document.getElementById('txlist').innerHTML=txhtml(t==='All'?a:a.filter(x=>x.type===t));
-}
-function detail(x){
-  let extra='';
-  if(x.type==='Meter Handover')extra=`<div class="card"><b>Opening → Closing</b>${NOZZLES.map(n=>`<div class="row between" style="margin-top:7px"><span>${n}</span><b>${Number(x.opening[n]).toFixed(2)} → ${Number(x.readings[n]).toFixed(2)}</b></div>`).join('')}</div>
-    <div class="card"><b>Testing by Nozzle</b>${NOZZLES.map(n=>{const t=(x.testingByNozzle&&x.testingByNozzle[n])||[];const q=t.reduce((a,z)=>a+(+z.qty||0),0);return `<div class="row between" style="margin-top:7px"><span>${n}</span><b>${q.toFixed(2)} L</b></div>`}).join('')}</div>
-    <div class="ok">🔒 Locked. Correction requires Manager approval.</div>`;
-  else extra=Object.entries(x).filter(([k])=>!['id'].includes(k)).map(([k,v])=>`<div class="row between" style="margin:8px 0"><span class="muted">${k}</span><b style="text-align:right;max-width:65%">${typeof v==='object'?JSON.stringify(v):v}</b></div>`).join('');
-  open(x.type,extra+`<button class="btn ghost full" style="margin-top:12px" onclick="closeModal()">Back</button>`);
-}
-function profile(){
-  document.getElementById('screen').innerHTML=`
-    <div class="card hero"><h2>${S.staff.name}</h2><div class="muted">${S.staff.role} • ${S.staff.id}</div></div>
-    <div class="card"><div class="section">MY WORK PROFILE</div>
-      <div class="list">
-        <div class="row between"><span class="muted">Machine</span><b>${S.machine||'Not selected'}</b></div>
-        <div class="row between"><span class="muted">Shift</span><b>${S.shift.type}</b></div>
-        <div class="row between"><span class="muted">Timing</span><b>${S.shift.start} – ${S.shift.end}</b></div>
-        <div class="row between"><span class="muted">Petrol Rate</span><b>${money(PRICE.Petrol)}/L</b></div>
-        <div class="row between"><span class="muted">Diesel Rate</span><b>${money(PRICE.Diesel)}/L</b></div>
-      </div>
-    </div>
-    <div class="list">
-      <button class="item" onclick="toast('Change password demo')">🔐 <b>Change Password</b></button>
-      <button class="item" onclick="toast('Language setting demo')">🌐 <b>Language</b></button>
-      <button class="item" onclick="notify()">🔔 <b>Notification Settings</b></button>
-      <button class="item" onclick="qaChecklist()">🧪 <b>Prototype QA Checklist</b><div class="meta">Run the main workflow checks</div></button>
-    </div>`;
-}
-function qaChecklist(){
-  const checks = [
-    ['6 machines available', MACHINES.length===6],
-    ['Each machine has 6 nozzles', NOZZLES.length===6],
-    ['Opening starts at 000000', Object.values(S.openings).every(o=>NOZZLES.every(n=>o[n]===0)) || true],
-    ['Rates are ₹100 / ₹95', PRICE.Petrol===100 && PRICE.Diesel===95],
-    ['Meter handover is locked', S.handovers.every(x=>x.locked===true)],
-    ['Testing is integrated inside Machine Handover', true],
-    ['Testing never changes meter readings', true],
-    ['Credit stores customer + fuel + quantity', S.credits.every(x=>x.customer&&x.fuel&&x.qty>=0)],
-    ['Back/close controls available', true]
-  ];
-  open('Prototype QA',`
-    <div class="list">${checks.map(c=>`<div class="${c[1]?'ok':'bad'}">${c[1]?'✅':'❌'} ${c[0]}</div>`).join('')}</div>
-    <div class="meta" style="margin-top:10px">This is a functional sanity check, not a production security test.</div>
-    <button class="btn ghost full" style="margin-top:12px" onclick="closeModal()">Back</button>`);
-}
-function notify(){
-  open('Notifications',`
-    <div class="ok">No critical alerts in this reset demo.</div>
-    <div class="item" style="margin-top:8px">Meter Handover → locks immediately and creates next opening.</div>
-    <div class="item" style="margin-top:8px">Shift Closing → Manager approval required.</div>
-    <button class="btn ghost full" style="margin-top:12px" onclick="closeModal()">Back</button>`);
-}
-function resetDemo(){
-  if(confirm('Reset this prototype to Day-1? All demo entries will be deleted and openings will return to 000000.')) {
-    localStorage.removeItem(KEY); location.reload();
-  }
-}
-home();
+updateDashboard();
 </script>
+</div>
 </body>
 </html>
