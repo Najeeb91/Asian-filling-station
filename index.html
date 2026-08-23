@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b2a52">
-<title>PumpOS Staff Prototype — Machine Handover v2</title>
+<title>PumpOS Staff Prototype — Mobile Optimized v3</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#10213b;font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
 .app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:82px}
@@ -48,6 +48,37 @@ button,input,select{font:inherit}button{cursor:pointer}.icon{border:0;background
 .finalfuel.petrol{background:#f0fdf4}
 .finalfuel.diesel{background:#eff6ff}
 .finalnum{font-size:30px;font-weight:950;margin-top:5px}
+
+html,body{overflow-x:hidden}
+.modal{max-height:100dvh!important;overflow:hidden!important}
+.modal .body{overflow:hidden!important}
+.pump-mobile{height:calc(100dvh - 112px);display:flex;flex-direction:column;overflow:hidden}
+.pump-head{flex:0 0 auto}
+.pump-grid{display:grid;grid-template-columns:1fr;gap:6px;flex:1;min-height:0}
+.pump-row{display:grid;grid-template-columns:38px 1fr 1fr;gap:5px;align-items:center;background:#fff;border:1px solid #dfe5ec;border-radius:10px;padding:6px}
+.pump-row.with-test{grid-template-columns:34px 1fr 1fr 1fr}
+.pump-label{font-weight:950;font-size:13px}
+.pump-field{min-width:0}
+.pump-field .cap{font-size:8px;color:#64748b;font-weight:900;text-transform:uppercase;white-space:nowrap}
+.pump-field .val{font-size:13px;font-weight:900;line-height:1.15}
+.pump-input{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;padding:7px 5px;font-size:14px;font-weight:900;background:#fff}
+.pump-total{display:flex;justify-content:space-between;align-items:center;background:#f8fafc;border:1px solid #dbe5ee;border-radius:11px;padding:8px 10px;flex:0 0 auto}
+.pump-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;flex:0 0 auto}
+.pump-actions .btn{min-height:38px;padding:8px}
+.pump-testing-strip{display:none;grid-template-columns:1fr auto;gap:6px;align-items:center;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:5px 8px;font-size:11px}
+.pump-testing-strip.show{display:grid}
+.pump-summary-screen{height:calc(100dvh - 112px);display:flex;flex-direction:column;overflow:hidden}
+.pump-summary-screen .finalfuel{padding:10px}
+.pump-summary-screen .finalnum{font-size:25px}
+@media(max-height:700px){
+  .pump-mobile{height:calc(100dvh - 100px)}
+  .pump-row{padding:4px}
+  .pump-input{padding:5px 4px}
+  .pump-field .cap{font-size:7px}
+  .pump-field .val{font-size:12px}
+  .pump-total{padding:6px 8px}
+  .pump-actions .btn{min-height:34px;padding:6px}
+}
 </style>
 </head>
 <body>
@@ -359,56 +390,119 @@ function handoverFuelTotals(fuel){
   return {meter,test,net};
 }
 
+
 function renderHandoverFuel(){
   const d=handoverDraft, fuel=d.fuel, ns=handoverNozzles(fuel);
-  const color=fuel==='Petrol'?'petrol':'diesel';
   const total=handoverFuelTotals(fuel);
-  open(`M${d.machine.replace('M-0','')} — ${fuel.toUpperCase()}`,`
-    <div class="row between">
-      <div><b>Machine ${d.machine}</b><div class="meta">${fuel} • ${ns.map(n=>n.split(' ')[0]).join(' • ')}</div></div>
-      <button class="btn ghost" onclick="handoverFuelSelect()">Change Fuel</button>
-    </div>
-    <div class="ok" style="margin-top:10px">Opening is system-filled. Enter only the <b>Closing Reading</b>. Testing is added inside the same nozzle card and never changes the meter reading.</div>
-
-    ${ns.map((n,i)=>{
-      const o=+d.readings[n]||0;
-      const c=d.closing[n];
-      const meter=Number.isFinite(c)?Math.max(0,c-o):null;
-      const tests=d.tests[n]||[];
-      const t=tests.reduce((a,x)=>a+(+x.qty||0),0);
-      const net=meter===null?null:Math.max(0,meter-t);
-      return `<div class="nozzlecard">
-        <div class="nozzlehead">
-          <b>${n.split(' ')[0]} — ${fuel}</b>
-          ${net!==null?`<b>${net.toFixed(2)} L net</b>`:''}
-        </div>
-        <div class="readrow">
-          <div class="readbox"><div class="cap">OPENING (AUTO)</div><div class="num">${o.toFixed(2)}</div></div>
+  const testingExists=ns.some(n=>(d.tests[n]||[]).length);
+  open(`Machine ${d.machine} — ${fuel.toUpperCase()}`,`
+    <div class="pump-mobile">
+      <div class="pump-head">
+        <div class="row between">
           <div>
-            <div class="cap" style="font-size:10px;color:#64748b;font-weight:800;margin-bottom:4px">CLOSING READING</div>
-            <input id="hc_${i}" class="input" type="number" min="${o}" step="0.01" value="${Number.isFinite(c)?c:''}" placeholder="Enter closing">
+            <b style="font-size:17px">${fuel==='Petrol'?'⛽':'🛢️'} ${fuel} Nozzles</b>
+            <div class="meta">Opening automatic • closing entered by staff</div>
           </div>
+          <button class="btn primary" style="padding:8px 10px" onclick="addHandoverTestingFromHeader()">＋ Testing</button>
         </div>
-        <button class="btn ${tests.length?'ghost':'primary'} full" style="margin-top:9px" onclick="saveHandoverClosing('${n}',${i},'${fuel}')">Save Closing</button>
-        <button class="btn ghost full" style="margin-top:7px" onclick="addHandoverTesting('${n}','${fuel}')">＋ Add Testing</button>
-        ${tests.length?tests.map((x,j)=>`<div class="testrow"><div class="row between"><b>Testing ${j+1}</b><b>${(+x.qty||0).toFixed(2)} L</b></div><div class="meta">${x.note||'No note'} <button class="btn ghost" style="float:right;padding:3px 7px" onclick="removeHandoverTesting('${n}',${j})">Delete</button></div></div>`).join(''):''}
-        ${meter!==null?`<div class="card" style="margin:9px 0 0;padding:9px;background:#f8fafc">
-          <div class="row between"><span>Meter Sale</span><b>${meter.toFixed(2)} L</b></div>
-          <div class="row between" style="margin-top:4px"><span>Testing</span><b>− ${t.toFixed(2)} L</b></div>
-          <div class="row between" style="margin-top:4px"><span><b>Net ${fuel} Sold</b></span><b>${net.toFixed(2)} L</b></div>
-        </div>`:''}
-      </div>`;
-    }).join('')}
+      </div>
 
-    <div class="fuelsummary ${color}">
-      <div class="row between"><b>${fuel.toUpperCase()} SUMMARY</b><b>${total.net.toFixed(2)} L NET SOLD</b></div>
-      <div class="row between" style="margin-top:7px"><span>Meter Sale</span><b>${total.meter.toFixed(2)} L</b></div>
-      <div class="row between" style="margin-top:4px"><span>Testing</span><b>${total.test.toFixed(2)} L</b></div>
-      <div class="row between" style="margin-top:4px"><span>Net ${fuel} Sold</span><b>${total.net.toFixed(2)} L</b></div>
-    </div>
+      <div class="pump-grid" style="margin-top:8px">
+        ${ns.map((n,i)=>{
+          const o=+d.readings[n]||0, c=d.closing[n];
+          const meter=Number.isFinite(c)?Math.max(0,c-o):null;
+          const tests=d.tests[n]||[];
+          const t=tests.reduce((x,z)=>x+(+z.qty||0),0);
+          const net=meter===null?null:Math.max(0,meter-t);
+          return `<div class="pump-row ${testingExists?'with-test':''}">
+            <div class="pump-label">${n.split(' ')[0]}</div>
+            <div class="pump-field"><div class="cap">Opening</div><div class="val">${o.toFixed(0)}</div></div>
+            <div class="pump-field">
+              <div class="cap">Closing</div>
+              <input class="pump-input" id="compact_close_${i}" type="number" min="${o}" step="0.01" value="${Number.isFinite(c)?c:''}" placeholder="Closing">
+            </div>
+            ${testingExists?`<div class="pump-field"><div class="cap">Testing</div><div class="val">${t?('− '+t.toFixed(2)):'—'}</div></div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
 
-    <button class="btn primary full" style="margin-top:12px" onclick="handoverSummary()">View Final Summary</button>
-    <button class="btn ghost full" style="margin-top:8px" onclick="handoverFuelSelect()">Back to Fuel Selection</button>`);
+      ${testingExists?`<div class="pump-testing-strip show"><span>Testing is deducted from accounting sale only.</span><b>${total.test.toFixed(2)} L</b></div>`:''}
+
+      <div class="pump-total">
+        <span><b>${fuel} Sold</b></span>
+        <b style="font-size:17px">${total.net.toFixed(2)} L</b>
+      </div>
+
+      <div class="pump-actions">
+        <button class="btn ghost" onclick="enableCompactEdit()">✏️ Edit</button>
+        <button class="btn primary" onclick="saveCompactFuel()">💾 Save</button>
+      </div>
+      <button class="btn ghost full" style="flex:0 0 auto;margin-top:6px" onclick="handoverFuelSelect()">Back</button>
+    </div>`);
+}
+
+function enableCompactEdit(){
+  toast('Edit mode active — change closing readings, then Save');
+}
+
+function saveCompactFuel(){
+  const d=handoverDraft, fuel=d.fuel, ns=handoverNozzles(fuel);
+  for(let i=0;i<ns.length;i++){
+    const n=ns[i], input=document.getElementById('compact_close_'+i);
+    const v=+input.value, o=+d.readings[n]||0;
+    if(!Number.isFinite(v)||v<o){toast('Enter a valid closing for '+n.split(' ')[0]);return}
+    d.closing[n]=v;
+  }
+  toast(fuel+' readings saved');
+  renderHandoverSavedFuel();
+}
+
+function renderHandoverSavedFuel(){
+  const d=handoverDraft, fuel=d.fuel, total=handoverFuelTotals(fuel);
+  open(`${fuel} — Saved`,`
+    <div class="pump-summary-screen">
+      <div class="ok"><b>Saved successfully.</b> You can still edit before final lock.</div>
+      <div class="finalfuel ${fuel==='Petrol'?'petrol':'diesel'}" style="margin-top:12px">
+        <div class="small">${fuel.toUpperCase()} SOLD</div>
+        <div class="finalnum">${total.net.toFixed(2)} L</div>
+      </div>
+      <div class="card" style="margin-top:10px">
+        ${handoverNozzles(fuel).map(n=>{
+          const o=+d.readings[n]||0,c=+d.closing[n]||0,m=Math.max(0,c-o),t=(d.tests[n]||[]).reduce((a,x)=>a+(+x.qty||0),0);
+          return `<div class="row between" style="margin-top:5px"><span>${n.split(' ')[0]}</span><b>${Math.max(0,m-t).toFixed(2)} L</b></div>`;
+        }).join('')}
+      </div>
+      <div style="flex:1"></div>
+      <div class="pump-actions">
+        <button class="btn ghost" onclick="renderHandoverFuel()">✏️ Edit</button>
+        <button class="btn primary" onclick="handoverSummary()">👁 View Summary</button>
+      </div>
+      <button class="btn ghost full" style="margin-top:7px" onclick="handoverFuelSelect()">Back</button>
+    </div>`);
+}
+
+function addHandoverTestingFromHeader(){
+  open(`Add Testing — ${handoverDraft.fuel}`,`
+    <div class="ok"><b>Select one nozzle.</b> Testing attaches to that exact nozzle.</div>
+    <label>Select Nozzle</label>
+    <select id="header_test_nozzle" class="input">
+      ${handoverNozzles(handoverDraft.fuel).map(n=>`<option value="${n}">${n.split(' ')[0]}</option>`).join('')}
+    </select>
+    <label>Testing Quantity (L)</label>
+    <input id="htq" class="input" type="number" min="0.01" step="0.01" placeholder="Enter quantity">
+    <label>Note (optional)</label>
+    <input id="htn" class="input">
+    <button class="btn primary full" style="margin-top:12px" onclick="saveHeaderTesting()">Add Testing</button>
+    <button class="btn ghost full" style="margin-top:8px" onclick="renderHandoverFuel()">Back</button>`);
+}
+
+function saveHeaderTesting(){
+  const noz=document.getElementById('header_test_nozzle').value;
+  const q=+document.getElementById('htq').value;
+  if(!Number.isFinite(q)||q<=0)return toast('Enter a valid testing quantity');
+  handoverDraft.tests[noz].push({qty:q,note:document.getElementById('htn').value||''});
+  toast('Testing added to '+noz.split(' ')[0]);
+  renderHandoverFuel();
 }
 
 function saveHandoverClosing(noz,index,fuel){
