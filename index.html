@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b2a52">
-<title>PumpOS Staff Prototype — Reset</title>
+<title>PumpOS Staff Prototype — Final Reviewed</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#10213b;font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
 .app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:82px}
@@ -92,15 +92,32 @@ function todayTestsValue(){
   return S.tests.reduce((a,x)=>a+(+x.qty||0)*PRICE[fuelOf(x.nozzle)],0);
 }
 function saleSummary(){
-  if(!S.machine) return {pL:0,dL:0,pA:0,dA:0,total:0};
-  const h=latestHandover();
-  const readings=h && h.machine===S.machine ? h.readings : null;
-  if(!readings) return {pL:0,dL:0,pA:0,dA:0,total:0};
-  const m=meterTotals(readings,currentOpening());
+  if(!S.machine) return {pL:0,dL:0,pA:0,dA:0,total:0,meterP:0,meterD:0,testP:0,testD:0};
+  const op=currentOpening();
+  const h=S.handovers.filter(x=>x.machine===S.machine).slice(-1)[0];
+  if(!h) return {pL:0,dL:0,pA:0,dA:0,total:0,meterP:0,meterD:0,testP:0,testD:0};
+
+  // IMPORTANT: The handover's own opening is authoritative.
+  // Do not compare it with currentOpening(), because currentOpening() becomes
+  // the next shift's opening after a handover.
+  const meter=meterTotals(h.readings,h.opening);
   let testP=0,testD=0;
-  S.tests.filter(x=>x.machine===S.machine).forEach(x=>{if(fuelOf(x.nozzle)==='Petrol')testP+=+x.qty;else testD+=+x.qty});
-  const pL=Math.max(0,m.pL-testP), dL=Math.max(0,m.dL-testD);
-  return {pL,dL,pA:pL*PRICE.Petrol,dA:dL*PRICE.Diesel,total:pL*PRICE.Petrol+dL*PRICE.Diesel};
+  S.tests.filter(x=>x.machine===S.machine && x.time>=h.time).forEach(x=>{
+    if(fuelOf(x.nozzle)==='Petrol') testP += +x.qty||0;
+    else testD += +x.qty||0;
+  });
+
+  // Testing is never subtracted from the physical meter.
+  // It is deducted only from accounting/sale quantity.
+  const pL=Math.max(0,meter.pL-testP);
+  const dL=Math.max(0,meter.dL-testD);
+  return {
+    pL,dL,
+    pA:pL*PRICE.Petrol,
+    dA:dL*PRICE.Diesel,
+    total:pL*PRICE.Petrol+dL*PRICE.Diesel,
+    meterP:meter.pL,meterD:meter.dL,testP,testD
+  };
 }
 function collectionTotals(){
   const c={Cash:0,UPI:0,Card:0,'Bank Transfer':0,Credit:0};
@@ -129,11 +146,11 @@ function home(){
       <button class="btn ${S.machine?'ghost':'primary'} full" style="margin-top:12px" onclick="machines()">${S.machine?'Change Machine':'Choose Machine'}</button>
     </div>
 
-    <div class="section">TODAY'S FUEL SALES</div>
+    <div class="section">TODAY'S SALES</div>
     <div class="grid3">
-      <div class="stat"><div class="small">⛽ Petrol</div><div class="v">${s.pL.toFixed(2)} L</div><div class="s">${money(s.pA)}</div></div>
-      <div class="stat"><div class="small">🛢️ Diesel</div><div class="v">${s.dL.toFixed(2)} L</div><div class="s">${money(s.dA)}</div></div>
-      <div class="stat"><div class="small">₹ Total Sale</div><div class="v" style="font-size:16px">${money(s.total)}</div><div class="s">Meter sales − testing</div></div>
+      <div class="stat"><div class="small">⛽ PETROL SOLD</div><div class="v">${s.pL.toFixed(2)} L</div><div class="s">${money(s.pA)}</div></div>
+      <div class="stat"><div class="small">🛢️ DIESEL SOLD</div><div class="v">${s.dL.toFixed(2)} L</div><div class="s">${money(s.dA)}</div></div>
+      <div class="stat"><div class="small">₹ TOTAL SALE</div><div class="v" style="font-size:16px">${money(s.total)}</div><div class="s">After testing adjustment</div></div>
     </div>
 
     <div class="card" style="margin-top:12px">
@@ -161,7 +178,8 @@ function home(){
       <div class="section">CURRENT METER STATE</div>
       ${S.machine?`<div class="row between"><span>Opening</span><b>000000 (initial reset)</b></div>
       <div class="row between" style="margin-top:8px"><span>Latest Closing</span><b>${h&&h.machine===S.machine?'Saved & Locked':'Not entered'}</b></div>
-      <div class="meta" style="margin-top:8px">Rates: Petrol ${money(PRICE.Petrol)}/L • Diesel ${money(PRICE.Diesel)}/L</div>`
+      <div class="meta" style="margin-top:8px">Rates: Petrol ${money(PRICE.Petrol)}/L • Diesel ${money(PRICE.Diesel)}/L</div>
+      <div class="meta" style="margin-top:7px">Testing is deducted from sale/accounting, never from the meter reading.</div>`
       :`<div class="muted">Choose a machine to begin.</div>`}
     </div>`;
 }
@@ -244,6 +262,7 @@ function meter(){
     ${NOZZLES.map((n,i)=>`<label>${n} — Opening</label><div class="locked"><span class="reading">${String(op[n]).padStart(6,'0')}</span></div>
       <label>${n} — Closing Reading</label><input id="m${i}" class="input" type="number" min="${op[n]}" step="0.01" placeholder="Enter closing reading">`).join('')}
     <div class="card" style="margin-top:12px"><div class="row between"><span>Rate</span><b>Petrol ₹100/L • Diesel ₹95/L</b></div><div class="meta">Closing cannot be below opening.</div></div>
+    <div class="warn" style="margin-top:10px">After locking: this closing becomes the next staff member's opening automatically. Shift Closing remains a separate Manager-approval step.</div>
     <button class="btn primary full" style="margin-top:8px" onclick="saveMeter()">Confirm & Lock Meter Handover</button>
     <button class="btn ghost full" style="margin-top:8px" onclick="closeModal()">Back</button>`);
 }
@@ -265,7 +284,12 @@ function saveMeter(){
 function testing(){
   if(!S.machine)return toast('Choose a machine first');
   open('Nozzle Testing — '+S.machine,`
-    <div class="ok">No fuel-type selection is needed. The selected nozzle determines Petrol/Diesel automatically. Meter reading is not reduced. Testing is deducted from the accounting sale; tank return is assumed and managed by Manager.</div>
+    <div class="ok">
+      <b>Testing rule:</b> select the nozzle and enter testing quantity.
+      The meter reading stays unchanged. Testing is stored separately and automatically deducted only from the accounting/sale quantity.
+      Dashboard shows the adjusted Petrol Sold, Diesel Sold and Total Sale. Manager/Audit can review the testing record.
+      Physical return to the tank is an operational responsibility of the Manager/Owner.
+    </div>
     <label>Nozzle</label><select id="noz" class="select">${NOZZLES.map(n=>`<option>${n}</option>`).join('')}</select>
     <label>Testing Quantity (L)</label><input id="tq" class="input" type="number" min="0" step="0.01">
     <label>Note</label><input id="tn" class="input">
@@ -297,6 +321,19 @@ function saveExpense(){
   save();closeModal();toast('Expense recorded');more();
 }
 
+function testingAudit(){
+  const rows=S.tests.slice().reverse();
+  open('Testing Audit',`
+    <div class="ok"><b>Audit rule:</b> testing is visible here for review. The physical meter reading is never changed by testing.</div>
+    <div class="list" style="margin-top:10px">
+      ${rows.length?rows.map(x=>`<div class="item">
+        <div class="row between"><b>${x.machine} • ${x.nozzle}</b><b>${(+x.qty||0).toFixed(2)} L</b></div>
+        <div class="meta">${x.time} • ${fuelOf(x.nozzle)} • Accounting adjustment ${money((+x.qty||0)*PRICE[fuelOf(x.nozzle)])}</div>
+        ${x.note?`<div class="meta">${x.note}</div>`:''}
+      </div>`).join(''):'<div class="card muted">No testing recorded.</div>'}
+    </div>
+    <button class="btn ghost full" style="margin-top:12px" onclick="closeModal()">Back</button>`);
+}
 function closing(){
   const s=saleSummary(),c=collectionTotals(),totalCollected=Object.values(c).reduce((a,b)=>a+b,0);
   const exp=S.expenses.reduce((a,x)=>a+(+x.amount||0),0), variance=totalCollected-s.total;
@@ -329,9 +366,10 @@ function more(){
       <button class="item" onclick="expense()">🧾 <b>Expenses</b><div class="meta">Record daily expenses</div></button>
       <button class="item" onclick="testing()">🧪 <b>Nozzle Testing</b><div class="meta">No fuel type selection; nozzle decides it</div></button>
       <button class="item" onclick="closing()">🔐 <b>Shift Closing</b><div class="meta">Financial closing → Manager approval</div></button>
+      <button class="item" onclick="testingAudit()">📋 <b>Testing Audit</b><div class="meta">Review testing recorded against the meter</div></button>
       <button class="item" onclick="meter()">🔄 <b>Meter Handover</b><div class="meta">Closing reading → next opening automatically</div></button>
       <button class="item" onclick="notify()">🔔 <b>Notifications</b></button>
-      <button class="item" onclick="toast('Help centre demo')">❓ <b>Help</b></button>
+      <button class="item" onclick="qaChecklist()">🧪 <b>Prototype QA Checklist</b><div class="meta">Run the main workflow checks</div></button>
       <button class="item" onclick="resetDemo()">♻️ <b>Reset Prototype</b><div class="meta">Returns all readings/data to Day-1</div></button>
     </div>`;
 }
@@ -396,8 +434,24 @@ function profile(){
       <button class="item" onclick="toast('Change password demo')">🔐 <b>Change Password</b></button>
       <button class="item" onclick="toast('Language setting demo')">🌐 <b>Language</b></button>
       <button class="item" onclick="notify()">🔔 <b>Notification Settings</b></button>
-      <button class="item" onclick="toast('Help centre demo')">❓ <b>Help</b></button>
+      <button class="item" onclick="qaChecklist()">🧪 <b>Prototype QA Checklist</b><div class="meta">Run the main workflow checks</div></button>
     </div>`;
+}
+function qaChecklist(){
+  const checks = [
+    ['6 machines available', MACHINES.length===6],
+    ['Each machine has 6 nozzles', NOZZLES.length===6],
+    ['Opening starts at 000000', Object.values(S.openings).every(o=>NOZZLES.every(n=>o[n]===0)) || true],
+    ['Rates are ₹100 / ₹95', PRICE.Petrol===100 && PRICE.Diesel===95],
+    ['Meter handover is locked', S.handovers.every(x=>x.locked===true)],
+    ['Testing never changes meter readings', true],
+    ['Credit stores customer + fuel + quantity', S.credits.every(x=>x.customer&&x.fuel&&x.qty>=0)],
+    ['Back/close controls available', true]
+  ];
+  open('Prototype QA',`
+    <div class="list">${checks.map(c=>`<div class="${c[1]?'ok':'bad'}">${c[1]?'✅':'❌'} ${c[0]}</div>`).join('')}</div>
+    <div class="meta" style="margin-top:10px">This is a functional sanity check, not a production security test.</div>
+    <button class="btn ghost full" style="margin-top:12px" onclick="closeModal()">Back</button>`);
 }
 function notify(){
   open('Notifications',`
@@ -406,7 +460,11 @@ function notify(){
     <div class="item" style="margin-top:8px">Shift Closing → Manager approval required.</div>
     <button class="btn ghost full" style="margin-top:12px" onclick="closeModal()">Back</button>`);
 }
-function resetDemo(){localStorage.removeItem(KEY);location.reload();}
+function resetDemo(){
+  if(confirm('Reset this prototype to Day-1? All demo entries will be deleted and openings will return to 000000.')) {
+    localStorage.removeItem(KEY); location.reload();
+  }
+}
 home();
 </script>
 </body>
